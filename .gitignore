@@ -1,0 +1,10 @@
+#config
+config.py
+
+#jupyter
+*.ipynb
+
+*__pycache__*
+.DS_Store
+
+demotest.py
