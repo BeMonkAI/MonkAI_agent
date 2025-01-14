@@ -1,4 +1,4 @@
-from core.monkai_agent_creator import MonkaiAgentCreator, TransferTriageAgentCreator
+from core.monkai_agent_creator import TransferTriageAgentCreator
 from core.types import Agent
 from core.security import validate
 import os
@@ -9,13 +9,16 @@ class CalculatorAgentCriator(TransferTriageAgentCreator):
     def __init__(self, user:str):
         self.user = user
         self.calculator_agent = Agent(name="Calculator Agent",
-           instructions="""You are an agent responsible for performing mathematical calculations.
+           instructions="""You are an agent responsible for performing mathematical calculations. 
+            If you cannot provide an answer, trigger the transfer_to_triage function to escalate the request to the triage agent.
+                            
             """,
             functions=[  
                         self.sum,
                         self.substract,
                         self.multiply,
-                        self.divide
+                        self.divide,
+                        self.transfer_to_triage
                       ])
 
    

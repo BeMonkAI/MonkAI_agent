@@ -1,4 +1,4 @@
-from core.monkai_agent_creator import MonkaiAgentCreator, TransferTriageAgentCreator
+from core.monkai_agent_creator import TransferTriageAgentCreator
 from core.types import Agent
 import core.security as security
 import os
@@ -9,9 +9,12 @@ class JornalistAgentCreator(TransferTriageAgentCreator):
     def __init__(self):
         super().__init__()
         self.__jornalist_agent = Agent(name="Jornalist Agent",
-           instructions=""" You are an agent in charge of summarizing the day's news read in specific newspapers.""",
+           instructions=""" You are an agent in charge of summarizing the day's news read in specific newspapers.
+                 If you cannot provide an answer, trigger the transfer_to_triage function to escalate the request to the triage agent.
+                 """,
             functions=[  
                         self.read_news,
+                        self.transfer_to_triage
                       ])
         
     def get_agent(self):
@@ -27,5 +30,8 @@ class JornalistAgentCreator(TransferTriageAgentCreator):
         """
         Read the news.
         """
-        news = requests.get("https://g1.globo.com/").text
-        return f"As noticias a resumir são: {news[:120000]}"
+        try:
+            news = requests.get("https://g1.globo.com/").text
+            return f"The news to summarize are: {news[:120000]}"
+        except requests.exceptions.ConnectionError as e:
+            return f"Failed to retrieve news: {str(e)}"

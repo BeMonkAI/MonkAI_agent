@@ -1,5 +1,5 @@
 
-from .monkai_agent_creator import MonkaiAgentCreator
+from .monkai_agent_creator import MonkaiAgentCreator, TransferTriageAgentCreator
 from .types import Agent
 
 class TriageAgentCreator(MonkaiAgentCreator):
@@ -15,7 +15,10 @@ class TriageAgentCreator(MonkaiAgentCreator):
     def __init__(self, agents_creator:list[MonkaiAgentCreator]):
        self.agents_creator = agents_creator
        self.__build_agent()
-
+       for creator in self.agents_creator:
+           if isinstance(creator, TransferTriageAgentCreator):
+               creator.triage_agent = self.triage_agent
+       
     def __create_transfer_function(self, agent_creator:MonkaiAgentCreator):
         """
         Creates a transfer function for the given agent creator.
@@ -30,7 +33,7 @@ class TriageAgentCreator(MonkaiAgentCreator):
             return agent_creator.get_agent()
         transfer_function.__name__ = f"transfer_to_{agent_creator.get_agent().name.replace(' ', '_')}"
         return transfer_function
-
+ 
     def __build_agent(self):
         """
         Builds the triage agent by aggregating instructions and functions from all agent creators.
@@ -52,12 +55,12 @@ class TriageAgentCreator(MonkaiAgentCreator):
         self.triage_agent = Agent(
             name="Triage Agent",
             instructions=f"""
-            Determine which agent is most suitable to handle the user's request and transfer the conversation to that agent.
-
-            Instructions:
-
+            Determine which agent is best suited to handle the user's request and transfer the conversation to that agent. 
+            Briefing:
+ 
                 {instructions}
-                
+            Guardrails:
+                - Do not respond to questions that are outside the established context.    
             """,
             functions=functions
         )

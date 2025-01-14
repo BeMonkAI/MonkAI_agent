@@ -1,11 +1,9 @@
-from core.monkai_agent_creator import MonkaiAgentCreator, TransferTriageAgentCreator
+from core.monkai_agent_creator import  TransferTriageAgentCreator
 from core.types import Agent
 import core.security as security
 import os
 
-#menssagens = [SystemMessage,SystemMessage,InstructionMessage1,InstructionMessage2, InstructionMessage3, .....]
-
-class PythonDeveloperAgentCreator(MonkaiAgentCreator):
+class PythonDeveloperAgentCreator(TransferTriageAgentCreator):
     def __init__(self):
         self.agent = Agent(
             name="Python Developer Agent",
@@ -17,11 +15,13 @@ class PythonDeveloperAgentCreator(MonkaiAgentCreator):
                 3. Check if there is an address provided by the user in the message. If no address is provided, use the current folder.
                 4. Create a .py file in the specified folder.
                 5. Define a class in the created file with the functionality that meets the conditions specified by the user.
+                6. If you cannot provide an answer, trigger the transfer_to_triage function to escalate the request to the triage agent.
             """,
             functions=[  
                         self.verify_address,    
                         self.create_python_file,
-                        self.write_code_in_file
+                        self.write_code_in_file,
+                        self.transfer_to_triage
                       ])
         
     def is_user_valid(self):

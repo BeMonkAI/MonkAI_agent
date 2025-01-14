@@ -369,7 +369,7 @@ class AgentManager:
             )
             history.extend(partial_response.messages)
             context_variables.update(partial_response.context_variables)
-            if partial_response.agent:
+            if partial_response.agent is not None:
                 active_agent = partial_response.agent
 
 

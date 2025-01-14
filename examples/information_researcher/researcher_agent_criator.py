@@ -1,4 +1,4 @@
-from core.monkai_agent_creator import MonkaiAgentCreator, TransferTriageAgentCreator
+from core.monkai_agent_creator import TransferTriageAgentCreator
 from core.types import Agent
 import core.security as security
 import os
@@ -11,9 +11,11 @@ class ResearcherAgentCriator(TransferTriageAgentCreator):
            instructions="""You are an agent responsible for searching the internet for information regarding a user's request and returning valid references. 
                            Answer the user's question correctly and send valid references. 
                            Always remember to check the references used one by one.
+                           If you cannot provide an answer, trigger the transfer_to_triage function to escalate the request to the triage agent.
                         """,
             functions=[  
                         self.check_reference,
+                        self.transfer_to_triage
                       ])
         
     def check_reference(self, reference:str):

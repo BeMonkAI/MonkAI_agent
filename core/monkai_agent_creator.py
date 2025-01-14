@@ -34,13 +34,13 @@ class TransferTriageAgentCreator(MonkaiAgentCreator):
 
     """
 
-    __triage_agent = None
+    triage_agent = None
     """
     The triage agent instance.
     
     """
 
-    @property
+   # @property.setter
     def set_triage_agent(self, triage_agent: Agent):
         """
         Sets the triage agent.
@@ -48,13 +48,13 @@ class TransferTriageAgentCreator(MonkaiAgentCreator):
         Args:
             triage_agent (Agent): The triage agent to be set.
         """
-        self.__triage_agent = triage_agent
+        self.triage_agent = triage_agent
 
-    def transfer_to_triagem(self):
+    def transfer_to_triage(self):
         """
         Transfers the conversation to the  triage agent.
 
         Args:
             agent (Agent): The agent to transfer the conversation to.
         """
-        return self.__triage_agent
+        return self.triage_agent
