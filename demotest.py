@@ -1,7 +1,7 @@
-from core.base import AgentManager
+from monkai_agent.base import AgentManager
 import asyncio
-from core.triage_agent_creator import TriageAgentCreator
-from core.repl import run_demo_loop
+from monkai_agent.triage_agent_creator import TriageAgentCreator
+from monkai_agent.repl import run_demo_loop
 import json
 from bson import ObjectId
 import config 

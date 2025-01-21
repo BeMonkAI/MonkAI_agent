@@ -44,7 +44,7 @@ pip install monkai_agent
 <h3 style="font-family: 'Courier New', monospace; color: green;">Main Components</h3>  
 
 <p style="text-align: justify;">
-The <code>core/</code> module concentrates on the main components responsible for the central logic of the system. It defines classes and fundamental structures for creating and managing agents and offering security mechanisms.
+The <code>monkai_agent/</code> module concentrates on the main components responsible for the central logic of the system. It defines classes and fundamental structures for creating and managing agents and offering security mechanisms.
 </p>
 
 <p style="text-align: justify;">
@@ -56,17 +56,17 @@ Security and Validation: A validation decorator protects sensitive functions, ve
 </p>
 
 <p style="text-align: justify;">
-The modules' imports and objects are directly related to offering a robust and secure core for the system, focusing on efficient management of agents and protection of its critical functionalities.
+The modules' imports and objects are directly related to offering a robust and secure monkai_agent for the system, focusing on efficient management of agents and protection of its critical functionalities.
 </p>
 
 <h3 style="font-family: 'Courier New', monospace; color: green;">Practical Module</h3> 
 
 <p style="text-align: justify;">
-The <code>examples/</code> module serves as a repository of practical cases that demonstrate how to use the central components of the system, especially the breeding agents defined in the core module. It presents specific implementations of breeding agents for different tasks, using the breeder agent class as a basis. It constitutes a bridge between the abstract logic of the <code>core</code> and the practical application, allowing users to explore the system's capabilities and adapt the breeding agents to their needs.
+The <code>examples/</code> module serves as a repository of practical cases that demonstrate how to use the central components of the system, especially the breeding agents defined in the monkai_agent module. It presents specific implementations of breeding agents for different tasks, using the breeder agent class as a basis. It constitutes a bridge between the abstract logic of the <code>monkai_agent</code> and the practical application, allowing users to explore the system's capabilities and adapt the breeding agents to their needs.
 </p>
 
 <p style="text-align: justify;">
-Application: The main purpose of this module is to illustrate the flexibility and extensibility of the system, providing practical cases and customization of agents for different scenarios. It guides developers, showing how to create and adapt specialized agents using the <code>core</code> structure efficiently, maximizing code reuse, and adding to the defined core architecture.
+Application: The main purpose of this module is to illustrate the flexibility and extensibility of the system, providing practical cases and customization of agents for different scenarios. It guides developers, showing how to create and adapt specialized agents using the <code>monkai_agent</code> structure efficiently, maximizing code reuse, and adding to the defined monkai_agent architecture.
 </p>
 
 <h3 style="font-family: 'Courier New', monospace; color: green;">Interaction Diagram</h3> 
