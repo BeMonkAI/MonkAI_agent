@@ -56,8 +56,48 @@ Security and Validation: A validation decorator protects sensitive functions, ve
 </p>
 
 <p style="text-align: justify;">
-The modules' imports and objects are directly related to offering a robust and secure monkai_agent for the system, focusing on efficient management of agents and protection of its critical functionalities.
+The modules' imports and objects are directly related to offering a robust and secure monkai_agent for the system, focusing on the efficient management of agents and protection of their critical functionalities.
 </p>
+
+<h3 style="font-family: 'Courier New', monospace; color: green;">System Logic Modules</h3> 
+
+<code>base</code>: Responsible for providing the core functionality and type definitions for the MonkAI agent. It sets up the necessary environment, including logging configuration, importing essential modules, and defining global variables and constants. In addition, it imports and uses utility functions and specific types necessary for the efficient operation of the agent.
+
+<code>monkai_agent_criator</code>: This module establishes the main structure for creating agent instances within the MonkAI framework. It provides an abstract class, 'MonkaiAgentCreator', a template for developing various types of agents, ensuring that all subclasses implement the essential methods for creating and describing agents. In addition, it includes a concrete class, 'TransferTriageAgentCreator', which extends 'MonkaiAgentCreator' and implements specific logic for creating and managing a triage agent.
+
+<code>repl</code>: This module is responsible for processing and printing streaming responses from an agent, formatting the output with colors for easy viewing on the terminal. The term REPL is widely recognized in the development community and reflects the classic Read-Eval-Print Loop pattern commonly used in interactive environments. This choice reinforces familiarity and facilitates understanding of its purpose within the framework.
+
+<code>security</code>: This module is one of the main features and differentiators of the framework, designed to offer robust security through validating access to functions. It differentiates itself by providing a validation decorator, an elegant and effective mechanism that automates the protection of sensitive functions, ensuring that only correctly validated users can access them.
+
+A crucial point is that security is not under the direct responsibility of the agents but instead managed centrally and independently. This approach ensures that protection is above the level of the agents, providing an additional layer of security and eliminating possible vulnerabilities arising from inconsistencies in the implementation of validations within the agents themselves.
+
+The <code>validate</code> decorator is the main functionality responsible for creating a wrapper around the protected function. It performs the user validity check before allowing the function to be executed. Responds with a clear "access denied" message if validation fails.
+
+Key Features:
+
+- Simple Integration: Decorators automate validations, eliminating manual checks.
+
+- Centralized Security: Single validation management reduces errors and ensures consistency.
+
+- Flexible Customization: Adapt access conditions to different scenarios or users.
+
+<code>triage_agent_creator</code>: This module is a standout feature of the MonkAI framework, setting it apart by enabling the seamless creation and management of triage agents. These agents ensure efficient user interaction by determining the most appropriate agent to handle each user's request.
+
+The <code>TriageAgentCreator</code> class, a key component of this module, extends the abstract <code>MonkaiAgentCreator</code> and incorporates advanced logic for triage management. Its functionality includes creating dynamic handoff functions, which allow conversations to be redirected to the right agent based on the context and user needs.
+
+Key Features:
+
+- Centralized Decision Making: Simplifies determining agent responsibilities, reducing complexity in multi-agent systems.
+
+- Improved User Experience: Ensures users are routed to the correct agent promptly, minimizing delays and miscommunication.
+
+- Customizable and Scalable: The triage logic is flexible and can adapt to various application scenarios, making it suitable for projects of any scale.
+
+This module exemplifies the innovation and practicality at the core of MonkAI, providing a robust solution for efficient agent orchestration.
+
+<code>types</code>: This module defines the data types and models the MonkAI agent uses. It includes class and type definitions representing the agent's functions, processable messages, instructions, and associated models. These definitions are crucial in ensuring data consistency and validation, facilitating maintenance and continuous scalability of the codebase.
+
+<code>util</code>: Responsible for providing utility functions that aid in the functioning of the MonkAI agent. These functions include printing debug messages with timestamps, merging dictionary fields, and handling chunked responses. These utilities are essential to the maintenance and efficient operation of the agent, providing supporting functionality that is reused in multiple parts of the code.
 
 <h3 style="font-family: 'Courier New', monospace; color: green;">Practical Module</h3> 
 
