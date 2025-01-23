@@ -1,3 +1,10 @@
+"""
+This module defines the data types and models used by the MonkAI agent. It includes class and type definitions that represent the agent's functions, processable messages, instructions, and associated models. 
+
+These definitions play a crucial role in ensuring data consistency and validation, facilitating maintenance and seamless scalability of the codebase. 
+
+"""
+
 from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion_message_tool_call import (
     ChatCompletionMessageToolCall,

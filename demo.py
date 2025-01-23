@@ -27,7 +27,7 @@ if __name__ == '__main__':
     agents_creators.append(JornalistAgentCreator())
     agents_creators.append(CalculatorAgentCriator("invalid_user"))
     client=AzureOpenAI(
-            api_key=config.OPENAI_APIdes_KEY_BRASILSOUTH,
+            api_key=config.OPENAI_API_KEY_BRASILSOUTH,
             api_version=config.GPT4o_OPENAI_API_VERSION_BRASILSOUTH,
             azure_endpoint=config.OPENAI_AZURE_ENDPOINT_BRASILSOUTH,
         )

@@ -1,3 +1,13 @@
+"""
+This module is responsible for providing utility functions that aid in the operation of the MonkAI agent. 
+
+These functions include printing debug messages with timestamps, merging dictionary fields, and handling chunked responses. 
+
+These utilities are essential for the maintenance and efficient operation of the agent, providing supporting functionality that is reused across multiple parts of the code.
+
+"""
+
+
 import inspect
 from datetime import datetime
 

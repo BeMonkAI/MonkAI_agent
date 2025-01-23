@@ -1,3 +1,16 @@
+"""
+This module is a standout feature of the MonkAI framework, setting it apart by enabling the seamless creation and management of triage agents. These agents play a pivotal role in ensuring efficient user interaction by determining the most appropriate agent to handle each user's request.
+
+The TriageAgentCreator class, a key component of this module, extends the abstract MonkaiAgentCreator and incorporates advanced logic for triage management. Its functionality includes the creation of dynamic transfer functions, which allow conversations to be redirected to the right agent based on the context and user needs.
+
+Key Features:
+- Centralized Decision-Making: Streamlines the process of determining agent responsibilities, reducing complexity in multi-agent systems.
+- Enhanced User Experience: Ensures users are directed to the correct agent promptly, minimizing delays and miscommunication.
+- Customizable and Scalable: The triage logic is flexible and can adapt to various application scenarios, making it suitable for projects of any scale.
+This module exemplifies the innovation and practicality at the core of MonkAI, delivering a robust solution for efficient agent orchestration.
+
+"""
+
 
 from .monkai_agent_creator import MonkaiAgentCreator, TransferTriageAgentCreator
 from .types import Agent

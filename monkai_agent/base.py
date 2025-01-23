@@ -1,28 +1,22 @@
-import os
-import asyncio
+"""
+This module is responsible for providing the core functionality and type definitions for the MonkAI agent. 
+
+It sets up the necessary environment, including logging configuration, importing essential modules, and defining constants and global variables. 
+
+In addition, it imports and uses utility functions and specific types that are essential for the efficient operation of the agent.
+"""
+
 import logging
-import re
-import secrets  # For secure token generation
-import hashlib
 from .types import Response
 from .monkai_agent_creator import MonkaiAgentCreator
-from .triage_agent_creator import TriageAgentCreator  # For hashing passwords
-
-# Assuming the following modules have been updated to support async operations
+from .triage_agent_creator import TriageAgentCreator 
 from .types import Response
-# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-import sys
-sys.path.append('/home/davi/Desktop/MonkAI_agent')
 import copy
 import json
 from collections import defaultdict
-from typing import List, Callable, Union
-import asyncio
-
-# Package/library imports
+from typing import List
 from openai import OpenAI
 
 __DOCUMENT_GUARDRAIL_TEXT__ = "RESPONDER SÓ USANDO A INFORMAÇÃO DOS DOCUMENTOS: "

@@ -1,3 +1,13 @@
+"""
+This module is responsible for processing and printing streaming responses from an agent, formatting the output with colors for easier viewing on the terminal. 
+
+The term "repl" is widely recognized in the development community and reflects the classic Read-Eval-Print Loop pattern commonly used in interactive environments. 
+
+This choice reinforces familiarity and facilitates understanding of its purpose within the framework.
+
+"""
+
+
 import json
 from .base import AgentManager
 
