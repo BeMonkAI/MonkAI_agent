@@ -95,7 +95,10 @@ async def run_demo_loop(manager:AgentManager,  context_variables={}, model="gpt-
 
     while True:
         user_input = input("\033[38;2;167;112;69mUser\033[0m: ")
-    
+        if user_input.lower() == "exit":
+            print("Exiting MonkAI Agent 🚀")
+            break
+        
         response = await manager.run(
             agent=agent,
             user_message=user_input,

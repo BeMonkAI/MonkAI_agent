@@ -11,8 +11,8 @@ from .types import Response
 from .monkai_agent_creator import MonkaiAgentCreator
 from .triage_agent_creator import TriageAgentCreator 
 from .types import Response
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+#logging.basicConfig(level=logging.INFO)
+#ogger = logging.getLogger(__name__)
 import copy
 import json
 from collections import defaultdict

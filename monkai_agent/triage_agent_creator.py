@@ -68,7 +68,9 @@ class TriageAgentCreator(MonkaiAgentCreator):
         self.triage_agent = Agent(
             name="Triage Agent",
             instructions=f"""
-            Determine which agent is best suited to handle the user's request and transfer the conversation to that agent. 
+            You are a triage agent who, given an initial conversation with the user, determines which agent is the most suitable to handle the user's request and transfers the conversation to that agent.
+            Do not share your reasoning process with the user! Do not make irrational assumptions on behalf of the user. Do not share the agent transfer process with the user. 
+            
             Briefing:
  
                 {instructions}
