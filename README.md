@@ -67,19 +67,19 @@ The modules' imports and objects are directly related to offering a robust and s
 
 <code>repl</code>: This module is responsible for processing and printing streaming responses from an agent, formatting the output with colors for easy viewing on the terminal. The term REPL is widely recognized in the development community and reflects the classic Read-Eval-Print Loop pattern commonly used in interactive environments. This choice reinforces familiarity and facilitates understanding of its purpose within the framework.
 
-<code>security</code>: This module is one of the main features and differentiators of the framework, designed to offer robust security through validating access to functions. It differentiates itself by providing a validation decorator, an elegant and effective mechanism that automates the protection of sensitive functions, ensuring that only correctly validated users can access them.
+<code>security</code>: This module is one of the main differentiators of the framework, designed to offer robust security through access validation. It stands out by providing a validation decorator, an efficient mechanism that automates protecting sensitive functions, ensuring access only to properly validated users.
 
-A crucial point is that security is not under the direct responsibility of the agents but instead managed centrally and independently. This approach ensures that protection is above the level of the agents, providing an additional layer of security and eliminating possible vulnerabilities arising from inconsistencies in the implementation of validations within the agents themselves.
+The 'validate' decorator creates a wrapper around the protected function, ensuring only authenticated users can access the agents' functions. The developer only needs to implement the specific validation logic. If the validation fails, the decorator blocks the function's execution and returns a clear "access denied" message.
 
-The <code>validate</code> decorator is the main functionality responsible for creating a wrapper around the protected function. It performs the user validity check before allowing the function to be executed. Responds with a clear "access denied" message if validation fails.
+Security is managed centrally and independently and is not the direct responsibility of the agents. This approach adds an extra layer of protection, ensuring that security is above the level of the agents and eliminating vulnerabilities caused by inconsistencies in the validations implemented individually.
 
 Key Features:
 
-- Simple Integration: Decorators automate validations, eliminating manual checks.
+- Simple Integration: Decorators automate validations, eliminating the need for manual checks.
 
-- Centralized Security: Single validation management reduces errors and ensures consistency.
+- Centralized Security: Validation is managed from a single point, reducing errors and ensuring consistency across the system.
 
-- Flexible Customization: Adapt access conditions to different scenarios or users.
+- Flexible Customization: Access conditions can be adapted to different scenarios or user profiles.
 
 <code>triage_agent_creator</code>: This module is a standout feature of the MonkAI framework, setting it apart by enabling the seamless creation and management of triage agents. These agents ensure efficient user interaction by determining the most appropriate agent to handle each user's request.
 
