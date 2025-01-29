@@ -20,7 +20,6 @@ setup(
     description='Monkai Agent Library for creating intelligent agents, flows quickly, easily, and customizable.',
     long_description=long_description,  # Add the content from README
     long_description_content_type="text/markdown",  # Specify Markdown or rst
-    description='Monkai Agent Library',
     author='Monkai Team',
     install_requires=install_requires
 )
