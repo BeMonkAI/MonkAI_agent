@@ -1,0 +1,10 @@
+LICENSE
+MANIFEST.in
+README.md
+requeriments.txt
+setup.py
+monkai_agent.egg-info/PKG-INFO
+monkai_agent.egg-info/SOURCES.txt
+monkai_agent.egg-info/dependency_links.txt
+monkai_agent.egg-info/requires.txt
+monkai_agent.egg-info/top_level.txt

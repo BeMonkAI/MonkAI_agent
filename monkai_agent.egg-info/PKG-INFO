@@ -1,0 +1,13 @@
+Metadata-Version: 2.2
+Name: monkai_agent
+Version: 0.0.3
+Summary: Monkai Agent Library
+Author: Monkai Team
+License-File: LICENSE
+Requires-Dist: langchain==0.2.12
+Requires-Dist: langchain-community==0.2.11
+Requires-Dist: langchain-openai==0.1.20
+Requires-Dist: pymongo==4.8.0
+Dynamic: author
+Dynamic: requires-dist
+Dynamic: summary

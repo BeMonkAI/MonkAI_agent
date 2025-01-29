@@ -1,0 +1,4 @@
+langchain==0.2.12
+langchain-community==0.2.11
+langchain-openai==0.1.20
+pymongo==4.8.0
