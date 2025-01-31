@@ -15,8 +15,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='monkai_agent',
-    packages=find_packages(include=['AgentManager','MonkaiAgentCreator','TransferTriageAgentCreator','TriageAgentCreator', 'Agent','Response','Result']),
-    version='0.0.4',
+    packages=find_packages(include=['monkai_agent', 'monkai_agent.*']),
+    version='0.0.7',
     description='Monkai Agent Library for creating intelligent agents, flows quickly, easily, and customizable.',
     long_description=long_description,  # Add the content from README
     long_description_content_type="text/markdown",  # Specify Markdown or rst
