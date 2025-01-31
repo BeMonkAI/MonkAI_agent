@@ -30,24 +30,53 @@ class CalculatorAgentCriator(TransferTriageAgentCreator):
             return False
         
     @validate(is_user_valid)
-    def sum(num1, num2):
-        """Sum two numbers."""
-        return num1+num2
+    def sum(self, num1, num2):
+        """Sum two numbers.
+        
+        Parameters:
+            num1 (obj): The first number.
+            num2 (str): The second number.
+
+        Returns:
+            float: The result of the sum.
+        """
+        return float(num1)+float(num2)
     
     @validate(is_user_valid)
-    def substract(num1, num2):
-        """Substract two numbers."""
-        return num1-num2
+    def substract(self, num1, num2):
+        """Substract two numbers.
+        
+        Parameters:
+            num1 (str): The first number.
+            num2 (str): The second number.
+
+        Returns:
+            float: The result of the substraction.
+        """
+        return float(num1)-float(num2)
     
-    @validate(is_user_valid)
-    def multiply(num1, num2):
-        """Multiply two numbers."""
-        return num1*num2
+    def multiply(self, num1, num2):
+        """Multiply two numbers.
+        
+        Parameters:
+            num1 (str): The first number.
+            num2 (str): The second number.
+
+        Returns:
+            float: The result of the multiplication.
+        """
+        return float(num1)*float(num2)
     
-    @validate(is_user_valid)
-    def divide(num1, num2):
-        """"Divide two numbers."""
-        return num1/num2
+    def divide(self, num1, num2):
+        """"Divide two numbers.     
+        
+        Parameters:
+            num1 (str): The first number.
+            num2 (str): The second number.
+
+        Returns:
+            float: The result of the division."""
+        return float(num1)/float(num2)
     
     def get_agent(self):
         """

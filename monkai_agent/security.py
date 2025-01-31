@@ -45,7 +45,7 @@ def validate(validation_func):
                 return func(authority, *args, **kwargs)
             else:
                 logging.warning("User is not validated for this functionality. Do not perform the action.")
-                return "User is not validated for this functionality. Do not perform the action."
+                return "User is not validated for this functionality. Do not perform the action and notify the user thet it can not perform the action"
         
         return wrapper_validate
     return decorator_validate
