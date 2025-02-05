@@ -34,6 +34,13 @@ class MonkaiAgentCreator(ABC):
         """
         pass
 
+    @property
+    def agent_name(self) -> str:
+        agent = self.get_agent()
+        if agent is None:
+            return None
+        return agent.name
+
 
 class TransferTriageAgentCreator(MonkaiAgentCreator):
     """
