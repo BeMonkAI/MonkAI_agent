@@ -402,11 +402,7 @@ class AgentManager:
             Response: The response from the agent after processing the user message.
         """
         # Append user's message
-        messages=[]
-        if user_history:
-            for message in user_history:
-                if message['content']:
-                    messages.append(message)        
+        messages=user_history if user_history is not  None else []
         messages.append({"role": "user", "content": user_message})
 
         #Determined the agent to use
