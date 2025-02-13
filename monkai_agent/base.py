@@ -44,9 +44,17 @@ class AgentManager:
 
     """
 
-    def __init__(self, client, agents_creators: list[MonkaiAgentCreator], context_variables=None, stream=False, debug=False):    
+    def __init__(self, client, agents_creators: list[MonkaiAgentCreator], context_variables=None, current_agent = None, stream=False, debug=False):    
         """
         Initializes the AgentManager with the provided client, agent creators, and optional parameters.
+
+        Args:
+            client (OpenAI): The client instance to use for the agent.
+            agents_creators (list[MonkaiAgentCreator]): A list of agent creators to initialize the triage agent.
+            context_variables (dict, optional): Context variables for the agent. Defaults to None.
+            current_agent (Agent, optional): The current agent instance. Defaults to None.
+            stream (bool, optional): Flag to enable streaming response. Defaults to False.
+            debug (bool, optional): Flag to enable debugging. Defaults to False.
         """
         
         self.client = OpenAI() if not client else client
@@ -73,7 +81,7 @@ class AgentManager:
         """
         Flag to enable debugging.
         """
-        self.agent = self.triage_agent_criator.get_agent()
+        self.agent = self.triage_agent_criator.get_agent() if current_agent == None else current_agent
         """
         The current agent instance.
         """
