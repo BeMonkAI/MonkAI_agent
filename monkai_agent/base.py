@@ -11,6 +11,7 @@ from .types import Response
 from .monkai_agent_creator import MonkaiAgentCreator
 from .triage_agent_creator import TriageAgentCreator 
 from .types import Response
+from .memory import Memory
 #logging.basicConfig(level=logging.INFO)
 #ogger = logging.getLogger(__name__)
 import copy
@@ -390,7 +391,7 @@ class AgentManager:
         """
         return self.triage_agent_criator.get_agent()
 
-    async def run(self,user_message:str, user_history:list = None, agent=None, model_override="gpt-4o")->Response:
+    async def run(self,user_message:str, user_history:Memory = None, agent=None, model_override="gpt-4o")->Response:
 
         """
         Executes the main workflow:

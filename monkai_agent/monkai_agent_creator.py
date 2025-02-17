@@ -41,6 +41,13 @@ class MonkaiAgentCreator(ABC):
             return None
         return agent.name
 
+    @property
+    def predecessor_agent(self, agent):
+        p_agent = agent
+        if p_agent is None:
+            return None
+        return p_agent
+
 
 class TransferTriageAgentCreator(MonkaiAgentCreator):
     """
