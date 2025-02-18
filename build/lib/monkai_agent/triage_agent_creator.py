@@ -26,9 +26,12 @@ class TriageAgentCreator(MonkaiAgentCreator):
 
     """
     def __init__(self, agents_creator:list[MonkaiAgentCreator]):
+       super().__init__()
        self.agents_creator = agents_creator
        self.__build_agent()
        for creator in self.agents_creator:
+           if creator.predecessor_agent is None:
+                creator.predecessor_agent = self.triage_agent
            if isinstance(creator, TransferTriageAgentCreator):
                creator.triage_agent = self.triage_agent
        
