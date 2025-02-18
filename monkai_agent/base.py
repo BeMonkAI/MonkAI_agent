@@ -391,7 +391,7 @@ class AgentManager:
         """
         return self.triage_agent_criator.get_agent()
 
-    async def run(self,user_message:str, user_history:Memory = None, agent=None, model_override="gpt-4o", debug = False)->Response:
+    async def run(self,user_message:str, user_history:Memory = None, agent=None, model_override="gpt-4o")->Response:
 
         """
         Executes the main workflow:
