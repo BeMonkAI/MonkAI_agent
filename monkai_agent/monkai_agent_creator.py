@@ -63,6 +63,8 @@ class TransferTriageAgentCreator(MonkaiAgentCreator):
     The triage agent instance.
     
     """
+    def __init__(self):
+        super().__init__()
 
    # @property.setter
     def set_triage_agent(self, triage_agent: Agent):
