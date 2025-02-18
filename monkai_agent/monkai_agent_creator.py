@@ -17,6 +17,8 @@ class MonkaiAgentCreator(ABC):
     instance and to provide a brief description of the agent's capabilities.
 
     """
+    def __init__(self):
+        self._predecessor_agent = None
 
     @abstractmethod
     def get_agent(self)->Agent:
@@ -42,11 +44,12 @@ class MonkaiAgentCreator(ABC):
         return agent.name
 
     @property
-    def predecessor_agent(self, agent):
-        p_agent = agent
-        if p_agent is None:
-            return None
-        return p_agent
+    def predecessor_agent(self) -> Agent:
+        return self._predecessor_agent
+
+    @predecessor_agent.setter
+    def predecessor_agent(self, agent: Agent):
+        self._predecessor_agent = agent
 
 
 class TransferTriageAgentCreator(MonkaiAgentCreator):
