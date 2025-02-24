@@ -58,7 +58,11 @@ class Agent(BaseModel):
     Whether the agent can use external content.
 
     """
-
+    
+    """
+    The agent's predecessor.
+    """
+    predecessor_agent: Optional["Agent"] = None
 
 class Response(BaseModel):
     """
