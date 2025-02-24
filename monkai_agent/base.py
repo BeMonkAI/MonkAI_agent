@@ -93,6 +93,7 @@ class AgentManager:
         history: List,
         context_variables: dict,
         model_override: str,
+        temperature: float,
         stream: bool,
         debug: bool,
     ) -> ChatCompletionMessage:
@@ -129,6 +130,9 @@ class AgentManager:
             "tool_choice": agent.tool_choice,
             "stream": stream,
         }
+
+        if temperature:
+            create_params["temperature"] = temperature
 
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
@@ -323,6 +327,7 @@ class AgentManager:
         messages: List,
         context_variables: dict = {},
         model_override: str = None,
+        temperature: float = None,
         stream: bool = False,
         debug: bool = False,
         max_turns: int = float("inf"),
@@ -352,6 +357,7 @@ class AgentManager:
                 history=history,
                 context_variables=context_variables,
                 model_override=model_override,
+                temperature=temperature,
                 stream=stream,
                 debug=debug,
             )
@@ -391,7 +397,7 @@ class AgentManager:
         """
         return self.triage_agent_criator.get_agent()
 
-    async def run(self,user_message:str, user_history:Memory = None, agent=None, model_override="gpt-4o")->Response:
+    async def run(self,user_message:str, user_history:Memory = None, agent=None, model_override="gpt-4o", temperature=None)->Response:
 
         """
         Executes the main workflow:
@@ -415,6 +421,7 @@ class AgentManager:
             model_override=model_override,
             messages= messages,
             context_variables=self.context_variables,
+            temperature=temperature,
             stream=self.stream,
             debug=self.debug,
         )
