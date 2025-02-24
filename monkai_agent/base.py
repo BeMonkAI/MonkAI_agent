@@ -232,7 +232,7 @@ class AgentManager:
     def __run_and_stream(
         self,
         agent: Agent,
-        messages: List,
+        messages: Memory,
         context_variables: dict = {},
         model_override: str = None,
         debug: bool = False,
@@ -241,8 +241,11 @@ class AgentManager:
     ):
         active_agent = agent
         context_variables = copy.deepcopy(context_variables)
-        history = copy.deepcopy(messages)
-        init_len = len(messages)
+        #history = copy.deepcopy(messages)
+        #init_len = len(messages)
+        filtered_messages = messages.filter_memory_by_agent(agent)
+        history = copy.deepcopy(filtered_messages)
+        init_len = len(filtered_messages)
 
         while len(history) - init_len < max_turns:
 
@@ -324,7 +327,7 @@ class AgentManager:
     async def __run(
         self,
         agent: Agent,
-        messages: List,
+        messages: Memory,
         context_variables: dict = {},
         model_override: str = None,
         temperature: float = None,
@@ -345,10 +348,14 @@ class AgentManager:
             )
         active_agent = agent
         context_variables = copy.deepcopy(context_variables)
-        history = copy.deepcopy(messages)
-        init_len = len(messages)
+        #history = copy.deepcopy(messages)
+        #init_len = len(messages)
+        i = 0
 
-        while len(history) - init_len < max_turns and active_agent:
+        last_message = messages.get_last_message()
+        while i < max_turns and active_agent:
+            i += 1
+            history = messages.filter_memory_by_agent(active_agent)
             if active_agent.external_content:
                 history[-1]["content"] = __DOCUMENT_GUARDRAIL_TEXT__ +  history[-1]["content"]
             # get completion with current history, agentr
@@ -381,9 +388,9 @@ class AgentManager:
             if partial_response.agent is not None:
                 active_agent = partial_response.agent
 
-
+        last_message['agent'] = active_agent.name
         return Response(
-            messages=history[init_len:],
+            messages=history,
             agent=active_agent,
             context_variables=context_variables,
         )
@@ -410,7 +417,7 @@ class AgentManager:
         """
         # Append user's message
         messages=user_history if user_history is not  None else []
-        messages.append({"role": "user", "content": user_message})
+        messages.append({"role": "user", "content": user_message, "agent": None})
 
         #Determined the agent to use
         agent_to_use = agent if agent is not None else self.agent
