@@ -228,7 +228,7 @@ class AgentManager:
     def __run_and_stream(
         self,
         agent: Agent,
-        messages: Memory,
+        messages: Memory | List,
         context_variables: dict = {},
         model_override: str = None,
         debug: bool = False,
@@ -237,8 +237,7 @@ class AgentManager:
     ):
         active_agent = agent
         context_variables = copy.deepcopy(context_variables)
-        #history = copy.deepcopy(messages)
-        #init_len = len(messages)
+        
         filtered_messages = messages.filter_memory_by_agent(agent)
         history = copy.deepcopy(filtered_messages)
         init_len = len(filtered_messages)
@@ -323,7 +322,7 @@ class AgentManager:
     async def __run(
         self,
         agent: Agent,
-        messages: Memory,
+        messages: Memory | List,
         context_variables: dict = {},
         model_override: str = None,
         stream: bool = False,
@@ -343,14 +342,15 @@ class AgentManager:
             )
         active_agent = agent
         context_variables = copy.deepcopy(context_variables)
-        #history = copy.deepcopy(messages)
-        #init_len = len(messages)
         i = 0
 
         last_message = messages.get_last_message()
         while i < max_turns and active_agent:
             i += 1
-            history = messages.filter_memory_by_agent(active_agent)
+            if isinstance(messages, Memory):
+                history = messages.filter_memory_by_agent(active_agent)
+            else:
+                history = messages
             if active_agent.external_content:
                 history[-1]["content"] = __DOCUMENT_GUARDRAIL_TEXT__ +  history[-1]["content"]
             # get completion with current history, agentr
@@ -398,7 +398,7 @@ class AgentManager:
         """
         return self.triage_agent_criator.get_agent()
 
-    async def run(self,user_message:str, user_history:Memory = None, agent=None, model_override="gpt-4o")->Response:
+    async def run(self,user_message:str, user_history:Memory = None | List, agent=None, model_override="gpt-4o")->Response:
 
         """
         Executes the main workflow:
