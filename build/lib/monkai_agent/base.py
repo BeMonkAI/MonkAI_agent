@@ -258,7 +258,7 @@ class AgentManager:
         active_agent = agent
         context_variables = copy.deepcopy(context_variables)
         
-        filtered_messages = messages.filter_memory_by_agent(agent)
+        filtered_messages = messages.filter_memory(agent)
         history = copy.deepcopy(filtered_messages)
         init_len = len(filtered_messages)
 
@@ -385,7 +385,7 @@ class AgentManager:
         while i < max_turns and active_agent:
             i += 1
             if isinstance(messages, Memory):
-                history = copy.copy(messages.filter_memory_by_agent(active_agent))
+                history = copy.copy(messages.filter_memory(active_agent))
             else:
                 history = external_history
             if active_agent.external_content:
