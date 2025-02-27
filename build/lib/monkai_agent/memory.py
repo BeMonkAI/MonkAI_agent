@@ -62,6 +62,8 @@ class AgentMemory(Memory):
     def __filter_memory_by_agent(self, agent:Agent):
         result = []
         for msg in self.__messages:
+           if not 'agent' in msg:
+                msg['agent'] = None
            if msg['agent'] == agent.name or  msg['agent'] is None or  (agent.predecessor_agent is not None and msg['agent'] == agent.predecessor_agent.name):
                result.append(msg)
         return result
@@ -71,6 +73,9 @@ class AgentMemory(Memory):
 
     def append(self, message):
         self.__messages.append(message)
+
+    def extend(self, messages):
+        self.__messages.extend(messages)
 
     def get_memory_by_message_limit(self, limit):
         return self.__messages[-limit:]
