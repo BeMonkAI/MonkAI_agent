@@ -46,7 +46,7 @@ class Memory(ABC):
 
         """
         pass
-class Agent_Memory(Memory):
+class AgentMemory(Memory):
     def __init__(self, initial_memory=[]):
         self.__messages = initial_memory      
 
