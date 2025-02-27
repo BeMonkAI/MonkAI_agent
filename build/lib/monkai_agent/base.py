@@ -94,6 +94,10 @@ class AgentManager:
         context_variables: dict,
         model_override: str,
         temperature: float,
+        max_tokens: float,
+        top_p: float,
+        frequency_penalty: float,
+        presence_penalty: float,        
         stream: bool,
         debug: bool,
     ) -> ChatCompletionMessage:
@@ -133,7 +137,14 @@ class AgentManager:
 
         if temperature:
             create_params["temperature"] = temperature
-
+        if max_tokens: 
+            create_params["max_tokens"] = max_tokens
+        if top_p:
+            create_params["top_p"] = top_p
+        if frequency_penalty:
+            create_params["frequency_penalty"] = frequency_penalty
+        if presence_penalty:
+            create_params["presence_penalty"] = presence_penalty
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
 
@@ -238,6 +249,11 @@ class AgentManager:
         debug: bool = False,
         max_turns: int = float("inf"),
         execute_tools: bool = True,
+        temperature: float = None,
+        max_tokens: float = None,
+        top_p: float = None,
+        frequency_penalty: float = None,
+        presence_penalty: float = None,
     ):
         active_agent = agent
         context_variables = copy.deepcopy(context_variables)
@@ -270,6 +286,11 @@ class AgentManager:
                 model_override=model_override,
                 stream=True,
                 debug=debug,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                frequency_penalty=frequency_penalty,
+                presence_penalty=presence_penalty,
             )
 
             yield {"delim": "start"}
@@ -330,6 +351,10 @@ class AgentManager:
         context_variables: dict = {},
         model_override: str = None,
         temperature: float = None,
+        max_tokens: float = None,
+        top_p: float = None,
+        frequency_penalty: float = None,
+        presence_penalty: float = None,
         stream: bool = False,
         debug: bool = False,
         max_turns: int = float("inf"),
@@ -344,6 +369,11 @@ class AgentManager:
                 debug=debug,
                 max_turns=max_turns,
                 execute_tools=execute_tools,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                frequency_penalty=frequency_penalty,
+                presence_penalty=presence_penalty,
             )
         active_agent = agent
         context_variables = copy.deepcopy(context_variables)
@@ -367,6 +397,10 @@ class AgentManager:
                 context_variables=context_variables,
                 model_override=model_override,
                 temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                frequency_penalty=frequency_penalty,
+                presence_penalty=presence_penalty,
                 stream=stream,
                 debug=debug,
             )
@@ -407,7 +441,7 @@ class AgentManager:
         """
         return self.triage_agent_criator.get_agent()
 
-    async def run(self,user_message:str, user_history:Memory = None | List, agent=None, model_override="gpt-4o", temperature=None)->Response:
+    async def run(self,user_message:str, user_history:Memory = None | List, agent=None, model_override="gpt-4o", temperature=None, max_tokens=None, top_p=None, frequency_penalty=None, presence_penalty=None)->Response:
 
         """
         Executes the main workflow:
@@ -432,6 +466,10 @@ class AgentManager:
             messages= messages,
             context_variables=self.context_variables,
             temperature=temperature,
+            max_tokens=max_tokens,
+            top_p=top_p,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
             stream=self.stream,
             debug=self.debug,
         )
