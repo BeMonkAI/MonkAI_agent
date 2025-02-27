@@ -381,13 +381,13 @@ class AgentManager:
         if isinstance(messages, Memory):
             last_message = messages.get_last_message()
         response_history =[]
-        external_history = copy.deepcopy(messages)
+        #external_history = copy.deepcopy(messages)
         while i < max_turns and active_agent:
             i += 1
             if isinstance(messages, Memory):
-                history = copy.copy(messages.filter_memory(active_agent))
+                history = messages.filter_memory(active_agent)
             else:
-                history = external_history
+                history = messages
             if active_agent.external_content:
                 history[-1]["content"] = __DOCUMENT_GUARDRAIL_TEXT__ +  history[-1]["content"]
             # get completion with current history, agentr
@@ -407,9 +407,10 @@ class AgentManager:
             message = completion.choices[0].message
             debug_print(debug, "Received completion:", message)
             message.sender = active_agent.name
-            history.append(
-                json.loads(message.model_dump_json())
-            )  # to avoid OpenAI types (?)
+            #history.append(
+            #     json.loads(message.model_dump_json())
+            # )  # to avoid OpenAI types (?)
+            messages.append(json.loads(message.model_dump_json()))
             response_history.append(json.loads(message.model_dump_json()))
             if not message.tool_calls or not execute_tools:
                 debug_print(debug, "Ending turn.")
@@ -419,7 +420,9 @@ class AgentManager:
             partial_response = self.handle_tool_calls(
                 message.tool_calls, active_agent.functions, context_variables, debug
             )
-            history.extend(partial_response.messages)
+            #history.extend(partial_response.messages)
+            
+            messages.extend(partial_response.messages)
             response_history.extend(partial_response.messages)
             context_variables.update(partial_response.context_variables)
             if partial_response.agent is not None:
@@ -463,7 +466,7 @@ class AgentManager:
         response:Response = await self.__run(
             agent=agent_to_use,
             model_override=model_override,
-            messages= messages,
+            messages= copy.deepcopy(messages),
             context_variables=self.context_variables,
             temperature=temperature,
             max_tokens=max_tokens,
