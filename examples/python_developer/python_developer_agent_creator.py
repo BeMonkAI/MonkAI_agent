@@ -4,8 +4,9 @@ import monkai_agent.security as security
 import os
 
 class PythonDeveloperAgentCreator(TransferTriageAgentCreator):
-    def __init__(self):
+    def __init__(self, user):
         super().__init__()
+        self.user = user
         self.agent = Agent(
             name="Python Developer Agent",
            instructions="""You are a Python developer and you have to create Python code from text provided by the user.
@@ -26,8 +27,10 @@ class PythonDeveloperAgentCreator(TransferTriageAgentCreator):
                       ])
         
     def is_user_valid(self):
-        
-        return True
+        if self.user=="valid_user":
+            return True
+        else:
+            return False
     
     
     def verify_address(self, address):

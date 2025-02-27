@@ -9,7 +9,7 @@ This choice reinforces familiarity and facilitates understanding of its purpose 
 
 
 import json
-from .base import AgentManager
+from .base import AgentManager, Agent
 
 
 
@@ -77,7 +77,8 @@ def pretty_print_messages(messages) -> None:
             arg_str = json.dumps(json.loads(args)).replace(":", "=")
             print(f"\033[95m{name}\033[0m({arg_str[1:-1]})")
 
-async def run_demo_loop(manager:AgentManager,  context_variables={}, model="gpt-4o",stream=False, debug=False) -> None:
+
+async def __run_demo_loop(manager:AgentManager,  agent=None, context_variables={}, model="gpt-4o",stream=False, debug=False) -> None:
     """
     Runs the demo loop for interacting with the MonkAI Agent.
 
@@ -91,7 +92,6 @@ async def run_demo_loop(manager:AgentManager,  context_variables={}, model="gpt-
     print("Starting MonkAI Agent ✨")
 
     messages = []
-    agent = None
 
     while True:
         user_input = input("\033[38;2;167;112;69mUser\033[0m: ")
@@ -113,3 +113,21 @@ async def run_demo_loop(manager:AgentManager,  context_variables={}, model="gpt-
 
         messages.extend(response.messages)
         agent = response.agent
+
+async def run_simples_demo_loop(agent:Agent,  client, context_variables={}, model="gpt-4o",stream=False, debug=False) -> None:
+    manager = AgentManager(client=client, agents_creators=[])
+    await __run_demo_loop(manager, agent=agent, context_variables=context_variables, model=model, stream=stream, debug=debug)
+    
+
+async def run_demo_loop(manager:AgentManager,  context_variables={}, model="gpt-4o",stream=False, debug=False) -> None:
+    """
+    Runs the demo loop for interacting with the MonkAI Agent.
+
+    Args:
+        manager (AgentManager): The manager instance to run the agent.
+        context_variables (dict, optional): Context variables for the agent. Defaults to {}.
+        model (str, optional): The model to use for the agent. Defaults to "gpt-4o".
+        stream (bool, optional): Flag to enable streaming response. Defaults to False.
+        debug (bool, optional): Flag to enable debugging. Defaults to False.
+    """
+    await __run_demo_loop(manager, context_variables=context_variables, model=model, stream=stream, debug=debug)

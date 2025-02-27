@@ -348,14 +348,16 @@ class AgentManager:
         active_agent = agent
         context_variables = copy.deepcopy(context_variables)
         i = 0
-
-        last_message = messages.get_last_message()
+        if isinstance(messages, Memory):
+            last_message = messages.get_last_message()
+        response_history =[]
+        external_history = copy.deepcopy(messages)
         while i < max_turns and active_agent:
             i += 1
             if isinstance(messages, Memory):
-                history = messages.filter_memory_by_agent(active_agent)
+                history = copy.copy(messages.filter_memory_by_agent(active_agent))
             else:
-                history = messages
+                history = external_history
             if active_agent.external_content:
                 history[-1]["content"] = __DOCUMENT_GUARDRAIL_TEXT__ +  history[-1]["content"]
             # get completion with current history, agentr
@@ -374,7 +376,7 @@ class AgentManager:
             history.append(
                 json.loads(message.model_dump_json())
             )  # to avoid OpenAI types (?)
-
+            response_history.append(json.loads(message.model_dump_json()))
             if not message.tool_calls or not execute_tools:
                 debug_print(debug, "Ending turn.")
                 break
@@ -384,13 +386,14 @@ class AgentManager:
                 message.tool_calls, active_agent.functions, context_variables, debug
             )
             history.extend(partial_response.messages)
+            response_history.extend(partial_response.messages)
             context_variables.update(partial_response.context_variables)
             if partial_response.agent is not None:
                 active_agent = partial_response.agent
-
-        last_message['agent'] = active_agent.name
+        if isinstance(messages, Memory):
+            last_message['agent'] = active_agent.name
         return Response(
-            messages=history,
+            messages=response_history,
             agent=active_agent,
             context_variables=context_variables,
         )
