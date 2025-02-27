@@ -28,7 +28,7 @@ def validate(validation_func):
             Callable: A decorator that wraps the original function with validation logic.
         """
         @functools.wraps(func)
-        def wrapper_validate(authority, *args, **kwargs):
+        def wrapper_validate(*args, **kwargs):
             """
             Wrapper function that performs validation before executing the original function.
 
@@ -40,9 +40,10 @@ def validate(validation_func):
             Returns:
                 The result of the original function if validation passes, otherwise a warning message.
             """
-            if validation_func(authority):
+            authority = args[0] if args and hasattr(args[0], validation_func.__name__) else None
+            if (authority and  validation_func(authority)) or (not authority and validation_func()) :
                 logging.info("User is valid")
-                return func(authority, *args, **kwargs)
+                return func(*args, **kwargs) 
             else:
                 logging.warning("User is not validated for this functionality. Do not perform the action.")
                 return "User is not validated for this functionality. Do not perform the action and notify the user thet it can not perform the action"
