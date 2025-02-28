@@ -7,6 +7,7 @@ import requests
    
 class CalculatorAgentCriator(TransferTriageAgentCreator):
     def __init__(self, user:str):
+        super().__init__()
         self.user = user
         self.calculator_agent = Agent(name="Calculator Agent",
            instructions="""You are an agent responsible for performing mathematical calculations. 

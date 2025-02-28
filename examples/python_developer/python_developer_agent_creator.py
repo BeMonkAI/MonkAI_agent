@@ -5,6 +5,7 @@ import os
 
 class PythonDeveloperAgentCreator(TransferTriageAgentCreator):
     def __init__(self):
+        super().__init__()
         self.agent = Agent(
             name="Python Developer Agent",
            instructions="""You are a Python developer and you have to create Python code from text provided by the user.
