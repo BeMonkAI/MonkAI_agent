@@ -94,6 +94,10 @@ class AgentManager:
         context_variables: dict,
         model_override: str,
         temperature: float,
+        max_tokens: float,
+        top_p: float,
+        frequency_penalty: float,
+        presence_penalty: float,        
         stream: bool,
         debug: bool,
     ) -> ChatCompletionMessage:
@@ -133,7 +137,14 @@ class AgentManager:
 
         if temperature:
             create_params["temperature"] = temperature
-
+        if max_tokens: 
+            create_params["max_tokens"] = max_tokens
+        if top_p:
+            create_params["top_p"] = top_p
+        if frequency_penalty:
+            create_params["frequency_penalty"] = frequency_penalty
+        if presence_penalty:
+            create_params["presence_penalty"] = presence_penalty
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
 
@@ -232,17 +243,24 @@ class AgentManager:
     def __run_and_stream(
         self,
         agent: Agent,
-        messages: List,
+        messages: Memory | List,
         context_variables: dict = {},
         model_override: str = None,
         debug: bool = False,
         max_turns: int = float("inf"),
         execute_tools: bool = True,
+        temperature: float = None,
+        max_tokens: float = None,
+        top_p: float = None,
+        frequency_penalty: float = None,
+        presence_penalty: float = None,
     ):
         active_agent = agent
         context_variables = copy.deepcopy(context_variables)
-        history = copy.deepcopy(messages)
-        init_len = len(messages)
+        
+        filtered_messages = messages.filter_memory(agent)
+        history = copy.deepcopy(filtered_messages)
+        init_len = len(filtered_messages)
 
         while len(history) - init_len < max_turns:
 
@@ -268,6 +286,11 @@ class AgentManager:
                 model_override=model_override,
                 stream=True,
                 debug=debug,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                frequency_penalty=frequency_penalty,
+                presence_penalty=presence_penalty,
             )
 
             yield {"delim": "start"}
@@ -324,10 +347,14 @@ class AgentManager:
     async def __run(
         self,
         agent: Agent,
-        messages: List,
+        messages: Memory | List,
         context_variables: dict = {},
         model_override: str = None,
         temperature: float = None,
+        max_tokens: float = None,
+        top_p: float = None,
+        frequency_penalty: float = None,
+        presence_penalty: float = None,
         stream: bool = False,
         debug: bool = False,
         max_turns: int = float("inf"),
@@ -342,13 +369,25 @@ class AgentManager:
                 debug=debug,
                 max_turns=max_turns,
                 execute_tools=execute_tools,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                frequency_penalty=frequency_penalty,
+                presence_penalty=presence_penalty,
             )
         active_agent = agent
         context_variables = copy.deepcopy(context_variables)
-        history = copy.deepcopy(messages)
-        init_len = len(messages)
-
-        while len(history) - init_len < max_turns and active_agent:
+        i = 0
+        if isinstance(messages, Memory):
+            last_message = messages.get_last_message()
+        response_history =[]
+        #external_history = copy.deepcopy(messages)
+        while i < max_turns and active_agent:
+            i += 1
+            if isinstance(messages, Memory):
+                history = messages.filter_memory(active_agent)
+            else:
+                history = messages
             if active_agent.external_content:
                 history[-1]["content"] = __DOCUMENT_GUARDRAIL_TEXT__ +  history[-1]["content"]
             # get completion with current history, agentr
@@ -358,16 +397,21 @@ class AgentManager:
                 context_variables=context_variables,
                 model_override=model_override,
                 temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                frequency_penalty=frequency_penalty,
+                presence_penalty=presence_penalty,
                 stream=stream,
                 debug=debug,
             )
             message = completion.choices[0].message
             debug_print(debug, "Received completion:", message)
             message.sender = active_agent.name
-            history.append(
-                json.loads(message.model_dump_json())
-            )  # to avoid OpenAI types (?)
-
+            #history.append(
+            #     json.loads(message.model_dump_json())
+            # )  # to avoid OpenAI types (?)
+            messages.append(json.loads(message.model_dump_json()))
+            response_history.append(json.loads(message.model_dump_json()))
             if not message.tool_calls or not execute_tools:
                 debug_print(debug, "Ending turn.")
                 break
@@ -376,14 +420,17 @@ class AgentManager:
             partial_response = self.handle_tool_calls(
                 message.tool_calls, active_agent.functions, context_variables, debug
             )
-            history.extend(partial_response.messages)
+            #history.extend(partial_response.messages)
+            
+            messages.extend(partial_response.messages)
+            response_history.extend(partial_response.messages)
             context_variables.update(partial_response.context_variables)
             if partial_response.agent is not None:
                 active_agent = partial_response.agent
-
-
+        if isinstance(messages, Memory):
+            last_message['agent'] = active_agent.name
         return Response(
-            messages=history[init_len:],
+            messages=response_history,
             agent=active_agent,
             context_variables=context_variables,
         )
@@ -397,7 +444,7 @@ class AgentManager:
         """
         return self.triage_agent_criator.get_agent()
 
-    async def run(self,user_message:str, user_history:Memory = None, agent=None, model_override="gpt-4o", temperature=None)->Response:
+    async def run(self,user_message:str, user_history:Memory = None | List, agent=None, model_override="gpt-4o", temperature=None, max_tokens=None, top_p=None, frequency_penalty=None, presence_penalty=None)->Response:
 
         """
         Executes the main workflow:
@@ -410,7 +457,7 @@ class AgentManager:
         """
         # Append user's message
         messages=user_history if user_history is not  None else []
-        messages.append({"role": "user", "content": user_message})
+        messages.append({"role": "user", "content": user_message, "agent": None})
 
         #Determined the agent to use
         agent_to_use = agent if agent is not None else self.agent
@@ -419,9 +466,13 @@ class AgentManager:
         response:Response = await self.__run(
             agent=agent_to_use,
             model_override=model_override,
-            messages= messages,
+            messages= copy.deepcopy(messages),
             context_variables=self.context_variables,
             temperature=temperature,
+            max_tokens=max_tokens,
+            top_p=top_p,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
             stream=self.stream,
             debug=self.debug,
         )

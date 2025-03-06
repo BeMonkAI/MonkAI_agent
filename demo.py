@@ -16,13 +16,13 @@ if __name__ == '__main__':
 
     """
 
-    from examples.python_developer.python_developer_agent_creator import PythonDeveloperAgentCreator
+    from examples.triage.python_developer_agent_creator import PythonDeveloperAgentCreator
     from examples.information_researcher.researcher_agent_criator import ResearcherAgentCriator
-    from examples.jornalist.jornalist_agent_creator import JornalistAgentCreator
-    from examples.secure_calculator.calculator_agents_creator import CalculatorAgentCriator
+    from examples.triage.jornalist_agent_creator import JornalistAgentCreator
+    from examples.triage.calculator_agents_creator import CalculatorAgentCriator
     
     agents_creators = []
-    agents_creators.append(PythonDeveloperAgentCreator())
+    agents_creators.append(PythonDeveloperAgentCreator(user="valid_user"))
     agents_creators.append(ResearcherAgentCriator())
     agents_creators.append(JornalistAgentCreator())
     agents_creators.append(CalculatorAgentCriator("invalid_user"))
@@ -32,6 +32,6 @@ if __name__ == '__main__':
             azure_endpoint=config.OPENAI_AZURE_ENDPOINT_BRASILSOUTH,
         )
     agent_manager = AgentManager(client=client, agents_creators=agents_creators)
-    asyncio.run(run_demo_loop(agent_manager, model=config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH))
+    asyncio.run(run_demo_loop(agent_manager, model=config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH,stream=True, debug=True))
 
    
