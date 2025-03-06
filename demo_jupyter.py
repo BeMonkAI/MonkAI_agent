@@ -2,7 +2,7 @@ from monkai_agent.types import Agent
 import os
 from openai import AzureOpenAI
 from monkai_agent.security import validate
-from examples.python_developer.python_developer_agent_creator import PythonDeveloperAgentCreator
+from examples.triage.python_developer_agent_creator import PythonDeveloperAgentCreator
 from monkai_agent.base import AgentManager
 from monkai_agent.repl import run_demo_loop
 import config
