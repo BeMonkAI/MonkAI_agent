@@ -2,15 +2,6 @@ import time
 from .types  import Agent
 from abc import ABC, abstractmethod
 
-<<<<<<< HEAD
-class Memory:
-    def __init__(self, agent:MonkaiAgentCreator, messages=[]):
-        self.agent = agent
-        self.messages = []
-        for msg in messages:
-           if msg['agent'] == agent.agent_name or msg['agent'] == agent.predecessor_agent.agent_name:
-               self.messages.append(msg)
-=======
 class Memory(ABC):
     """
     Abstract class for creating memory instances.
@@ -85,15 +76,10 @@ class AgentMemory(Memory):
 
     def extend(self, messages):
         self.__messages.extend(messages)
->>>>>>> cb239f509302d2fa4d66c5d3f362a6b979b125d2
 
     def get_memory_by_message_limit(self, limit):
         return self.__messages[-limit:]
 
     def get_memory_by_time_limit(self, time_limit):
         current_time = time.time()
-<<<<<<< HEAD
-        return [msg for msg in self.messages if current_time - msg['inserted_at'] <= time_limit]
-=======
         return [msg for msg in self.__messages if current_time - msg['inserted_at'] <= time_limit]
->>>>>>> cb239f509302d2fa4d66c5d3f362a6b979b125d2
