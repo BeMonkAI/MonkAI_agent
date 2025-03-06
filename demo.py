@@ -16,10 +16,10 @@ if __name__ == '__main__':
 
     """
 
-    from examples.python_developer.python_developer_agent_creator import PythonDeveloperAgentCreator
+    from examples.triage.python_developer_agent_creator import PythonDeveloperAgentCreator
     from examples.information_researcher.researcher_agent_criator import ResearcherAgentCriator
-    from examples.jornalist.jornalist_agent_creator import JornalistAgentCreator
-    from examples.secure_calculator.calculator_agents_creator import CalculatorAgentCriator
+    from examples.triage.jornalist_agent_creator import JornalistAgentCreator
+    from examples.triage.calculator_agents_creator import CalculatorAgentCriator
     
     agents_creators = []
     agents_creators.append(PythonDeveloperAgentCreator(user="valid_user"))
