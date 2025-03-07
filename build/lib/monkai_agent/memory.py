@@ -47,10 +47,13 @@ class Memory(ABC):
         """
         pass
 class AgentMemory(Memory):
-    def __init__(self, initial_memory=[]):
-        self.__messages = initial_memory      
+    def __init__(self, initial_memory=[], limit=-1):
+        self.__messages = initial_memory   
+        self.__limit = limit   
 
     def get_messages(self):
+        if self.__limit > 0:
+            return self.__messages[-self.__limit:]
         return self.__messages
     
     def filter_memory(self, *args):
@@ -66,6 +69,8 @@ class AgentMemory(Memory):
                 msg['agent'] = None
            if msg['agent'] == agent.name or  msg['agent'] is None or  (agent.predecessor_agent is not None and msg['agent'] == agent.predecessor_agent.name):
                result.append(msg)
+        if self.__limit > 0:
+            return result[-self.__limit:]
         return result
     
     def get_last_message(self):
