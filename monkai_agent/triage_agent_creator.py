@@ -65,6 +65,8 @@ class TriageAgentCreator(MonkaiAgentCreator):
 
             functions.append(self.__create_transfer_function(agent_creator))
             agent = agent_creator.get_agent()
+            if not  isinstance(agent, Agent):
+                continue
             print(agent.name)
             print(agent_creator.get_agent_briefing())
             instructions += f"- **Transfer to `{agent.name}`** if the user's query is about: {agent_creator.get_agent_briefing()}\n\n"

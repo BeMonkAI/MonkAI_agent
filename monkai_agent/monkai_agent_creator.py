@@ -39,7 +39,7 @@ class MonkaiAgentCreator(ABC):
     @property
     def agent_name(self) -> str:
         agent = self.get_agent()
-        if agent is None:
+        if agent is None or not  isinstance(agent, Agent):
             return None
         return agent.name
 
