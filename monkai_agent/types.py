@@ -111,3 +111,71 @@ class Result(BaseModel):
     """
     A dictionary of context variables.
     """
+
+class PromptTest(BaseModel):
+    """
+    Represents a test case for a prompt.
+    """
+    name: str
+    """
+    Name of the test case
+    """
+    input_text: str
+    """
+    Input text to test the prompt with
+    """
+    expected_output: str
+    """
+    Expected output for the test case
+    """
+    actual_output: Optional[str] = None
+    """
+    Actual output from the test
+    """
+    success: Optional[bool] = None
+    """
+    Whether the test passed
+    """
+    metadata: dict = {}
+    """
+    Additional metadata about the test
+    """
+
+class PromptOptimizer(BaseModel):
+    """
+    Represents a prompt optimization configuration.
+    """
+    name: str = "PromptOptimizer"
+    """
+    Name of the optimizer
+    """
+    model: str = "gpt-4o"
+    """
+    The model used for optimization
+    """
+    instructions: str = """You are a prompt optimization expert. Your task is to analyze existing prompts and suggest improvements based on:
+    1. Clarity and specificity
+    2. Task alignment
+    3. Context preservation
+    4. Output format consistency
+    5. Edge case handling
+    
+    Provide detailed explanations for your suggestions and include example improvements."""
+    """
+    Instructions for the optimizer
+    """
+    optimization_criteria: List[str] = [
+        "clarity",
+        "specificity",
+        "task_alignment",
+        "context_preservation",
+        "output_format",
+        "edge_cases"
+    ]
+    """
+    Criteria for prompt optimization
+    """
+    test_cases: List[PromptTest] = []
+    """
+    Test cases to validate prompt improvements
+    """
