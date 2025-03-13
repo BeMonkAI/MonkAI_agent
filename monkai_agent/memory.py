@@ -70,8 +70,8 @@ class AgentMemory(Memory):
             if msg['agent'] == agent.name or  msg['agent'] is None or  (agent.predecessor_agent is not None and msg['agent'] == agent.predecessor_agent.name):
                result.append(msg)
             elif agent.sucessors_agent:
-                for agent in agent.sucessors_agent:
-                    if msg['agent'] == agent.name:
+                for sucessor in agent.sucessors_agent:
+                    if msg['agent'] == sucessor.name:
                         result.append(msg)
                         break
         if self.__limit > 0:
