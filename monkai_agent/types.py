@@ -64,6 +64,13 @@ class Agent(BaseModel):
     """
     predecessor_agent: Optional["Agent"] = None
 
+    """
+    The agent's predecessor.
+    """
+    sucessors_agent: Optional[List["Agent"]] = None
+    
+
+
 class Response(BaseModel):
     """
     Represents a response from an agent.

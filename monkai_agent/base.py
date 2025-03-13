@@ -444,7 +444,7 @@ class AgentManager:
         """
         return self.triage_agent_criator.get_agent()
 
-    async def run(self,user_message:str, user_history:Memory = None | List, agent=None, model_override="gpt-4o", temperature=None, max_tokens=None, top_p=None, frequency_penalty=None, presence_penalty=None)->Response:
+    async def run(self,user_message:str, user_history:Memory = None | List, agent=None, model_override="gpt-4o", temperature=None, max_tokens=None, top_p=None, frequency_penalty=None, presence_penalty=None, max_turn: int = float("inf"))->Response:
 
         """
         Executes the main workflow:
@@ -475,6 +475,7 @@ class AgentManager:
             presence_penalty=presence_penalty,
             stream=self.stream,
             debug=self.debug,
+            max_turns=max_turn,
         )
         assert(response is not None)
         return response
