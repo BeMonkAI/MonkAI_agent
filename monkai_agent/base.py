@@ -18,7 +18,8 @@ import copy
 import json
 from collections import defaultdict
 from typing import List
-from openai import OpenAI
+from openai import OpenAI, APIError, OpenAIError
+import time
 
 __DOCUMENT_GUARDRAIL_TEXT__ = "RESPONDER SÓ USANDO A INFORMAÇÃO DOS DOCUMENTOS: "
 
@@ -36,6 +37,13 @@ from .types import (
 
 __CTX_VARS_NAME__ = "context_variables"
 
+class ChatCompletionError(Exception):
+    """Custom exception for chat completion errors."""
+    def __init__(self, message, original_error=None):
+        self.message = message
+        self.original_error = original_error
+        super().__init__(self.message)
+
 class AgentManager:
     """
     Manages the interaction with AI agents.
@@ -45,7 +53,9 @@ class AgentManager:
 
     """
 
-    def __init__(self, client, agents_creators: list[MonkaiAgentCreator], context_variables=None, current_agent = None, stream=False, debug=False):    
+    def __init__(self, client, agents_creators: list[MonkaiAgentCreator], context_variables=None, 
+                 current_agent=None, stream=False, debug=False, max_retries: int = 3, 
+                 retry_delay: float = 1.0):    
         """
         Initializes the AgentManager with the provided client, agent creators, and optional parameters.
 
@@ -56,6 +66,8 @@ class AgentManager:
             current_agent (Agent, optional): The current agent instance. Defaults to None.
             stream (bool, optional): Flag to enable streaming response. Defaults to False.
             debug (bool, optional): Flag to enable debugging. Defaults to False.
+            max_retries (int, optional): Maximum number of retry attempts. Defaults to 3.
+            retry_delay (float, optional): Delay between retries in seconds. Defaults to 1.0.
         """
         
         self.client = OpenAI() if not client else client
@@ -86,6 +98,49 @@ class AgentManager:
         """
         The current agent instance.
         """
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
+
+    def _handle_openai_error(self, error: OpenAIError, attempt: int, debug: bool) -> None:
+        """
+        Handle OpenAI API errors with specific error messages and retry logic.
+
+        Args:
+            error: The OpenAI error that occurred
+            attempt: Current attempt number
+            debug: Flag to enable debugging
+
+        Raises:
+            ChatCompletionError: With specific error message based on error type
+        """
+        error_handlers = {
+            'invalid_request_error': "Invalid request: The request was malformed or missing parameters.",
+            'invalid_api_key': "Authentication failed: Invalid or expired API key.",
+            'authentication_error': "Authentication failed: Please check your credentials.",
+            'rate_limit_exceeded': "Rate limit exceeded: Too many requests.",
+            'quota_exceeded': "Quota exceeded: Account usage limit reached.",
+            'content_filter': "Content filtered: Response blocked by content moderation policy.",
+            'context_length_exceeded': "Context length exceeded: Request exceeds model's token limit.",
+            'model_not_found': "Model not found: The requested model does not exist.",
+            'unsupported_language': "Unsupported language: The model doesn't support the requested language.",
+            'bad_request': "Bad request: The request was invalid.",
+            'server_error': "Server error: A general server-side failure occurred.",
+            'api_error': "API error: An unexpected API failure occurred.",
+            'service_unavailable': "Service unavailable: The service is temporarily down."
+        }
+
+        error_code = getattr(error, 'code', 'api_error')
+        error_msg = error_handlers.get(error_code, f"Unknown error: {str(error)}")
+        
+        # Determine if error is retryable
+        non_retryable = {'invalid_request_error', 'invalid_api_key', 'model_not_found', 
+                        'unsupported_language', 'content_filter'}
+        
+        if error_code in non_retryable or attempt >= self.max_retries:
+            raise ChatCompletionError(error_msg, error)
+        
+        debug_print(debug, f"Attempt {attempt} failed with {error_code}. Retrying in {self.retry_delay} seconds...")
+        time.sleep(self.retry_delay)
 
     def get_chat_completion(
         self,
@@ -102,12 +157,26 @@ class AgentManager:
         debug: bool,
     ) -> ChatCompletionMessage:
         """
+        Generates a chat completion with retry logic and error handling.
 
-        Generates a chat completion based on the user message and conversation history.
+        Args:
+            agent (Agent): The agent instance to use for completion
+            history (List): Conversation history
+            context_variables (dict): Variables for context
+            model_override (str): Override default model if specified
+            temperature (float): Sampling temperature
+            max_tokens (float): Maximum tokens to generate
+            top_p (float): Nucleus sampling parameter
+            frequency_penalty (float): Frequency penalty parameter
+            presence_penalty (float): Presence penalty parameter
+            stream (bool): Enable streaming responses
+            debug (bool): Enable debug logging
 
         Returns:
-            Completion: The generated chat completion.
+            ChatCompletionMessage: The generated completion
 
+        Raises:
+            ChatCompletionError: If the request fails after all retries
         """
         
         context_variables = defaultdict(str, context_variables)
@@ -148,7 +217,13 @@ class AgentManager:
         if tools:
             create_params["parallel_tool_calls"] = agent.parallel_tool_calls
 
-        return self.client.chat.completions.create(**create_params)
+        attempts = 0
+        while True:
+            try:
+                return self.client.chat.completions.create(**create_params)
+            except OpenAIError as e:
+                attempts += 1
+                self._handle_openai_error(e, attempts, debug)
 
     def handle_function_result(self, result, debug) -> Result:
         """
@@ -375,65 +450,86 @@ class AgentManager:
                 frequency_penalty=frequency_penalty,
                 presence_penalty=presence_penalty,
             )
-        active_agent = agent
-        context_variables = copy.deepcopy(context_variables)
-        i = 0
-        if isinstance(messages, Memory):
-            last_message = messages.get_last_message()
-        response_history =[]
-        #external_history = copy.deepcopy(messages)
-        while i < max_turns and active_agent:
-            i += 1
+        try:
+            active_agent = agent
+            context_variables = copy.deepcopy(context_variables)
+            i = 0
             if isinstance(messages, Memory):
-                history = messages.filter_memory(active_agent)
-            else:
-                history = messages
-            if active_agent.external_content:
-                history[-1]["content"] = __DOCUMENT_GUARDRAIL_TEXT__ +  history[-1]["content"]
-            # get completion with current history, agentr
-            completion = self.get_chat_completion(
-                agent=active_agent,
-                history=history,
-                context_variables=context_variables,
-                model_override=model_override,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                top_p=top_p,
-                frequency_penalty=frequency_penalty,
-                presence_penalty=presence_penalty,
-                stream=stream,
-                debug=debug,
-            )
-            message = completion.choices[0].message
-            debug_print(debug, "Received completion:", message)
-            message.sender = active_agent.name
-            #history.append(
-            #     json.loads(message.model_dump_json())
-            # )  # to avoid OpenAI types (?)
-            messages.append(json.loads(message.model_dump_json()))
-            response_history.append(json.loads(message.model_dump_json()))
-            if not message.tool_calls or not execute_tools:
-                debug_print(debug, "Ending turn.")
-                break
+                last_message = messages.get_last_message()
+            response_history = []
 
-            # handle function calls, updating context_variables, and switching agents
-            partial_response = self.handle_tool_calls(
-                message.tool_calls, active_agent.functions, context_variables, debug
+            while i < max_turns and active_agent:
+                try:
+                    i += 1
+                    if isinstance(messages, Memory):
+                        history = messages.filter_memory(active_agent)
+                    else:
+                        history = messages
+                    if active_agent.external_content:
+                        history[-1]["content"] = __DOCUMENT_GUARDRAIL_TEXT__ + history[-1]["content"]
+
+                    completion = self.get_chat_completion(
+                        agent=active_agent,
+                        history=history,
+                        context_variables=context_variables,
+                        model_override=model_override,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        top_p=top_p,
+                        frequency_penalty=frequency_penalty,
+                        presence_penalty=presence_penalty,
+                        stream=stream,
+                        debug=debug,
+                    )
+
+                    message = completion.choices[0].message
+                    debug_print(debug, "Received completion:", message)
+                    message.sender = active_agent.name
+                    messages.append(json.loads(message.model_dump_json()))
+                    response_history.append(json.loads(message.model_dump_json()))
+                    if not message.tool_calls or not execute_tools:
+                        debug_print(debug, "Ending turn.")
+                        break
+
+                    partial_response = self.handle_tool_calls(
+                        message.tool_calls, active_agent.functions, context_variables, debug
+                    )
+                    messages.extend(partial_response.messages)
+                    response_history.extend(partial_response.messages)
+                    context_variables.update(partial_response.context_variables)
+                    if partial_response.agent is not None:
+                        active_agent = partial_response.agent
+
+                except ChatCompletionError as e:
+                    error_message = {
+                        "role": "assistant",
+                        "content": f"I apologize, but I encountered an error while processing your request: {e.message}",
+                        "sender": active_agent.name
+                    }
+                    messages.append(error_message)
+                    response_history.append(error_message)
+                    break
+
+            if isinstance(messages, Memory):
+                last_message['agent'] = active_agent.name
+
+            return Response(
+                messages=response_history,
+                agent=active_agent,
+                context_variables=context_variables,
             )
-            #history.extend(partial_response.messages)
-            
-            messages.extend(partial_response.messages)
-            response_history.extend(partial_response.messages)
-            context_variables.update(partial_response.context_variables)
-            if partial_response.agent is not None:
-                active_agent = partial_response.agent
-        if isinstance(messages, Memory):
-            last_message['agent'] = active_agent.name
-        return Response(
-            messages=response_history,
-            agent=active_agent,
-            context_variables=context_variables,
-        )
+
+        except Exception as e:
+            error_message = {
+                "role": "assistant",
+                "content": f"An unexpected error occurred: {str(e)}",
+                "sender": agent.name
+            }
+            return Response(
+                messages=[error_message],
+                agent=agent,
+                context_variables=context_variables,
+            )
 
     def get_triage_agent(self):
         """
