@@ -10,7 +10,7 @@ from openai.types.chat.chat_completion_message_tool_call import (
     ChatCompletionMessageToolCall,
     Function,
 )
-from typing import List, Callable, Union, Optional
+from typing import Any, List, Callable, Union, Optional
 
 # Third-party imports
 from pydantic import BaseModel
@@ -121,6 +121,10 @@ class PromptTest(BaseModel):
     Name of the test case
     """
     input_text: str
+    """
+    Input text to test the prompt with
+    """
+    memory: Optional[Any] = None
     """
     Input text to test the prompt with
     """
