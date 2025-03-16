@@ -12,7 +12,7 @@ from .types import (
 )
 from .memory import Memory, AgentMemory
 from .prompt_optimizer import PromptOptimizerManager
-from .monkai_agent_creator import MonkaiAgentCreator
+from .monkai_agent_creator import MonkaiAgentCreator, TransferTriageAgentCreator
 from .triage_agent_creator import TriageAgentCreator
 
 __all__ = [
@@ -26,5 +26,6 @@ __all__ = [
     'PromptOptimizer',
     'PromptOptimizerManager',
     'MonkaiAgentCreator',
-    'TriageAgentCreator'
+    'TriageAgentCreator',
+    'TransferTriageAgentCreator'
 ]
