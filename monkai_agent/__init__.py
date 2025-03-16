@@ -10,12 +10,15 @@ from .types import (
     PromptTest,
     PromptOptimizer
 )
+from .memory import Memory, AgentMemory
 from .prompt_optimizer import PromptOptimizerManager
 from .monkai_agent_creator import MonkaiAgentCreator
 from .triage_agent_creator import TriageAgentCreator
 
 __all__ = [
     'AgentManager',
+    'Memory',
+    'AgentMemory',
     'Agent',
     'Response',
     'Result',
