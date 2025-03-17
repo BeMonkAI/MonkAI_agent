@@ -41,8 +41,6 @@ def test_timeout():
         start_time = time.time()
         response = agent_creator_short.get_chat_completion(
             messages=long_messages,
-            model="gpt-4o",
-            temperature=0.7,
             max_tokens=2000  # Request a long response
         )
         print(f"Request completed in {time.time() - start_time:.2f} seconds (unexpected)")
@@ -72,8 +70,6 @@ def test_timeout():
         start_time = time.time()
         response = agent_creator_long.get_chat_completion(
             messages=short_messages,
-            model="gpt-4o",
-            temperature=0.7,
             max_tokens=50
         )
         elapsed = time.time() - start_time

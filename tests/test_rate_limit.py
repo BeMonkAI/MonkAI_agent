@@ -14,10 +14,9 @@ def test_rate_limiting():
     """Test the rate limiting functionality"""
     
     # Create agent with a low rate limit (10 requests per minute) for testing
-    model = "gpt-4o"
     agent_creator = MonkaiAgentCreator(
         base_prompt="You are a helpful AI assistant.",
-        model=model,
+        model="gpt-4o",
         provider="openai",
         rate_limit_rpm=10,  # 10 requests per minute = 1 request per 6 seconds
         api_key=os.getenv("OPENAI_API_KEY")
@@ -37,8 +36,6 @@ def test_rate_limiting():
         try:
             response = agent_creator.get_chat_completion(
                 messages=messages,
-                model=model,
-                temperature=0.7,
                 max_tokens=50
             )
             completion_times.append(time.time())
@@ -55,21 +52,28 @@ def test_rate_limiting():
         intervals.append(interval)
     
     print("\nTime intervals between requests:")
-    expected_interval = 60 / agent_creator.rate_limit_rpm
+    expected_interval = 60 / 10  # 10 requests per minute
     for i, interval in enumerate(intervals):
         print(f"Between requests {i+1} and {i+2}: {interval:.2f}s (Expected: {expected_interval:.2f}s)")
     
     # Verify if rate limiting is working
     min_interval = min(intervals) if intervals else 0
-    if min_interval >= (60 / agent_creator.rate_limit_rpm * 0.9):  # Allow 10% margin
+    if min_interval >= (expected_interval * 0.9):  # Allow 10% margin
         print("\nRate limiting test PASSED! ✅")
-        print(f"All intervals were at least {60 / agent_creator.rate_limit_rpm * 0.9:.2f} seconds")
+        print(f"All intervals were at least {expected_interval * 0.9:.2f} seconds")
     else:
         print("\nRate limiting test FAILED! ❌")
-        print(f"Some intervals were shorter than expected minimum of {60 / agent_creator.rate_limit_rpm * 0.9:.2f} seconds")
+        print(f"Some intervals were shorter than expected minimum of {expected_interval * 0.9:.2f} seconds")
 
 if __name__ == "__main__":
-    if not os.getenv("OPENAI_API_KEY"):
-        print("Please set OPENAI_API_KEY environment variable")
-    else:
-        test_rate_limiting() 
+    # if not os.getenv("OPENAI_API_KEY"):
+    #     print("Please set OPENAI_API_KEY environment variable")
+    # else:
+    #     test_rate_limiting() 
+    agent_creator = MonkaiAgentCreator(
+        base_prompt="You are a helpful AI assistant.",
+        model="gpt-4o",
+        provider="openai",
+        rate_limit_rpm=10,  # 10 requests per minute = 1 request per 6 seconds
+        api_key=os.getenv("OPENAI_API_KEY")
+    )
