@@ -89,10 +89,71 @@ Methods:
 ## Creator Classes
 
 ### MonkaiAgentCreator
-Creates and configures MonkAI agents.
+Base class for creating and configuring MonkAI agents. This class provides the foundation for creating different types of agents with customizable parameters and functionality.
+
+#### Constructor Parameters
+- `base_prompt` (str): The base prompt/instructions for the agent
+- `model` (str, optional): The model to use. Defaults to "gpt-3.5-turbo"
+- `provider` (str, optional): The LLM provider to use. Defaults to "openai"
+- `rate_limit_rpm` (int, optional): Rate limit in requests per minute
+- `max_execution_time` (int, optional): Maximum execution time in seconds. Defaults to 30
+- `context_window_size` (int, optional): Maximum context window size in tokens
+- `freeze_context_window_size` (bool, optional): Whether to freeze context window size. Defaults to True
+- `api_key` (str, optional): API key for the provider
+- `track_token_usage` (bool, optional): Whether to track token usage. Defaults to True
+
+#### Key Methods
+
+##### `get_chat_completion(messages: List[Dict[str, str]], max_tokens: Optional[int] = None, stream: bool = False) -> Any`
+Get a chat completion from the model.
+
+Parameters:
+- `messages`: List of conversation messages
+- `max_tokens`: Maximum number of tokens to generate
+- `stream`: Whether to stream the response
+
+##### `get_token_usage() -> Optional[TokenUsage]`
+Get the token usage information from the last request.
+
+#### Token Usage Tracking
+The class includes built-in token usage tracking through the `TokenUsage` class:
+- `input_tokens`: Number of tokens in the input
+- `max_tokens`: Maximum number of tokens to generate
+- `output_tokens`: Number of tokens in the generated output
+
+#### Rate Limiting
+Includes configurable rate limiting functionality:
+- Set maximum requests per minute
+- Automatic request throttling
+- Built-in timeout handling
+
+#### Context Window Management
+Provides sophisticated context window management:
+- Configurable context window size
+- Automatic message summarization when context limit is reached
+- Support for different model token limits
+
+### PromptTestingAgentCreator
+Specialized creator for testing and optimizing prompts.
+
+#### Constructor Parameters
+- `client` (OpenAI): The OpenAI client instance
+- `base_prompt` (str): The default system prompt
+- `additional_prompts` (Dict[str, str], optional): Additional prompts to test
+- `enable_ai_prompt_generation` (bool): Whether to enable AI prompt generation
+- `model` (str): The model to use for the agent. Defaults to "gpt-4"
 
 ### TriageAgentCreator
-Specialized creator for triage agents that manage agent selection.
+Specialized creator for triage agents that manage agent selection and routing.
+
+#### Constructor Parameters
+- `agents_creator` (list[MonkaiAgentCreator]): List of agent creators to manage
+
+#### Features
+- Centralized decision-making for agent selection
+- Dynamic transfer functions for agent routing
+- Automatic predecessor agent management
+- Support for customizable triage logic
 
 ## Usage Example
 
