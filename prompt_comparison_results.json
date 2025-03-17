@@ -1,0 +1,62 @@
+{
+  "Basic Greeting": {
+    "Basic Prompt": {
+      "input": "Hello, how are you?",
+      "expected": "I'm doing well, thank you! How can I help you today?",
+      "actual": "I'm doing well, thank you! How can I help you today?",
+      "success": true
+    },
+    "Detailed Prompt": {
+      "input": "Hello, how are you?",
+      "expected": "I'm doing well, thank you! How can I help you today?",
+      "actual": "I'm doing well, thank you! How can I help you today?",
+      "success": true
+    },
+    "Structured Prompt": {
+      "input": "Hello, how are you?",
+      "expected": "I'm doing well, thank you! How can I help you today?",
+      "actual": "I'm doing well, thank you! How can I help you today?",
+      "success": true
+    }
+  },
+  "Math Problem": {
+    "Basic Prompt": {
+      "input": "What is 2 + 2?",
+      "expected": "2 + 2 = 4",
+      "actual": "2 + 2 = 4",
+      "success": true
+    },
+    "Detailed Prompt": {
+      "input": "What is 2 + 2?",
+      "expected": "2 + 2 = 4",
+      "actual": "2 + 2 = 4",
+      "success": true
+    },
+    "Structured Prompt": {
+      "input": "What is 2 + 2?",
+      "expected": "2 + 2 = 4",
+      "actual": "2 + 2 = 4",
+      "success": true
+    }
+  },
+  "Complex Query": {
+    "Basic Prompt": {
+      "input": "Explain quantum computing in one sentence.",
+      "expected": "Quantum computing uses quantum-mechanical phenomena to perform calculations that would be impossible for classical computers.",
+      "actual": "Quantum computing is a type of computation that uses quantum bits (qubits) instead of the traditional binary bits, allowing it to perform multiple calculations simultaneously, thus solving complex computations more efficiently.",
+      "success": false
+    },
+    "Detailed Prompt": {
+      "input": "Explain quantum computing in one sentence.",
+      "expected": "Quantum computing uses quantum-mechanical phenomena to perform calculations that would be impossible for classical computers.",
+      "actual": "Quantum computing is a type of computation that uses quantum bits (qubits) instead of the traditional binary bits, allowing it to perform multiple calculations simultaneously, thus solving complex computations more efficiently.",
+      "success": false
+    },
+    "Structured Prompt": {
+      "input": "Explain quantum computing in one sentence.",
+      "expected": "Quantum computing uses quantum-mechanical phenomena to perform calculations that would be impossible for classical computers.",
+      "actual": "Quantum computing is a type of computation that uses quantum bits (qubits) instead of the traditional binary bits, allowing it to perform multiple calculations simultaneously, thus solving complex computations more efficiently.",
+      "success": false
+    }
+  }
+}

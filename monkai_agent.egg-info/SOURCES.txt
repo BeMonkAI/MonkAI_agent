@@ -5,8 +5,10 @@ requeriments.txt
 setup.py
 monkai_agent/__init__.py
 monkai_agent/base.py
+monkai_agent/llm_providers.py
 monkai_agent/memory.py
 monkai_agent/monkai_agent_creator.py
+monkai_agent/prompt_optimizer.py
 monkai_agent/repl.py
 monkai_agent/security.py
 monkai_agent/triage_agent_creator.py

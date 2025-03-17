@@ -1,0 +1,4 @@
+streamlit>=1.30.0
+openai>=1.0.0
+groq>=0.3.0
+monkai-agent @ file:///Users/arthurvaz/Desktop/Desktop%20-%20Arthur%E2%80%99s%20MacBook%20Pro/Monkai/MonkAI_agent 

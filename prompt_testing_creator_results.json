@@ -1,0 +1,10 @@
+{
+  "query": "Explain quantum computing in one sentence.",
+  "results": {
+    "Base Prompt": "Quantum computing is a type of computation that utilizes quantum bits (qubits) instead of traditional binary bits to perform complex calculations at exceptionally high speeds.",
+    "Technical Expert": "Quantum computing is a type of computation that utilizes quantum bits (qubits) instead of classical bits, allowing it to perform complex calculations at exponentially faster rates by leveraging quantum phenomena such as superposition and entanglement.",
+    "Scientific Writer": "Quantum computing is a novel area of computation that harnesses the principles of quantum mechanics to process vast amounts of data simultaneously using quantum bits (qubits), which unlike classical bits, can exist in multiple states at once, thereby increasing processing power exponentially.",
+    "Research Analyst": "Quantum computing is a type of computation that utilizes quantum bits (qubits) instead of binary bits to perform complex calculations at extremely high speeds, leveraging quantum phenomena such as superposition and entanglement.",
+    "AI-Enhanced Expert": "Quantum computing is a type of computation that utilizes quantum bits, or qubits, which can exist in multiple states at once, allowing for more complex and faster computations than traditional binary-based systems."
+  }
+}

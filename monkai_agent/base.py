@@ -12,6 +12,7 @@ from .monkai_agent_creator import MonkaiAgentCreator
 from .triage_agent_creator import TriageAgentCreator 
 from .types import Response
 from .memory import Memory
+from .agent import BaseAgent
 #logging.basicConfig(level=logging.INFO)
 #ogger = logging.getLogger(__name__)
 import copy
