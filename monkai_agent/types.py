@@ -58,7 +58,10 @@ class Agent(BaseModel):
     Whether the agent can use external content.
 
     """
-    
+    context_variables: dict = {}
+    """
+    Default context variables for the agent.
+    """
     """
     The agent's predecessor.
     """

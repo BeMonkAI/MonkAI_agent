@@ -178,8 +178,11 @@ class AgentManager:
         Raises:
             ChatCompletionError: If the request fails after all retries
         """
+        # Merge agent's context variables with passed context variables
+        # Agent's context variables are overridden by passed context variables
+        merged_context = {**agent.context_variables, **context_variables}
+        context_variables = defaultdict(str, merged_context)
         
-        context_variables = defaultdict(str, context_variables)
         instructions = (
             agent.instructions(context_variables)
             if callable(agent.instructions)
