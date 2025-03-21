@@ -55,7 +55,7 @@ class AgentManager:
 
     def __init__(self, client, agents_creators: list[MonkaiAgentCreator], context_variables=None, 
                  current_agent=None, stream=False, debug=False, max_retries: int = 3, 
-                 retry_delay: float = 1.0):    
+                 retry_delay: float = 1.0, temperature = None):    
         """
         Initializes the AgentManager with the provided client, agent creators, and optional parameters.
 
@@ -100,6 +100,7 @@ class AgentManager:
         """
         self.max_retries = max_retries
         self.retry_delay = retry_delay
+        self.temperature = temperature
 
     def _handle_openai_error(self, error: OpenAIError, attempt: int, debug: bool) -> None:
         """
@@ -560,14 +561,15 @@ class AgentManager:
 
         #Determined the agent to use
         agent_to_use = agent if agent is not None else self.agent
-
+        if not temperature:
+            temperature = self.temperature
         # Run the conversation asynchronously
         response:Response = await self.__run(
             agent=agent_to_use,
             model_override=model_override,
             messages= copy.deepcopy(messages),
             context_variables=self.context_variables,
-            temperature=temperature,
+            temperature=temperature ,
             max_tokens=max_tokens,
             top_p=top_p,
             frequency_penalty=frequency_penalty,
