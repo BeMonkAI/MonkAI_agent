@@ -5,6 +5,7 @@ This interface helps users understand and develop code for the MonkAI framework.
 
 import gradio as gr
 import os
+import config
 from openai import OpenAI
 from monkai_agent import AgentManager
 from monkai_agent.monkai_agent_creator import PromptTestingAgentCreator
@@ -12,7 +13,7 @@ import json
 from typing import List, Tuple
 
 # Initialize OpenAI client
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+client = OpenAI(api_key=config.OPENAI_API_KEY)
 
 # Define the framework developer prompt with MonkAI-specific knowledge
 framework_developer_prompt = """You are a specialized AI framework developer for the MonkAI framework.

@@ -17,8 +17,6 @@ from .triage_agent_creator import TriageAgentCreator
 
 __all__ = [
     'AgentManager',
-    'Memory',
-    'AgentMemory',
     'Agent',
     'Response',
     'Result',
@@ -28,4 +26,7 @@ __all__ = [
     'MonkaiAgentCreator',
     'TriageAgentCreator',
     'TransferTriageAgentCreator'
+    'TriageAgentCreator',
+    'Memory',
+    'AgentMemory'
 ]
