@@ -88,7 +88,7 @@ class AgentManager:
     def __init__(self, client, agents_creators: list[MonkaiAgentCreator], context_variables=None, 
                  current_agent=None, stream=False, debug=False, max_retries: int = 3, 
                  retry_delay: float = 1.0, base_prompt: str=None, model: str = "gpt-3.5-turbo", provider: str = "openai", 
-                    rate_limit_rpm: Optional[int] = None, max_execution_time: Optional[int] = 30,  context_window_size: Optional[int] = None,
+                    rate_limit_rpm: Optional[int] = None, max_execution_time: Optional[int] = None,  context_window_size: Optional[int] = None,
                     freeze_context_window_size: bool = True, api_key: Optional[str] = None, track_token_usage: bool = True):    
         """
         Initializes the AgentManager with the provided client, agent creators, and optional parameters.
