@@ -89,7 +89,7 @@ class AgentManager:
                  current_agent=None, stream=False, debug=False, max_retries: int = 3,  
                  retry_delay: float = 1.0, base_prompt: str=None, model: str = "gpt-3.5-turbo", provider: str = "openai", 
                     rate_limit_rpm: Optional[int] = None, max_execution_time: Optional[int] = None,  context_window_size: Optional[int] = None,
-                    freeze_context_window_size: bool = True, api_key: Optional[str] = None, track_token_usage: bool = True):    
+                    freeze_context_window_size: bool = True, api_key: Optional[str] = None, track_token_usage: bool = True, temperature = None):    
         """
         Initializes the AgentManager with the provided client, agent creators, and optional parameters.
 
@@ -134,6 +134,7 @@ class AgentManager:
         """
         self.max_retries = max_retries
         self.retry_delay = retry_delay
+        self.temperature = temperature
 
         self.base_prompt = base_prompt
         self.model = model
@@ -351,7 +352,11 @@ class AgentManager:
         Raises:
             ChatCompletionError: If the request fails after all retries
         """
-        context_variables = defaultdict(str, context_variables)
+        # Merge agent's context variables with passed context variables
+        # Agent's context variables are overridden by passed context variables
+        merged_context = {**agent.context_variables, **context_variables}
+        context_variables = defaultdict(str, merged_context)
+        
         instructions = (
             agent.instructions(context_variables)
             if callable(agent.instructions)
@@ -773,14 +778,15 @@ class AgentManager:
 
         #Determined the agent to use
         agent_to_use = agent if agent is not None else self.agent
-
+        if not temperature:
+            temperature = self.temperature
         # Run the conversation asynchronously
         response:Response = await self.__run(
             agent=agent_to_use,
             model_override=model_override,
             messages= copy.deepcopy(messages),
             context_variables=self.context_variables,
-            temperature=temperature,
+            temperature=temperature ,
             max_tokens=max_tokens,
             top_p=top_p,
             frequency_penalty=frequency_penalty,
