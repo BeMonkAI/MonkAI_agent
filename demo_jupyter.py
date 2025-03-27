@@ -15,5 +15,5 @@ client=AzureOpenAI(
             api_version=config.GPT4o_OPENAI_API_VERSION_BRASILSOUTH,
             azure_endpoint=config.OPENAI_AZURE_ENDPOINT_BRASILSOUTH,
         )
-agent_manager = AgentManager(client=client, agents_creators=agents_creators, api_key= config.OPENAI_API_KEY_BRASILSOUTH)
+agent_manager = AgentManager(client=client, agents_creators=agents_creators, api_key= config.OPENAI_API_KEY_BRASILSOUTH, model=config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH)
 asyncio.run(run_demo_loop(agent_manager, model=config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH))

@@ -31,7 +31,8 @@ import os
 from .rate_limiter import RateLimiter
 from typing import Callable
 import config
-
+from .prompt_optimizer import PromptOptimizerManager
+import asyncio
 # Default token limits for different models
 DEFAULT_TOKEN_LIMITS = {
     "gpt-4": 8192,
@@ -308,7 +309,7 @@ class AgentManager:
         
         # Determine if error is retryable
         non_retryable = {'invalid_request_error', 'invalid_api_key', 'model_not_found', 
-                        'unsupported_language', 'content_filter'}
+                        'unsupported_language'}
         
         if error_code in non_retryable or attempt >= self.max_retries:
             raise ChatCompletionError(error_msg, error)
@@ -423,6 +424,12 @@ class AgentManager:
                         break
                     except OpenAIError as e:
                         attempts += 1
+                        error_code = getattr(e, 'code', 'api_error')
+                        if error_code == "content_filter":
+                            promp_otimizer = PromptOptimizerManager(self.client, self.model)
+                            instructions = promp_otimizer.analyze_prompt(instructions,context_variables)
+                            messages = [{"role": "system", "content": instructions}] + history
+                            create_params["messages"] = messages
                         self._handle_openai_error(e, attempts, debug)
                         
                             

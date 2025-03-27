@@ -12,7 +12,7 @@ class PromptOptimizerManager:
     Manages the process of testing and optimizing prompts.
     """
     
-    def __init__(self, client: Optional[OpenAI] = None):
+    def __init__(self, client: Optional[OpenAI] = None, model: str = "gpt-4o") -> None:
         """
         Initialize the PromptOptimizerManager.
         
@@ -20,8 +20,9 @@ class PromptOptimizerManager:
             client (OpenAI, optional): OpenAI client instance. If None, creates a new one.
         """
         self.client = client or OpenAI()
+        self.model = model
         
-    async def analyze_prompt(self, prompt: str, context: Optional[Dict] = None) -> str:
+    def analyze_prompt(self, prompt: str, context: Optional[Dict] = None) -> str:
         """
         Analyze a prompt and suggest improvements.
         
@@ -33,6 +34,7 @@ class PromptOptimizerManager:
             str: Analysis and improvement suggestions
         """
         optimizer = PromptOptimizer()
+        optimizer.model = self.model
         messages = [
             {"role": "system", "content": optimizer.instructions},
             {"role": "user", "content": f"Please analyze this prompt and suggest improvements:\n\n{prompt}"}
@@ -41,7 +43,7 @@ class PromptOptimizerManager:
         if context:
             messages.append({"role": "user", "content": f"Additional context:\n{context}"})
             
-        response = await self.client.chat.completions.create(
+        response = self.client.chat.completions.create(
             model=optimizer.model,
             messages=messages,
             temperature=0.7
