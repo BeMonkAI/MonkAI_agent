@@ -1,8 +1,36 @@
-# MonkAI Framework Documentation
+# MonkAI Framework
 
-## Overview
+MonkAI is a powerful framework designed to facilitate the creation and management of AI agents. It provides tools for prompt testing, agent management, and more.
 
-MonkAI is a powerful framework for creating and managing AI agents with advanced features like rate limiting, token tracking, context window management, and timeout handling. This framework is designed to be flexible, efficient, and easy to use while providing robust control over AI interactions.
+## Features
+
+- **Prompt Testing**: Test and optimize prompts with ease.
+- **Agent Management**: Manage multiple AI agents efficiently.
+- **AI Prompt Generation**: Enable AI-enhanced prompt generation.
+
+## Installation
+
+To install MonkAI, use the following command:
+
+```bash
+pip install monkai
+```
+
+## Getting Started
+
+Here's a quick example to get you started with MonkAI:
+
+```python
+import asyncio
+from monkai_agent import AgentManager
+from monkai_agent.monkai_agent_creator import PromptTestingAgentCreator
+
+async def main():
+    # Your code here
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
 
 ## Quick Start
 
@@ -18,7 +46,7 @@ agent = MonkaiAgentCreator(
 
 # Send a message and get response
 messages = [{"role": "user", "content": "Hello!"}]
-response = agent.get_chat_completion(messages=messages)
+response = agent.get_chat_completion(messages=messages, max_tokens=50)
 print(response.choices[0].message.content)
 ```
 
@@ -38,7 +66,7 @@ token_count = agent.count_message_tokens(messages)
 print(f"This request will use {token_count} input tokens")
 
 # Get token usage after request
-response = agent.get_chat_completion(messages=messages)
+response = agent.get_chat_completion(messages=messages, max_tokens=50)
 token_usage = agent.get_token_usage()
 print(f"Input tokens: {token_usage.input_tokens}")
 print(f"Output tokens: {token_usage.output_tokens}")
@@ -72,12 +100,6 @@ agent = MonkaiAgentCreator(
 )
 ```
 
-## Installation
-
-```bash
-pip install monkai-agent
-```
-
 ## Configuration
 
 ### Environment Variables
@@ -94,11 +116,19 @@ pip install monkai-agent
   - mixtral-8x7b
   - claude-2
 
+## Running Tests
+
+To ensure the framework is functioning correctly, run the included test files:
+
+```bash
+cd tests
+python test_timeout.py
+python test_context_window.py
+python test_rate_limit.py
+```
+
+Each test will output results to the console, indicating whether the test passed or failed and providing details on the execution.
+
 ## Advanced Usage
 
-See the following sections for detailed documentation:
-- [Token Management](./token_management.md)
-- [Rate Limiting](./rate_limiting.md)
-- [Context Window](./context_window.md)
-- [Timeout Handling](./timeout.md)
-- [LLM Providers](./llm_providers.md) 
+For detailed documentation, refer to the `api_reference.md` file. 

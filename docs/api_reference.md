@@ -17,30 +17,23 @@ The main class responsible for managing AI agent interactions and lifecycle.
 - `debug` (bool, optional): Enable debug mode. Defaults to False.
 
 #### Key Methods
+- `initialize_agents()`: Initializes the agents using the provided creators.
+- `get_agent(name: str) -> Agent`: Retrieves an agent by name.
+- `set_current_agent(agent: Agent)`: Sets the currently active agent.
+- `run_agent(agent: Agent, user_input: str) -> str`: Runs the specified agent with the given user input.
 
-##### `run(user_message: str, user_history: Memory | List, agent=None, model_override="gpt-4o", temperature=None, max_tokens=None, top_p=None, frequency_penalty=None, presence_penalty=None, max_turn: int = float("inf")) -> Response`
-Main method to execute the conversation workflow.
+### Agent
+A class representing an AI agent with specific instructions and functions.
 
-Parameters:
-- `user_message`: The message from the user
-- `user_history`: Conversation history (Memory object or List)
-- `agent`: Specific agent to use (optional)
-- `model_override`: Override default model
-- `temperature`: Model temperature parameter
-- `max_tokens`: Maximum tokens for response
-- `top_p`: Top-p sampling parameter
-- `frequency_penalty`: Frequency penalty parameter
-- `presence_penalty`: Presence penalty parameter
-- `max_turn`: Maximum number of conversation turns
+#### Constructor Parameters
+- `name` (str): The name of the agent.
+- `instructions` (str): Instructions for the agent.
+- `functions` (list[callable]): List of functions the agent can call.
 
-##### `get_chat_completion(agent, history, context_variables, model_override, temperature, max_tokens, top_p, frequency_penalty, presence_penalty, stream, debug) -> ChatCompletionMessage`
-Generates chat completions based on the conversation history.
-
-##### `handle_tool_calls(tool_calls, functions, context_variables, debug) -> Response`
-Processes tool calls and executes corresponding functions.
-
-##### `handle_function_result(result, debug) -> Result`
-Handles the results of function calls and updates context.
+#### Key Methods
+- `get_name() -> str`: Returns the name of the agent.
+- `get_instructions() -> str`: Returns the instructions for the agent.
+- `get_functions() -> list[callable]`: Returns the list of functions the agent can call.
 
 ## Data Types
 
@@ -158,21 +151,17 @@ Specialized creator for triage agents that manage agent selection and routing.
 ## Usage Example
 
 ```python
-# Initialize the agent manager
-agent_manager = AgentManager(
-    client=OpenAI(),
-    agents_creators=[CustomAgentCreator()],
-    context_variables={"key": "value"},
-    stream=True
-)
+from monkai_agent import AgentManager, Agent
 
-# Run a conversation
-response = await agent_manager.run(
-    user_message="Hello!",
-    user_history=[],
-    temperature=0.7,
-    max_tokens=1000
-)
+# Create an agent
+agent = Agent(name="Example Agent", instructions="You are a helpful assistant.", functions=[])
+
+# Create an agent manager
+manager = AgentManager(agents_creators=[agent])
+
+# Run the agent
+response = manager.run_agent(agent, "Hello, how can you help me?")
+print(response)
 ```
 
 ## Best Practices
@@ -183,6 +172,27 @@ response = await agent_manager.run(
 4. Enable debug mode during development for better visibility into the system's operation
 5. Configure model parameters (temperature, max_tokens, etc.) based on your specific needs
 
+## Test Files
+
+### Test Files Overview
+The MonkAI framework includes several test files to ensure the functionality of key features:
+
+- **`test_timeout.py`**: Verifies the timeout functionality by testing long and short requests with different timeout settings.
+- **`test_context_window.py`**: Tests the context window management by checking message and token counts and ensuring valid responses after summarization.
+- **`test_rate_limit.py`**: Ensures the rate limiting feature is working by making multiple requests and measuring the time intervals between them.
+
+### Running Tests
+To run the tests, navigate to the `tests` directory and execute the test files using Python:
+
+```bash
+cd tests
+python test_timeout.py
+python test_context_window.py
+python test_rate_limit.py
+```
+
+Each test will output results to the console, indicating whether the test passed or failed and providing details on the execution.
+
 ## Error Handling
 
 The framework includes robust error handling for:
@@ -192,4 +202,77 @@ The framework includes robust error handling for:
 - Agent switching
 - Tool call execution
 
-This documentation provides a high-level overview of the MonkAI framework's core components and functionality. For specific implementation details, refer to the source code and inline documentation. 
+### Error Handling Examples
+- **Missing Tools**: If a tool is not found, the framework logs an error and continues execution without crashing.
+- **Invalid Results**: The framework attempts to cast results to strings or raises a `TypeError` if this fails, providing detailed error messages.
+- **Context Management**: Errors in context variable updates are logged, and the framework ensures that context remains consistent.
+
+## Additional Classes and Parameters
+
+### TokenUsage
+- **input_tokens**: int
+- **output_tokens**: int
+
+### MonkaiAgentCreator (Abstract Class)
+- **Methods**:
+  - `get_agent() -> Agent`
+  - `get_agent_briefing() -> str`
+- **Properties**:
+  - `agent_name`: str
+  - `predecessor_agent`: Agent
+
+### TransferTriageAgentCreator (Subclass of MonkaiAgentCreator)
+- **Methods**:
+  - `set_triage_agent(triage_agent: Agent)`
+  - `transfer_to_triage()`
+
+### PromptTestingAgentCreator (Subclass of MonkaiAgentCreator)
+- **Constructor Parameters**:
+  - `client`: OpenAI
+  - `base_prompt`: str
+  - `additional_prompts`: Optional[Dict[str, str]]
+  - `enable_ai_prompt_generation`: bool
+  - `model`: str
+
+### RateLimiter
+- **Constructor Parameters**:
+  - `max_calls`: int
+  - `time_window`: float
+- **Methods**:
+  - `acquire(block: bool = True) -> bool`
+  - `release()`
+
+### BaseAgent
+- **Properties**:
+  - `name`: str
+  - `instructions`: str
+  - `model`: str
+  - `functions`: List[AgentFunction]
+  - `tool_choice`: str
+  - `parallel_tool_calls`: bool
+
+### LLMProvider
+- **Constructor Parameters**:
+  - `api_key`: str
+- **Methods**:
+  - `get_client()`
+  - `get_chat_completion(messages: list, **kwargs)`
+
+### OpenAIProvider (Subclass of LLMProvider)
+- **Methods**:
+  - `get_client()`
+  - `get_chat_completion(messages: list, **kwargs)`
+
+### GroqProvider (Subclass of LLMProvider)
+- **Constructor Parameters**:
+  - `api_key`: str
+  - `model`: str
+- **Methods**:
+  - `get_client()`
+  - `get_chat_completion(messages: list, **kwargs)`
+
+This documentation provides a high-level overview of the MonkAI framework's core components and functionality. For specific implementation details, refer to the source code and inline documentation.
+
+## Additional Information
+
+For more details, please refer to the [README](README.md) file. 
