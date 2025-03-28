@@ -5,14 +5,19 @@ This interface helps users understand and develop code for the MonkAI framework.
 
 import gradio as gr
 import os
-from openai import OpenAI
+from openai import AzureOpenAI, OpenAI
 from monkai_agent import AgentManager
 from monkai_agent.monkai_agent_creator import PromptTestingAgentCreator
 import json
 from typing import List, Tuple
+import config
 
 # Initialize OpenAI client
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+client = client=AzureOpenAI(
+            api_key=config.OPENAI_API_KEY_BRASILSOUTH,
+            api_version=config.GPT4o_OPENAI_API_VERSION_BRASILSOUTH,
+            azure_endpoint=config.OPENAI_AZURE_ENDPOINT_BRASILSOUTH,
+        )
 
 # Define the framework developer prompt with MonkAI-specific knowledge
 framework_developer_prompt = """You are a specialized AI framework developer for the MonkAI framework.
@@ -56,7 +61,7 @@ agent_creator = PromptTestingAgentCreator(
 )
 
 # Create agent manager
-agent_manager = AgentManager(client=client, agents_creators=[agent_creator])
+agent_manager = AgentManager(client=client, agents_creators=[agent_creator], model = config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH)
 
 def format_response(result: str) -> str:
     """Format the response with proper markdown."""
