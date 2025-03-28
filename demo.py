@@ -17,13 +17,11 @@ if __name__ == '__main__':
     """
 
     from examples.triage.python_developer_agent_creator import PythonDeveloperAgentCreator
-    from examples.information_researcher.researcher_agent_criator import ResearcherAgentCriator
     from examples.triage.jornalist_agent_creator import JornalistAgentCreator
     from examples.triage.calculator_agents_creator import CalculatorAgentCriator
     
     agents_creators = []
     agents_creators.append(PythonDeveloperAgentCreator(user="valid_user"))
-    agents_creators.append(ResearcherAgentCriator())
     agents_creators.append(JornalistAgentCreator())
     agents_creators.append(CalculatorAgentCriator("invalid_user"))
     client=AzureOpenAI(
