@@ -88,9 +88,9 @@ class AgentManager:
 
     def __init__(self, client, agents_creators: list[MonkaiAgentCreator], context_variables=None, 
                  current_agent=None, stream=False, debug=False, max_retries: int = 3,  
-                 retry_delay: float = 1.0, base_prompt: str=None, model: str = "gpt-3.5-turbo", provider: str = "openai", 
-                    rate_limit_rpm: Optional[int] = None, max_execution_time: Optional[int] = None,  context_window_size: Optional[int] = None,
-                    freeze_context_window_size: bool = True, api_key: Optional[str] = None, track_token_usage: bool = True, temperature = None):    
+                 retry_delay: float = 1.0, model: str = "gpt-3.5-turbo", rate_limit_rpm: Optional[int] = None, 
+                 max_execution_time: Optional[int] = None,  context_window_size: Optional[int] = None,
+                 track_token_usage: bool = True, temperature = None):    
         """
         Initializes the AgentManager with the provided client, agent creators, and optional parameters.
 
@@ -136,14 +136,10 @@ class AgentManager:
         self.max_retries = max_retries
         self.retry_delay = retry_delay
         self.temperature = temperature
-
-        self.base_prompt = base_prompt
+        
         self.model = model
-        self.provider = provider
         self.max_execution_time = max_execution_time
         self.context_window_size = context_window_size
-        self.freeze_context_window_size = freeze_context_window_size
-        #self.api_key = api_key or os.getenv(f"{provider.upper()}_API_KEY")
         self.track_token_usage = track_token_usage
         self.last_token_usage = None
         
@@ -212,7 +208,7 @@ class AgentManager:
             ]
             
             try:
-                summary_response = self._client.chat.completions.create(
+                summary_response = self.client.chat.completions.create(
                     messages=summary_request,
                     model=self.model,
                     max_tokens=max_tokens // 4  # Use at most 1/4 of max tokens for summary
@@ -323,7 +319,6 @@ class AgentManager:
         history: List,
         context_variables: dict,
         model_override: str,
-        temperature: float,
         max_tokens: float,
         top_p: float,
         frequency_penalty: float,
@@ -339,7 +334,6 @@ class AgentManager:
             history (List): Conversation history
             context_variables (dict): Variables for context
             model_override (str): Override default model if specified
-            temperature (float): Sampling temperature
             max_tokens (float): Maximum tokens to generate
             top_p (float): Nucleus sampling parameter
             frequency_penalty (float): Frequency penalty parameter
@@ -365,7 +359,7 @@ class AgentManager:
         )
         messages = [{"role": "system", "content": instructions}] + history
         debug_print(debug, "Getting chat completion for...:", messages)
-        if self.freeze_context_window_size and self.context_window_size:
+        if self.context_window_size:
             # Get default token limit for model
             model_token_limit = DEFAULT_TOKEN_LIMITS.get(self.model, 4096)
             max_context_tokens = min(self.context_window_size, model_token_limit)
@@ -397,8 +391,8 @@ class AgentManager:
                 "tool_choice": agent.tool_choice,
                 "stream": stream,
             }
-            if temperature:
-                create_params["temperature"] = temperature
+            if self.temperature:
+                create_params["temperature"] = self.temperature
             if max_tokens: 
                 create_params["max_tokens"] = max_tokens
             if top_p:
@@ -413,7 +407,7 @@ class AgentManager:
             # Handle timeout
             if self.max_execution_time:
                 response = self._run_with_timeout(
-                    lambda: self._client.chat.completions.create(**create_params),
+                    lambda: self.client.chat.completions.create(**create_params),
                     self.max_execution_time
                 )
             else:
@@ -550,7 +544,6 @@ class AgentManager:
         debug: bool = False,
         max_turns: int = float("inf"),
         execute_tools: bool = True,
-        temperature: float = None,
         max_tokens: float = None,
         top_p: float = None,
         frequency_penalty: float = None,
@@ -587,7 +580,6 @@ class AgentManager:
                 model_override=model_override,
                 stream=True,
                 debug=debug,
-                temperature=temperature,
                 max_tokens=max_tokens,
                 top_p=top_p,
                 frequency_penalty=frequency_penalty,
@@ -651,7 +643,6 @@ class AgentManager:
         messages: Memory | List,
         context_variables: dict = {},
         model_override: str = None,
-        temperature: float = None,
         max_tokens: float = None,
         top_p: float = None,
         frequency_penalty: float = None,
@@ -670,7 +661,6 @@ class AgentManager:
                 debug=debug,
                 max_turns=max_turns,
                 execute_tools=execute_tools,
-                temperature=temperature,
                 max_tokens=max_tokens,
                 top_p=top_p,
                 frequency_penalty=frequency_penalty,
@@ -699,7 +689,6 @@ class AgentManager:
                         history=history,
                         context_variables=context_variables,
                         model_override=model_override,
-                        temperature=temperature,
                         max_tokens=max_tokens,
                         top_p=top_p,
                         frequency_penalty=frequency_penalty,
@@ -767,7 +756,7 @@ class AgentManager:
         return self.triage_agent_criator.get_agent()
 
     async def run(self,user_message:str, user_history:Memory = None | List, agent=None, model_override="gpt-4o", 
-                  temperature=None, max_tokens=None, top_p=None, frequency_penalty=None, presence_penalty=None,
+                  max_tokens=None, top_p=None, frequency_penalty=None, presence_penalty=None,
                     max_turn: int = float("inf") )->Response:
 
         """
@@ -785,15 +774,13 @@ class AgentManager:
 
         #Determined the agent to use
         agent_to_use = agent if agent is not None else self.agent
-        if not temperature:
-            temperature = self.temperature
+       
         # Run the conversation asynchronously
         response:Response = await self.__run(
             agent=agent_to_use,
             model_override=model_override,
             messages= copy.deepcopy(messages),
             context_variables=self.context_variables,
-            temperature=temperature ,
             max_tokens=max_tokens,
             top_p=top_p,
             frequency_penalty=frequency_penalty,

@@ -51,16 +51,28 @@ class AgentMemory(Memory):
         self.__messages = initial_memory   
         self.__limit = limit   
 
+    def delete_invalid_messages(self, messages):
+        valid_messages = []
+        for i, msg in enumerate(messages):
+            if msg['role'] == 'tool':
+                if i == 0:
+                    continue
+                if messages[i-1].get('tool_calls') is None :
+                    valid_messages.remove(messages[i-1])
+                    continue
+            valid_messages.append(msg)
+        return valid_messages
+
     def get_messages(self):
         if self.__limit > 0:
-            return self.__messages[-self.__limit:]
-        return self.__messages
+            return self.delete_invalid_messages(self.__messages[-self.__limit:])
+        return self.delete_invalid_messages(self.__messages)
     
     def filter_memory(self, *args):
         if len(args) == 1:
-            return self.__filter_memory_by_agent(args[0])
+            return self.delete_invalid_messages(self.__filter_memory_by_agent(args[0]))
         else:
-            return self.__messages
+            return self.delete_invalid_messages(self.__messages)
 
     def __filter_memory_by_agent(self, agent:Agent):
         result = []
@@ -88,8 +100,11 @@ class AgentMemory(Memory):
         self.__messages.extend(messages)
 
     def get_memory_by_message_limit(self, limit):
-        return self.__messages[-limit:]
+        return self.delete_invalid_messages(self.__messages[-limit:])
 
     def get_memory_by_time_limit(self, time_limit):
         current_time = time.time()
-        return [msg for msg in self.__messages if current_time - msg['inserted_at'] <= time_limit]
+        return self.delete_invalid_messages([msg for msg in self.__messages if current_time - msg['inserted_at'] <= time_limit])
+    
+    
+            

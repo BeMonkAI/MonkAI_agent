@@ -51,14 +51,17 @@ class AgentMemory(Memory):
         self.__messages = initial_memory   
         self.__limit = limit   
 
-    def delete_invalid_messages(self):
+    def delete_invalid_messages(self, messages):
         valid_messages = []
-        for i, msg in enumerate(self.__messages):
+        for i, msg in enumerate(messages):
             if msg['role'] == 'tool':
-                if i == 0 or self.__messages[i-1].get('tool_calls') is None :
+                if i == 0:
+                    continue
+                if messages[i-1].get('tool_calls') is None :
+                    valid_messages.remove(messages[i-1])
                     continue
             valid_messages.append(msg)
-        self.__messages = valid_messages
+        return valid_messages
 
     def get_messages(self):
         if self.__limit > 0:
