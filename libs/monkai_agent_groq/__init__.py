@@ -1,3 +1,3 @@
-from .src.__providers import GroqProvider
+from .src.__providers import GroqProvider, GROQ_MODELS
 
 __all__ = ["GROQ_MODELS","GroqProvider"]
