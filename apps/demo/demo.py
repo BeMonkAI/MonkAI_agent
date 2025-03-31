@@ -2,7 +2,7 @@ import asyncio
 from openai import AzureOpenAI
 import config
 from monkai_agent import OpenAIProvider, AgentManager
-from monkai_agent.src.monkai_agent.repl import run_demo_loop
+from monkai_agent.repl import run_demo_loop
 
 
 if __name__ == '__main__': 
