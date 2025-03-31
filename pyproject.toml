@@ -3,14 +3,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "monkai-agent"
+name = "monkai-agent-all"
 version = "0.1.0"
 description = "MonkAI Agent Framework"
 requires-python = ">=3.8"
-dependencies = [
-    "monkai-agent",
-    "monkai-agent-groq"
-]
 
 [tool.hatch.build]
 include = [
@@ -19,4 +15,5 @@ include = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["libs/monkai_agent", "libs/monkai_agent.groq"]
+only-include = ["libs"]
+sources = ["libs"]
