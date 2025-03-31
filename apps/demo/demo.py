@@ -3,6 +3,7 @@ import asyncio
 from monkai_agent.repl import run_demo_loop
 from openai import AzureOpenAI
 import config
+from monkai_agent import OpenAIProvider
 
 
 if __name__ == '__main__': 
@@ -24,12 +25,8 @@ if __name__ == '__main__':
     agents_creators.append(PythonDeveloperAgentCreator(user="valid_user"))
     agents_creators.append(JornalistAgentCreator())
     agents_creators.append(CalculatorAgentCriator("invalid_user"))
-    client=AzureOpenAI(
-            api_key=config.OPENAI_API_KEY_BRASILSOUTH,
-            api_version=config.GPT4o_OPENAI_API_VERSION_BRASILSOUTH,
-            azure_endpoint=config.OPENAI_AZURE_ENDPOINT_BRASILSOUTH,
-        )
-    agent_manager = AgentManager(client=client, agents_creators=agents_creators)
+    provider = OpenAIProvider(config.OPENAI_API_KEY_ARTHUR)
+    agent_manager = AgentManager(provider=provider, agents_creators=agents_creators)
     asyncio.run(run_demo_loop(agent_manager, model=config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH,stream=True, debug=True))
 
    

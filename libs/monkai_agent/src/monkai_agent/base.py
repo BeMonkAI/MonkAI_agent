@@ -76,6 +76,8 @@ class ChatCompletionError(Exception):
         self.original_error = original_error
         super().__init__(self.message)
 
+from .providers import OpenAIProvider, LLMProvider
+
 class AgentManager:
     """
     Manages the interaction with AI agents.
@@ -85,29 +87,15 @@ class AgentManager:
 
     """
 
-    def __init__(self, client, agents_creators: list[MonkaiAgentCreator], context_variables=None, 
+    def __init__(self, agents_creators: list[MonkaiAgentCreator]=None, context_variables=None, 
                  current_agent=None, stream=False, debug=False, max_retries: int = 3,  
-                 retry_delay: float = 1.0, base_prompt: str=None, model: str = "gpt-3.5-turbo", provider: str = "openai", 
-                    rate_limit_rpm: Optional[int] = None, max_execution_time: Optional[int] = None,  context_window_size: Optional[int] = None,
-                    freeze_context_window_size: bool = True, api_key: Optional[str] = None, track_token_usage: bool = True, temperature = None):    
-        """
-        Initializes the AgentManager with the provided client, agent creators, and optional parameters.
-
-        Args:
-            client (OpenAI): The client instance to use for the agent.
-            agents_creators (list[MonkaiAgentCreator]): A list of agent creators to initialize the triage agent.
-            context_variables (dict, optional): Context variables for the agent. Defaults to None.
-            current_agent (Agent, optional): The current agent instance. Defaults to None.
-            stream (bool, optional): Flag to enable streaming response. Defaults to False.
-            debug (bool, optional): Flag to enable debugging. Defaults to False.
-            max_retries (int, optional): Maximum number of retry attempts. Defaults to 3.
-            retry_delay (float, optional): Delay between retries in seconds. Defaults to 1.0.
-        """
+                 retry_delay: float = 1.0, base_prompt: str=None, model: str = "gpt-3.5-turbo", 
+                 provider: LLMProvider = None, rate_limit_rpm: Optional[int] = None, 
+                 max_execution_time: Optional[int] = None, context_window_size: Optional[int] = None,
+                 freeze_context_window_size: bool = True, api_key: Optional[str] = None, 
+                 track_token_usage: bool = True, temperature = None):
         
-        self.client = OpenAI() if not client else client
-        """
-        The client instance to use for the agent.
-        """
+        self.provider = provider or OpenAIProvider(api_key)
         self.agents_creators = agents_creators
         """
         A list of agent creators to initialize the triage agent.
@@ -211,7 +199,7 @@ class AgentManager:
             ]
             
             try:
-                summary_response = self._client.chat.completions.create(
+                summary_response = self.provider.get_completion(
                     messages=summary_request,
                     model=self.model,
                     max_tokens=max_tokens // 4  # Use at most 1/4 of max tokens for summary
@@ -412,18 +400,19 @@ class AgentManager:
             # Handle timeout
             if self.max_execution_time:
                 response = self._run_with_timeout(
-                    lambda: self._client.chat.completions.create(**create_params),
+                    lambda: self.provider.get_completion(**create_params),
                     self.max_execution_time
                 )
             else:
                 attempts = 0
                 while True:
                     try:
-                        response = self.client.chat.completions.create(**create_params)
+                        response = self.provider.get_completion(**create_params)
                         break
                     except OpenAIError as e:
                         attempts += 1
                         self._handle_openai_error(e, attempts, debug)
+                    
                         
                             
             # Track token usage
