@@ -8,9 +8,10 @@ version = "0.1.0"
 description = "Groq integration for MonkAI Agent"
 requires-python = ">=3.8"
 dependencies = [
-    "monkai-agent",
+    "monkai-agent>=0.1.0",
     "groq"
 ]
 
 [tool.hatch.build]
 packages = ["monkai_agent_groq"]
+namespace = "monkai_agent.groq"
