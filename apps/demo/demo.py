@@ -2,7 +2,7 @@ import asyncio
 from openai import AzureOpenAI
 import config
 from monkai_agent import OpenAIProvider, AgentManager
-from monkai_agent.repl import run_demo_loop
+from monkai_agent.src.repl import run_demo_loop
 
 
 if __name__ == '__main__': 
@@ -15,10 +15,10 @@ if __name__ == '__main__':
     the demo loop, as many agents you created in the system can be added to this loop.
 
     """
-
-    from examples.triage.python_developer_agent_creator import PythonDeveloperAgentCreator
-    from examples.triage.jornalist_agent_creator import JornalistAgentCreator
-    from examples.triage.calculator_agents_creator import CalculatorAgentCriator
+    
+    from apps.examples.triage.python_developer_agent_creator import PythonDeveloperAgentCreator
+    from apps.examples.triage.jornalist_agent_creator import JornalistAgentCreator
+    from apps.examples.triage.calculator_agents_creator import CalculatorAgentCriator
     
     agents_creators = []
     agents_creators.append(PythonDeveloperAgentCreator(user="valid_user"))
@@ -26,5 +26,6 @@ if __name__ == '__main__':
     agents_creators.append(CalculatorAgentCriator("invalid_user"))
     provider = OpenAIProvider(config.OPENAI_API_KEY_ARTHUR)
     agent_manager = AgentManager(provider=provider, agents_creators=agents_creators)
-    asyncio.run(run_demo_loop(agent_manager, model=config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH,stream=True, debug=True))
+    #asyncio.run(run_demo_loop(agent_manager, model= config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH,stream=True, debug=True))
+    asyncio.run(run_demo_loop(agent_manager, model= 'gpt-4o'))
 

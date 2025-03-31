@@ -6,7 +6,7 @@ Supports multiple LLM providers including OpenAI and Groq.
 from typing import Optional, Any
 from groq import Groq
 import os
-from monkai_agent.providers import LLMProvider
+from monkai_agent import LLMProvider
 
 
  # Available Groq models

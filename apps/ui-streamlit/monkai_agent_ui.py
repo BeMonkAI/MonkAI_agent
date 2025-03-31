@@ -14,8 +14,8 @@ import streamlit as st
 from typing import Dict, List, Optional
 from monkai_agent import AgentManager, MonkaiAgentCreator
 from openai import OpenAI
-from monkai_agent.groq.providers import GROQ_MODELS
-from monkai_agent.azure.providers import LLMProvider
+from monkai_agent.groq import GROQ_MODELS
+from monkai_agent import LLMProvider
 
 # Available Groq models
 

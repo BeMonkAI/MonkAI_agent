@@ -9,7 +9,9 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "justMyCode": false
         },
         {
             "name": "Debug Streamlit",
@@ -24,7 +26,7 @@
             ],
             "console": "integratedTerminal",
             "python": "${workspaceFolder}/.venv/bin/python",
-            "justMyCode": true,
+            "justMyCode": false,
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }
