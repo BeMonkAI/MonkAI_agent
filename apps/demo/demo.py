@@ -1,9 +1,8 @@
-from monkai_agent.base import AgentManager
 import asyncio
-from monkai_agent.repl import run_demo_loop
 from openai import AzureOpenAI
 import config
-from monkai_agent import OpenAIProvider
+from monkai_agent import OpenAIProvider, AgentManager
+from monkai_agent.src.monkai_agent.repl import run_demo_loop
 
 
 if __name__ == '__main__': 
@@ -29,4 +28,3 @@ if __name__ == '__main__':
     agent_manager = AgentManager(provider=provider, agents_creators=agents_creators)
     asyncio.run(run_demo_loop(agent_manager, model=config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH,stream=True, debug=True))
 
-   

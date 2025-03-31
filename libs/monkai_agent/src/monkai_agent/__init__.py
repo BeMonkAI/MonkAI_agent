@@ -26,8 +26,7 @@ __all__ = [
     'PromptOptimizerManager',
     'MonkaiAgentCreator',
     'TriageAgentCreator',
-    'TransferTriageAgentCreator'
-    'TriageAgentCreator',
+    'TransferTriageAgentCreator',
     'Memory',
     'AgentMemory',
     'OpenAIProvider',
