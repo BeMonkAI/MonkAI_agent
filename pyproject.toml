@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "monkai-agent-project"
+name = "monkai-agent"
 version = "0.1.0"
 description = "MonkAI Agent Framework"
 requires-python = ">=3.8"
