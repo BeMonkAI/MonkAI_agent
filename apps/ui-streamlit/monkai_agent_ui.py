@@ -8,45 +8,24 @@ This interface allows users to:
 5. Save and review conversation history
 """
 
+import asyncio
 import os
 import json
+from typing import Dict, List, Optional
 import streamlit as st
 from monkai_agent import AgentManager, MonkaiAgentCreator
 from openai import OpenAI
-from monkai_agent.groq import GroqProvider
+from monkai_agent.groq import GroqProvider, GROQ_MODELS
 from monkai_agent import OpenAIProvider, LLMProvider
-
-# Available Groq models
-
-def get_llm_provider(provider: str = "openai", api_key: Optional[str] = None, **kwargs) -> LLMProvider:
-    """
-    Get an LLM provider instance.
-    
-    Args:
-        provider: The LLM provider to use ("openai" or "groq")
-        api_key: The API key for the provider
-        **kwargs: Additional arguments for the provider
-        
-    Returns:
-        An instance of LLMProvider
-    """
-    if api_key is None:
-        if provider == "openai":
-            api_key = os.getenv("OPENAI_API_KEY")
-        elif provider == "groq":
-            api_key = os.getenv("GROQ_API_KEY")
-        else:
-            raise ValueError(f"Unknown provider: {provider}")
-    
-    if provider == "openai":
-        return OpenAIProvider(api_key)
-    elif provider == "groq":
-        model = kwargs.get("model", GROQ_MODELS[0])
-        return GroqProvider(api_key, model)
-    else:
-        raise ValueError(f"Unknown provider: {provider}") 
-        
-
+"""
+A Streamlit UI for the MonkAI Framework Developer Agent.
+This interface allows users to:
+1. Choose the LLM provider (OpenAI or Groq)
+2. Input their API key
+3. Select the model they want to use
+4. Interact with the specialized Framework Developer agent
+5. Save and review conversation history
+"""
 
 # Define OpenAI models
 OPENAI_MODELS = [
@@ -88,7 +67,7 @@ For documentation questions, provide clear explanations about:
 - Integration examples
 """
 
-def create_framework_developer_agent(provider: str, model: str, api_key: str) -> MonkaiAgentCreator:
+def get_provider(provider: str, model: str, api_key: str) -> MonkaiAgentCreator:
     """
     Create a specialized Framework Developer agent.
     
@@ -100,12 +79,11 @@ def create_framework_developer_agent(provider: str, model: str, api_key: str) ->
     Returns:
         MonkaiAgentCreator instance configured for framework development
     """
-    return MonkaiAgentCreator(
-        base_prompt=FRAMEWORK_DEVELOPER_PROMPT,
-        model=model,
-        provider=provider,
-        api_key=api_key
-    )
+    if provider == "openai":
+        llm_provider = OpenAIProvider(model=model, api_key=api_key)
+    else:
+        llm_provider = GroqProvider(model=model, api_key=api_key)
+    return llm_provider 
 
 def initialize_chat_history() -> List[Dict]:
     """Initialize an empty chat history"""
@@ -153,7 +131,7 @@ def display_chat_message(message: Dict):
     elif role == "system":
         st.chat_message("system").write(content)
 
-def main():
+async def main():
     st.set_page_config(
         page_title="MonkAI Framework Developer",
         page_icon="🤖",
@@ -246,10 +224,8 @@ def main():
         
         # Create agent and get response
         try:
-            #api_key = st.session_state.api_key
-            #os.environ[f"{provider.upper()}_API_KEY"] = api_key
-            client = OpenAI(api_key=st.session_state.api_key)
-            agent_manager = AgentManager(client, model, api_key)
+            api_key = st.session_state.api_key
+            os.environ[f"{provider.upper()}_API_KEY"] = api_key
             
             with st.spinner("Thinking..."):
                 # Add system message with instructions
@@ -257,16 +233,24 @@ def main():
                     {"role": "system", "content": FRAMEWORK_DEVELOPER_PROMPT}
                 ] + messages
                 
-                response = agent_manager.get_chat_completion(
-                    messages=full_messages,
-                    model=model,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    top_p=top_p,
-                    frequency_penalty=frequency_penalty,
-                    presence_penalty=presence_penalty
-                )
             
+            manager = AgentManager(
+                agents_creators=[],
+                provider=provider,
+                model=model,
+                api_key=api_key,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                frequency_penalty=frequency_penalty,
+                presence_penalty=presence_penalty
+            )
+            
+            response = await manager.run(
+                prompt=prompt,
+                messages=full_messages,
+                max_turn=30
+            )
             # Add assistant response to chat
             assistant_message = {
                 "role": "assistant",
@@ -296,4 +280,4 @@ def main():
         st.success(f"Chat history saved to {filename}")
 
 if __name__ == "__main__":
-    main() 
+   asyncio.run(main())
