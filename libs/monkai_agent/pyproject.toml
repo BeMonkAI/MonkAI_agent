@@ -10,5 +10,5 @@ requires-python = ">=3.8"
 dependencies = [
     "pydantic>=2.0.0",
     "typing-extensions>=4.0.0"
-    "open-ai>=1.0.0"
+    "openai>=1.0.0"
 ]
