@@ -16,8 +16,7 @@ dependencies = [
 
 [tool.hatch.build]
 packages = [
-    "libs/monkai_agent",
-    "libs/monkai_agent_groq"
+    "libs/monkai_agent"
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -25,3 +24,7 @@ packages = [
     "libs/monkai_agent",
     "libs/monkai_agent_groq"
 ]
+
+[tool.hatch.build.targets.wheel.force-include]
+"libs/monkai_agent/monkai_agent" = "monkai_agent"
+"libs/monkai_agent_groq/monkai_agent" = "monkai_agent"
