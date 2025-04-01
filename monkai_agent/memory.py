@@ -58,7 +58,7 @@ class AgentMemory(Memory):
                 if i == 0:
                     continue
                 if messages[i-1].get('tool_calls') is None :
-                    valid_messages.remove(messages[i-1])
+                    valid_messages.remove(valid_messages[-1])
                     continue
             valid_messages.append(msg)
         return valid_messages
