@@ -17,6 +17,8 @@ from monkai_agent import AgentManager, MonkaiAgentCreator
 from openai import OpenAI
 from monkai_agent.groq import GroqProvider, GROQ_MODELS
 from monkai_agent import OpenAIProvider, LLMProvider
+
+from apps.examples.triage.calculator_agents_creator import CalculatorAgentCriator
 """
 A Streamlit UI for the MonkAI Framework Developer Agent.
 This interface allows users to:
@@ -88,7 +90,8 @@ def get_provider(provider: str, model: str, api_key: str) -> MonkaiAgentCreator:
 def initialize_chat_history() -> List[Dict]:
     """Initialize an empty chat history"""
     if "messages" not in st.session_state:
-        st.session_state.messages = []
+        st.session_state["messages"] = []
+    st.session_state["initialized"] = True
     return st.session_state.messages
 
 def display_chat_message(message: Dict):
@@ -131,7 +134,10 @@ def display_chat_message(message: Dict):
     elif role == "system":
         st.chat_message("system").write(content)
 
-async def main():
+def main():
+    if st.session_state.get("initialized", False):
+        return
+    
     st.set_page_config(
         page_title="MonkAI Framework Developer",
         page_icon="🤖",
@@ -171,22 +177,7 @@ async def main():
                 else:
                     st.error("Please enter an API key")
         
-        # Model selection based on provider
-        available_models = OPENAI_MODELS if provider == "openai" else GROQ_MODELS
-        model = st.selectbox(
-            "Select Model",
-            available_models,
-            help="Choose the model to use"
-        )
         
-        # Advanced settings
-        with st.expander("Advanced Settings"):
-            temperature = st.slider("Temperature", 0.0, 2.0, 0.7)
-            max_tokens = st.number_input("Max Tokens", 1, 4096, 2048)
-            top_p = st.slider("Top P", 0.0, 1.0, 0.9)
-            frequency_penalty = st.slider("Frequency Penalty", -2.0, 2.0, 0.0)
-            presence_penalty = st.slider("Presence Penalty", -2.0, 2.0, 0.0)
-    
     # Display framework information
     st.markdown("""
     This assistant helps you understand and develop code for the MonkAI framework.
@@ -205,11 +196,37 @@ async def main():
     """)
     
     # Initialize chat history
-    messages = initialize_chat_history()
+    initialize_chat_history()
     
+async def chat():
+    messages = st.session_state.messages
+
     # Display chat history
     for message in messages:
         display_chat_message(message)
+    
+    provider = st.selectbox(
+            "Select Provider",
+            ["openai", "groq"],
+            help="Choose between OpenAI and Groq"
+        )
+    # Model selection based on provider
+    available_models = OPENAI_MODELS if provider == "openai" else GROQ_MODELS
+        
+    model = st.selectbox(
+            "Select Model",
+            available_models,
+            help="Choose the model to use"
+        )
+        
+    # Advanced settings
+    with st.expander("Advanced Settings"):
+        temperature = st.slider("Temperature", 0.0, 2.0, 0.7)
+        max_tokens = st.number_input("Max Tokens", 1, 4096, 2048)
+        top_p = st.slider("Top P", 0.0, 1.0, 0.9)
+        frequency_penalty = st.slider("Frequency Penalty", -2.0, 2.0, 0.0)
+        presence_penalty = st.slider("Presence Penalty", -2.0, 2.0, 0.0)
+
     
     # Chat input
     if prompt := st.chat_input("Ask about MonkAI framework development..."):
@@ -245,11 +262,12 @@ async def main():
                 frequency_penalty=frequency_penalty,
                 presence_penalty=presence_penalty
             )
-            
+            current_agent = CalculatorAgentCriator("invalid_user")
             response = await manager.run(
                 prompt=prompt,
                 messages=full_messages,
-                max_turn=30
+                max_turn=30,
+                agent=current_agent.get_agent(),
             )
             # Add assistant response to chat
             assistant_message = {
@@ -280,4 +298,5 @@ async def main():
         st.success(f"Chat history saved to {filename}")
 
 if __name__ == "__main__":
-   asyncio.run(main())
+  main()
+  asyncio.run(chat())
