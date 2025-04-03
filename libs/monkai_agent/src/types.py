@@ -28,7 +28,7 @@ class Agent(BaseModel):
     Name of Agent   
     
     """
-    model: str = "gpt-4o"
+    model: str = None
     """
     The model used by the agent.
     
