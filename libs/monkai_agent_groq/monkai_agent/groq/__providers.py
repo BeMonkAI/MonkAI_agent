@@ -66,7 +66,7 @@ class GroqProvider(LLMProvider):
     
     def get_completion(self, messages: list, **kwargs):
         client = self.get_client()
-        tools = kwargs.get('tools', None)
+        """tools = kwargs.get('tools', None)
         
         # Filter out unsupported parameters
         groq_kwargs = {k: v for k, v in kwargs.items() if k not in [
@@ -100,13 +100,13 @@ class GroqProvider(LLMProvider):
         # If there are tools available, append a reminder to use tools format
         if tools and cleaned_messages[-1]['role'] == 'user':
             cleaned_messages[-1]['content'] += "\n\nRemember to use tools when necessary by responding in the specified JSON format."
-            
+        """
         response = client.chat.completions.create(
-            messages=cleaned_messages,
-            **groq_kwargs
+            messages=messages,
+            **kwargs
         )
         
-        # Try to parse the response content as JSON if it looks like a tool call
+        ''''# Try to parse the response content as JSON if it looks like a tool call
         content = response.choices[0].message.content
         if content.strip().startswith('{') and 'tool_calls' in content:
             try:
@@ -116,7 +116,7 @@ class GroqProvider(LLMProvider):
                     response.choices[0].message.content = ""
             except json.JSONDecodeError:
                 pass
-                
+        '''   
         return response
 
 

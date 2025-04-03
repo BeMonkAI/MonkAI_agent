@@ -3,7 +3,7 @@ from openai import AzureOpenAI
 import config
 from monkai_agent import OpenAIProvider, AgentManager
 from monkai_agent.src.repl import run_demo_loop
-
+from monkai_agent.groq.__providers import GroqProvider 
 
 if __name__ == '__main__': 
     """
@@ -24,8 +24,9 @@ if __name__ == '__main__':
     agents_creators.append(PythonDeveloperAgentCreator(user="valid_user"))
     agents_creators.append(JornalistAgentCreator())
     agents_creators.append(CalculatorAgentCriator("invalid_user"))
-    provider = OpenAIProvider(config.OPENAI_API_KEY_ARTHUR)
-    agent_manager = AgentManager(provider=provider, agents_creators=agents_creators)
+    #provider = OpenAIProvider(config.OPENAI_API_KEY_ARTHUR)
+    provider = GroqProvider(config.GROQ_API_KEY)
+    agent_manager = AgentManager(provider=provider, agents_creators=agents_creators, model= "llama-3.3-70b-versatile")
     #asyncio.run(run_demo_loop(agent_manager, model= config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH,stream=True, debug=True))
-    asyncio.run(run_demo_loop(agent_manager, model= 'gpt-4o'))
+    asyncio.run(run_demo_loop(agent_manager, model= "llama-3.3-70b-versatile"))
 
