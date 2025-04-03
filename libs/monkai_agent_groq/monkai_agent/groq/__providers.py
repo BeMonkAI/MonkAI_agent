@@ -30,6 +30,34 @@ class GroqProvider(LLMProvider):
     
     def get_completion(self, messages: list, **kwargs):
         client = self.get_client()
-        return client.chat.completions.create(messages=messages, **kwargs)
+        
+        # Filter out unsupported parameters
+        groq_kwargs = {k: v for k, v in kwargs.items() if k not in [
+            'tools', 
+            'tool_choice',
+            'parallel_tool_calls'
+        ]}
+        
+        # Clean up messages and handle tool messages
+        cleaned_messages = []
+        for msg in messages:
+            if msg['role'] == 'tool':
+                # Convert tool messages to assistant messages with proper formatting
+                cleaned_msg = {
+                    'role': 'assistant',
+                    'content': f"Tool '{msg.get('tool_name', msg.get('name', 'unknown'))}' response: {msg['content']}"
+                }
+            else:
+                # Handle regular messages
+                cleaned_msg = {
+                    'role': msg['role'],
+                    'content': msg['content']
+                }
+            cleaned_messages.append(cleaned_msg)
+            
+        return client.chat.completions.create(
+            messages=cleaned_messages,
+            **groq_kwargs
+        )
 
 

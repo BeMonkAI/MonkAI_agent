@@ -24,7 +24,7 @@ from monkai_agent import AgentManager, MonkaiAgentCreator
 from openai import OpenAI
 from monkai_agent.groq import GroqProvider, GROQ_MODELS
 from monkai_agent import OpenAIProvider, LLMProvider
-
+from agent_architect_creator import AgentArchitectCreator
 from apps.examples.triage.calculator_agents_creator import CalculatorAgentCriator
 
 # Define OpenAI models
@@ -89,6 +89,8 @@ def initialize_chat_history() -> List[Dict]:
     """Initialize an empty chat history"""
     if "messages" not in st.session_state:
         st.session_state.messages = []
+    if "intro_shown" not in st.session_state:
+        st.session_state.intro_shown = False
     return st.session_state.messages
 
 def display_chat_message(message: Dict):
@@ -151,7 +153,7 @@ async def chat():
     with st.sidebar:
         st.header("Configuration")
         
-        # Provider selection
+        # Provider selection with unique key
         provider = st.selectbox(
             "Select Provider",
             ["openai", "groq"],
@@ -177,30 +179,94 @@ async def chat():
             key="api_key_input"
         )
         
-        # Advanced settings
+        # Advanced settings matching AgentManager parameters
         with st.expander("Advanced Settings"):
-            temperature = st.slider("Temperature", 0.0, 2.0, 0.7, key="temperature")
-            max_tokens = st.number_input("Max Tokens", 1, 4096, 2048, key="max_tokens")
-            top_p = st.slider("Top P", 0.0, 1.0, 0.9, key="top_p")
-            frequency_penalty = st.slider("Frequency Penalty", -2.0, 2.0, 0.0, key="freq_penalty")
-            presence_penalty = st.slider("Presence Penalty", -2.0, 2.0, 0.0, key="pres_penalty")
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                temperature = st.slider(
+                    "Temperature", 
+                    0.0, 2.0, 0.7, 
+                    help="Controls randomness in responses",
+                    key="temperature"
+                )
+                max_tokens = st.number_input(
+                    "Max Tokens", 
+                    1, 4096, 2048,
+                    help="Maximum number of tokens to generate",
+                    key="max_tokens"
+                )
+                max_retries = st.number_input(
+                    "Max Retries", 
+                    1, 10, 3,
+                    help="Maximum number of retry attempts",
+                    key="max_retries"
+                )
+                retry_delay = st.slider(
+                    "Retry Delay", 
+                    0.1, 5.0, 1.0,
+                    help="Delay between retry attempts in seconds",
+                    key="retry_delay"
+                )
+                
+            with col2:
+                rate_limit_rpm = st.number_input(
+                    "Rate Limit (RPM)", 
+                    0, 100, 0,
+                    help="Rate limit in requests per minute (0 for no limit)",
+                    key="rate_limit"
+                )
+                max_execution_time = st.number_input(
+                    "Max Execution Time", 
+                    0, 300, 0,
+                    help="Maximum execution time in seconds (0 for no limit)",
+                    key="max_execution_time"
+                )
+                context_window_size = st.number_input(
+                    "Context Window Size", 
+                    0, 32768, 4096,
+                    help="Maximum context window size in tokens",
+                    key="context_window"
+                )
+                
+            # Additional settings
+            debug = st.checkbox(
+                "Debug Mode", 
+                value=False,
+                help="Enable debug logging",
+                key="debug"
+            )
+            stream = st.checkbox(
+                "Stream Response", 
+                value=False,
+                help="Enable streaming responses",
+                key="stream"
+            )
+            track_token_usage = st.checkbox(
+                "Track Token Usage", 
+                value=True,
+                help="Track token usage statistics",
+                key="track_tokens"
+            )
 
-    # Display framework information
-    st.markdown("""
-    This assistant helps you understand and develop code for the MonkAI framework.
-    You can ask questions about:
-    - Framework components and their relationships
-    - Class and method documentation
-    - Code generation following framework patterns
-    - Integration examples
-    - Best practices and conventions
-    
-    Example questions:
-    - "How do I create a new agent type?"
-    - "What parameters does AgentManager.get_chat_completion accept?"
-    - "Show me how to implement a custom agent creator"
-    - "Explain the relationship between AgentManager and MonkaiAgentCreator"
-    """)
+    # Display framework information only once
+    if not st.session_state.intro_shown:
+        st.markdown("""
+        This assistant helps you understand and develop code for the MonkAI framework.
+        You can ask questions about:
+        - Framework components and their relationships
+        - Class and method documentation
+        - Code generation following framework patterns
+        - Integration examples
+        - Best practices and conventions
+        
+        Example questions:
+        - "How do I create a new agent type?"
+        - "What parameters does AgentManager.get_chat_completion accept?"
+        - "Show me how to implement a custom agent creator"
+        - "Explain the relationship between AgentManager and MonkaiAgentCreator"
+        """)
+        st.session_state.intro_shown = True
 
     # Chat input and processing
     if prompt := st.chat_input("Ask about MonkAI framework development..."):
@@ -212,45 +278,50 @@ async def chat():
         messages.append({"role": "user", "content": prompt})
         display_chat_message({"role": "user", "content": prompt})
         
-        # Create agent and get response
         try:
-            os.environ[f"{provider.upper()}_API_KEY"] = api_key
+            # Create appropriate provider based on selection
+            llm_provider = (OpenAIProvider(api_key=api_key) if provider == "openai" 
+                          else GroqProvider(api_key=api_key))
             
             with st.spinner("Thinking..."):
-                full_messages = [
-                    {"role": "system", "content": FRAMEWORK_DEVELOPER_PROMPT}
-                ] + messages
-                
+                # Initialize AgentManager with provider instance
                 manager = AgentManager(
                     agents_creators=[],
-                    provider=provider,
+                    provider=llm_provider,  # Pass the provider instance
+                    stream=stream,
+                    debug=debug,
                     model=model,
-                    api_key=api_key,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    top_p=top_p,
-                    frequency_penalty=frequency_penalty,
-                    presence_penalty=presence_penalty
+                    max_retries=max_retries,
+                    retry_delay=retry_delay,
+                    rate_limit_rpm=rate_limit_rpm if rate_limit_rpm > 0 else None,
+                    max_execution_time=max_execution_time if max_execution_time > 0 else None,
+                    context_window_size=context_window_size,
+                    track_token_usage=track_token_usage,
+                    temperature=temperature
                 )
-                current_agent = CalculatorAgentCriator("invalid_user")
+
+                current_agent = AgentArchitectCreator()
+                
+                # Call run with simplified parameters since provider handles model
                 response = await manager.run(
-                    prompt=prompt,
-                    messages=full_messages,
-                    max_turn=30,
+                    user_message=prompt,
+                    user_history=messages,
                     agent=current_agent.get_agent(),
+                    max_tokens=max_tokens,
+                    max_turn=30
                 )
                 
                 # Add assistant response to chat
                 assistant_message = {
                     "role": "assistant",
-                    "content": response.choices[0].message.content
+                    "content": response.messages[-1]["content"]
                 }
                 messages.append(assistant_message)
                 display_chat_message(assistant_message)
             
         except Exception as e:
             st.error(f"Error: {str(e)}")
-    
+
     # Chat management buttons
     col1, col2 = st.columns(2)
     if col1.button("Clear Chat"):
