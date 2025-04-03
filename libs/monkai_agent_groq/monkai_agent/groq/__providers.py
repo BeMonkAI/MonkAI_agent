@@ -58,7 +58,7 @@ class GroqProvider(LLMProvider):
         formatted_messages = self._clean_messages(messages)
             
         if "tool_choice" not in kwargs or kwargs["tool_choice"] not in ["none", "auto", "required"]:
-            kwargs["tool_choice"] = "required" if "tools" in kwargs and kwargs["tools"] else "none"
+            kwargs["tool_choice"] = "auto" if "tools" in kwargs and kwargs["tools"] else "none"
             
         response = client.chat.completions.create(
             messages=formatted_messages,
