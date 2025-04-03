@@ -460,6 +460,55 @@ class AgentManager:
                     debug_print(debug, error_message)
                     raise TypeError(error_message)
 
+    def _validate_and_filter_arguments(self, func: Callable, args: dict, name: str, debug: bool) -> tuple[dict, Optional[str]]:
+        """
+        Validates function arguments and returns a filtered dict of valid arguments.
+        
+        Args:
+            func: The function to validate arguments for
+            args: Dictionary of arguments to validate
+            name: Function name for error messages
+            debug: Flag for debug printing
+            
+        Returns:
+            tuple[dict, Optional[str]]: (filtered arguments dict, error message if any)
+        """
+        try:
+            import inspect
+            sig = inspect.signature(func)
+            
+            # Get required parameters (excluding context_variables)
+            required_params = [
+                param.name for param in sig.parameters.values()
+                if param.default == param.empty 
+                and param.name != __CTX_VARS_NAME__
+            ]
+            
+            # Check for missing required arguments
+            missing_args = [param for param in required_params if param not in args]
+            if missing_args:
+                error_msg = f"Missing required arguments for {name}: {', '.join(missing_args)}"
+                debug_print(debug, error_msg)
+                return {}, error_msg
+                
+            # Filter to only valid arguments
+            valid_params = set(sig.parameters.keys())
+            filtered_args = {
+                k: v for k, v in args.items() 
+                if k in valid_params
+            }
+            
+            # Log unexpected arguments
+            unexpected_args = [arg for arg in args if arg not in valid_params]
+            if unexpected_args:
+                debug_print(debug, f"Warning: Removing unexpected arguments for {name}: {', '.join(unexpected_args)}")
+                
+            return filtered_args, None
+            
+        except Exception as e:
+            debug_print(debug, f"Failed to validate arguments: {str(e)}")
+            return args, None  # Return original args on validation failure
+
     def handle_tool_calls(
         self,
         tool_calls: List[ChatCompletionMessageToolCall],
@@ -503,10 +552,23 @@ class AgentManager:
                 debug, f"Processing tool call: {name} with arguments {args}")
 
             func = function_map[name]
+            
+            # Validate and filter arguments
+            filtered_args, error = self._validate_and_filter_arguments(func, args, name, debug)
+            if error:
+                partial_response.messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "tool_name": name,
+                    "content": f"Error: {error}"
+                })
+                continue
+
             # pass context_variables to agent functions
             if __CTX_VARS_NAME__ in func.__code__.co_varnames:
-                args[__CTX_VARS_NAME__] = context_variables
-            raw_result = function_map[name](**args)
+                filtered_args[__CTX_VARS_NAME__] = context_variables
+
+            raw_result = func(**filtered_args)
 
             result: Result = self.handle_function_result(raw_result, debug)
             partial_response.messages.append(
