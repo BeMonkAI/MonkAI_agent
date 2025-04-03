@@ -307,7 +307,6 @@ class AgentManager:
         agent: Agent,
         history: List,
         context_variables: dict,
-        model_override: str,
         max_tokens: float,
         top_p: float,
         frequency_penalty: float,
@@ -322,7 +321,6 @@ class AgentManager:
             agent (Agent): The agent instance to use for completion
             history (List): Conversation history
             context_variables (dict): Variables for context
-            model_override (str): Override default model if specified
             max_tokens (float): Maximum tokens to generate
             top_p (float): Nucleus sampling parameter
             frequency_penalty (float): Frequency penalty parameter
@@ -374,7 +372,7 @@ class AgentManager:
         try:
             # Set up completion parameters
             create_params = {
-                 "model": model_override or agent.model,
+                 "model":  agent.model or self.model,
                 "messages": messages,
                 "tools": tools or None,
                 "tool_choice": agent.tool_choice,
@@ -530,7 +528,6 @@ class AgentManager:
         agent: Agent,
         messages: Memory | List,
         context_variables: dict = {},
-        model_override: str = None,
         debug: bool = False,
         max_turns: int = float("inf"),
         execute_tools: bool = True,
@@ -567,7 +564,6 @@ class AgentManager:
                 agent=active_agent,
                 history=history,
                 context_variables=context_variables,
-                model_override=model_override,
                 stream=True,
                 debug=debug,
                 max_tokens=max_tokens,
@@ -632,7 +628,6 @@ class AgentManager:
         agent: Agent,
         messages: Memory | List,
         context_variables: dict = {},
-        model_override: str = None,
         max_tokens: float = None,
         top_p: float = None,
         frequency_penalty: float = None,
@@ -647,7 +642,6 @@ class AgentManager:
                 agent=agent,
                 messages=messages,
                 context_variables=context_variables,
-                model_override=model_override,
                 debug=debug,
                 max_turns=max_turns,
                 execute_tools=execute_tools,
@@ -678,7 +672,6 @@ class AgentManager:
                         agent=active_agent,
                         history=history,
                         context_variables=context_variables,
-                        model_override=model_override,
                         max_tokens=max_tokens,
                         top_p=top_p,
                         frequency_penalty=frequency_penalty,
@@ -745,7 +738,7 @@ class AgentManager:
         """
         return self.triage_agent_criator.get_agent()
 
-    async def run(self,user_message:str, user_history:Memory = None | List, agent=None, model_override="gpt-4o", 
+    async def run(self,user_message:str, user_history:Memory = None | List, agent=None, 
                   max_tokens=None, top_p=None, frequency_penalty=None, presence_penalty=None,
                     max_turn: int = float("inf") )->Response:
 
@@ -769,7 +762,6 @@ class AgentManager:
         # Run the conversation asynchronously
         response:Response = await self.__run(
             agent=agent_to_use,
-            model_override=model_override,
             messages= copy.deepcopy(messages),
             context_variables=self.context_variables,
             temperature=temperature ,
