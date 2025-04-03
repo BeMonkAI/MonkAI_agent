@@ -56,6 +56,17 @@ class GroqProvider(LLMProvider):
         
         # Clean and format messages
         formatted_messages = self._clean_messages(messages)
+        # Check if this is a follow-up after tool execution
+        # TODO: prove is this is helpful for any possible case
+        last_messages = formatted_messages[-2:] if len(formatted_messages) >= 2 else formatted_messages
+        has_tool_response = any(msg.get("role") == "tool" for msg in last_messages)
+        
+        # If we received a tool response, encourage completion
+        if has_tool_response:
+            formatted_messages.append({
+                "role": "system",
+                "content": "If all required tools have been executed and results are sufficient, please provide a final response without calling additional tools."
+            })
             
         if "tool_choice" not in kwargs or kwargs["tool_choice"] not in ["none", "auto", "required"]:
             kwargs["tool_choice"] = "auto" if "tools" in kwargs and kwargs["tools"] else "none"
