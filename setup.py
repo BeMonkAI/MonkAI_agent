@@ -7,7 +7,7 @@ def parse_requirements(filename):
     with open(filename) as f:
         return f.read().splitlines()
 
-requirements_path = os.path.join(os.path.dirname(__file__), 'requeriments.txt')
+requirements_path = os.path.join(os.path.dirname(__file__), 'requirements.txt')
 install_requires=parse_requirements(requirements_path)       
 
 with open("README.md", "r", encoding="utf-8") as fh:

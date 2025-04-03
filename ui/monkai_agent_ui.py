@@ -225,13 +225,7 @@ def main():
                 ] + messages
                 
                 response = agent_creator.get_chat_completion(
-                    messages=full_messages,
-                    model=model,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    top_p=top_p,
-                    frequency_penalty=frequency_penalty,
-                    presence_penalty=presence_penalty
+                    messages=full_messages
                 )
             
             # Add assistant response to chat

@@ -298,11 +298,12 @@ class MonkaiAgentCreator:
             
     def _setup_client(self):
         """Set up the API client based on the provider."""
-        if self.provider == "openai":
-            from openai import OpenAI
-            self._client = OpenAI(api_key=self.api_key)
-        else:
-            raise ValueError(f"Unsupported provider: {self.provider}")
+        from .llm_providers import get_llm_provider
+        self._client = get_llm_provider(
+            provider=self.provider,
+            api_key=self.api_key,
+            model=self.model
+        ).get_client()
             
     def _setup_tokenizer(self):
         """Set up the tokenizer for token counting."""
@@ -423,14 +424,22 @@ class MonkaiAgentCreator:
             if max_tokens:
                 completion_params["max_tokens"] = max_tokens
                 
+            # Get the provider instance
+            from .llm_providers import get_llm_provider
+            provider = get_llm_provider(
+                provider=self.provider,
+                api_key=self.api_key,
+                model=self.model
+            )
+                
             # Handle timeout
             if self.max_execution_time:
                 response = self._run_with_timeout(
-                    lambda: self._client.chat.completions.create(**completion_params),
+                    lambda: provider.get_chat_completion(**completion_params),
                     self.max_execution_time
                 )
             else:
-                response = self._client.chat.completions.create(**completion_params)
+                response = provider.get_chat_completion(**completion_params)
                 
             # Track token usage
             if self.track_token_usage and hasattr(response, 'usage'):

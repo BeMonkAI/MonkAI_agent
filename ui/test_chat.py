@@ -1,8 +1,12 @@
 """Test script for MonkAI Framework Developer chat completion"""
 
 import os
+from dotenv import load_dotenv
 from monkai_agent import MonkaiAgentCreator
 from monkai_agent.llm_providers import GROQ_MODELS
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Test prompt
 FRAMEWORK_DEVELOPER_PROMPT = """You are a specialized AI framework developer for the MonkAI framework.
@@ -12,7 +16,7 @@ def test_chat_completion(provider: str, api_key: str):
     """Test the chat completion functionality"""
     
     # Select model based on provider
-    model = "gpt-4o" if provider == "openai" else GROQ_MODELS[0]
+    model = "gpt-4" if provider == "openai" else GROQ_MODELS[0]
     
     print(f"\nTesting {provider.upper()} provider with model: {model}")
     
@@ -34,8 +38,6 @@ def test_chat_completion(provider: str, api_key: str):
     try:
         response = agent_creator.get_chat_completion(
             messages=messages,
-            model=model,
-            temperature=0.7,
             max_tokens=2048
         )
         print("\nResponse:")
