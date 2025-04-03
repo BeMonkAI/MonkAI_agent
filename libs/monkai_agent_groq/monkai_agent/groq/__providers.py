@@ -66,7 +66,8 @@ class GroqProvider(LLMProvider):
     
     def get_completion(self, messages: list, **kwargs):
         client = self.get_client()       
-        kwargs["tool_choice"] = kwargs.get("tool_choice", 'auto')
+        if "tool_choice" in kwargs and not kwargs["tool_choice"] not in ["none", "auto", "required"]:
+            kwargs["tool_choice"].pop("tool_choice")
         response = client.chat.completions.create(
             messages=messages,
             **kwargs
