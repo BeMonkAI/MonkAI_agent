@@ -757,14 +757,11 @@ class AgentManager:
 
         #Determined the agent to use
         agent_to_use = agent if agent is not None else self.agent
-        if not temperature:
-            temperature = self.temperature
         # Run the conversation asynchronously
         response:Response = await self.__run(
             agent=agent_to_use,
             messages= copy.deepcopy(messages),
             context_variables=self.context_variables,
-            temperature=temperature ,
             max_tokens=max_tokens,
             top_p=top_p,
             frequency_penalty=frequency_penalty,
