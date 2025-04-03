@@ -24,9 +24,9 @@ if __name__ == '__main__':
     agents_creators.append(PythonDeveloperAgentCreator(user="valid_user"))
     agents_creators.append(JornalistAgentCreator())
     agents_creators.append(CalculatorAgentCriator("invalid_user"))
-    #provider = OpenAIProvider(config.OPENAI_API_KEY_ARTHUR)
-    provider = GroqProvider(config.GROQ_API_KEY)
-    agent_manager = AgentManager(provider=provider, agents_creators=agents_creators, model= "llama-3.3-70b-versatile")
+    provider = OpenAIProvider(config.OPENAI_API_KEY_ARTHUR)
+    #provider = GroqProvider(config.GROQ_API_KEY)
+    agent_manager = AgentManager(provider=provider, agents_creators=agents_creators, model='deepseek-r1-distill-qwen-32b')
     #asyncio.run(run_demo_loop(agent_manager, model= config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH,stream=True, debug=True))
-    asyncio.run(run_demo_loop(agent_manager, model= "llama-3.3-70b-versatile"))
+    asyncio.run(run_demo_loop(agent_manager))
 
