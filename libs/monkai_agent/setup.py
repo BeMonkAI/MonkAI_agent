@@ -13,8 +13,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='monkai_agent',
-    packages=find_packages(include=['monkai_agent']),
-    version='0.0.32',
+    packages=find_packages(include=['monkai_agent', 'monkai_agent.*']),
+    version='0.0.33',
     description='Monkai Agent Library for creating intelligent agents, flows quickly, easily, and customizable.',
     long_description=long_description,
     long_description_content_type="text/markdown",
