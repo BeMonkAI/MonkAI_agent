@@ -65,58 +65,12 @@ class GroqProvider(LLMProvider):
         return tools_desc
     
     def get_completion(self, messages: list, **kwargs):
-        client = self.get_client()
-        """tools = kwargs.get('tools', None)
-        
-        # Filter out unsupported parameters
-        groq_kwargs = {k: v for k, v in kwargs.items() if k not in [
-            'tools', 
-            'tool_choice',
-            'parallel_tool_calls'
-        ]}
-        
-        # Clean up messages and handle tool messages
-        cleaned_messages = []
-        for idx, msg in enumerate(messages):
-            if idx == 0 and msg['role'] == 'system':
-                # Add tools information to system message
-                tools_desc = self._format_tools_for_prompt(tools)
-                msg['content'] = msg['content'] + "\n" + tools_desc
-                
-            if msg['role'] == 'tool':
-                # Convert tool messages to assistant messages with proper formatting
-                cleaned_msg = {
-                    'role': 'assistant',
-                    'content': f"Tool '{msg.get('tool_name', msg.get('name', 'unknown'))}' response: {msg['content']}"
-                }
-            else:
-                # Handle regular messages
-                cleaned_msg = {
-                    'role': msg['role'],
-                    'content': msg['content']
-                }
-            cleaned_messages.append(cleaned_msg)
-        
-        # If there are tools available, append a reminder to use tools format
-        if tools and cleaned_messages[-1]['role'] == 'user':
-            cleaned_messages[-1]['content'] += "\n\nRemember to use tools when necessary by responding in the specified JSON format."
-        """
+        client = self.get_client()       
+        kwargs["tool_choice"] = kwargs.get("tool_choice", 'auto')
         response = client.chat.completions.create(
             messages=messages,
             **kwargs
-        )
-        
-        ''''# Try to parse the response content as JSON if it looks like a tool call
-        content = response.choices[0].message.content
-        if content.strip().startswith('{') and 'tool_calls' in content:
-            try:
-                tool_data = json.loads(content)
-                if 'tool_calls' in tool_data:
-                    response.choices[0].message.tool_calls = tool_data['tool_calls']
-                    response.choices[0].message.content = ""
-            except json.JSONDecodeError:
-                pass
-        '''   
+        )  
         return response
 
 
