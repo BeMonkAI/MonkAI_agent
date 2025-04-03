@@ -1,3 +1,11 @@
+import streamlit as st
+# Set page config as first Streamlit command
+st.set_page_config(
+    page_title="MonkAI Framework Developer",
+    page_icon="🤖",
+    layout="wide"
+)
+
 """
 A Streamlit UI for the MonkAI Framework Developer Agent.
 This interface allows users to:
@@ -12,22 +20,12 @@ import asyncio
 import os
 import json
 from typing import Dict, List, Optional
-import streamlit as st
 from monkai_agent import AgentManager, MonkaiAgentCreator
 from openai import OpenAI
 from monkai_agent.groq import GroqProvider, GROQ_MODELS
 from monkai_agent import OpenAIProvider, LLMProvider
 
 from apps.examples.triage.calculator_agents_creator import CalculatorAgentCriator
-"""
-A Streamlit UI for the MonkAI Framework Developer Agent.
-This interface allows users to:
-1. Choose the LLM provider (OpenAI or Groq)
-2. Input their API key
-3. Select the model they want to use
-4. Interact with the specialized Framework Developer agent
-5. Save and review conversation history
-"""
 
 # Define OpenAI models
 OPENAI_MODELS = [
@@ -90,8 +88,7 @@ def get_provider(provider: str, model: str, api_key: str) -> MonkaiAgentCreator:
 def initialize_chat_history() -> List[Dict]:
     """Initialize an empty chat history"""
     if "messages" not in st.session_state:
-        st.session_state["messages"] = []
-    st.session_state["initialized"] = True
+        st.session_state.messages = []
     return st.session_state.messages
 
 def display_chat_message(message: Dict):
@@ -135,18 +132,22 @@ def display_chat_message(message: Dict):
         st.chat_message("system").write(content)
 
 def main():
-    if st.session_state.get("initialized", False):
-        return
-    
-    st.set_page_config(
-        page_title="MonkAI Framework Developer",
-        page_icon="🤖",
-        layout="wide"
-    )
-    
     st.title("MonkAI Framework Developer Assistant")
     
-    # Sidebar for configuration
+    # Initialize chat history
+    messages = initialize_chat_history()
+    
+    # Call chat interface
+    asyncio.run(chat())
+
+async def chat():
+    messages = st.session_state.messages
+
+    # Display chat history
+    for message in messages:
+        display_chat_message(message)
+    
+    # Sidebar configuration
     with st.sidebar:
         st.header("Configuration")
         
@@ -154,30 +155,36 @@ def main():
         provider = st.selectbox(
             "Select Provider",
             ["openai", "groq"],
-            help="Choose between OpenAI and Groq"
+            help="Choose between OpenAI and Groq",
+            key="provider_selector"
+        )
+        
+        # Model selection based on provider
+        available_models = OPENAI_MODELS if provider == "openai" else GROQ_MODELS
+        model = st.selectbox(
+            "Select Model",
+            available_models,
+            help="Choose the model to use",
+            key="model_selector"
         )
         
         # API key section
         st.subheader("API Key Configuration")
+        api_key = st.text_input(
+            f"Enter {provider.upper()} API Key",
+            type="password",
+            help=f"Enter your {provider.upper()} API key",
+            key="api_key_input"
+        )
         
-        # API key input with Enter button
-        api_key_col1, api_key_col2 = st.columns([3, 1])
-        with api_key_col1:
-            api_key = st.text_input(
-                f"Enter {provider.upper()} API Key",
-                type="password",
-                help=f"Enter your {provider.upper()} API key",
-                key="api_key_input"
-            )
-        with api_key_col2:
-            if st.button("Enter"):
-                if api_key:
-                    st.success("API Key set! ✅")
-                    st.session_state.api_key = api_key
-                else:
-                    st.error("Please enter an API key")
-        
-        
+        # Advanced settings
+        with st.expander("Advanced Settings"):
+            temperature = st.slider("Temperature", 0.0, 2.0, 0.7, key="temperature")
+            max_tokens = st.number_input("Max Tokens", 1, 4096, 2048, key="max_tokens")
+            top_p = st.slider("Top P", 0.0, 1.0, 0.9, key="top_p")
+            frequency_penalty = st.slider("Frequency Penalty", -2.0, 2.0, 0.0, key="freq_penalty")
+            presence_penalty = st.slider("Presence Penalty", -2.0, 2.0, 0.0, key="pres_penalty")
+
     # Display framework information
     st.markdown("""
     This assistant helps you understand and develop code for the MonkAI framework.
@@ -194,45 +201,11 @@ def main():
     - "Show me how to implement a custom agent creator"
     - "Explain the relationship between AgentManager and MonkaiAgentCreator"
     """)
-    
-    # Initialize chat history
-    initialize_chat_history()
-    
-async def chat():
-    messages = st.session_state.messages
 
-    # Display chat history
-    for message in messages:
-        display_chat_message(message)
-    
-    provider = st.selectbox(
-            "Select Provider",
-            ["openai", "groq"],
-            help="Choose between OpenAI and Groq"
-        )
-    # Model selection based on provider
-    available_models = OPENAI_MODELS if provider == "openai" else GROQ_MODELS
-        
-    model = st.selectbox(
-            "Select Model",
-            available_models,
-            help="Choose the model to use"
-        )
-        
-    # Advanced settings
-    with st.expander("Advanced Settings"):
-        temperature = st.slider("Temperature", 0.0, 2.0, 0.7)
-        max_tokens = st.number_input("Max Tokens", 1, 4096, 2048)
-        top_p = st.slider("Top P", 0.0, 1.0, 0.9)
-        frequency_penalty = st.slider("Frequency Penalty", -2.0, 2.0, 0.0)
-        presence_penalty = st.slider("Presence Penalty", -2.0, 2.0, 0.0)
-
-    
-    # Chat input
+    # Chat input and processing
     if prompt := st.chat_input("Ask about MonkAI framework development..."):
-        # Check if API key is set in session state
-        if not getattr(st.session_state, 'api_key', None):
-            st.error("Please enter your API key and click 'Enter' in the sidebar")
+        if not api_key:
+            st.error("Please enter your API key in the sidebar")
             return
             
         # Add user message to chat
@@ -241,46 +214,44 @@ async def chat():
         
         # Create agent and get response
         try:
-            api_key = st.session_state.api_key
             os.environ[f"{provider.upper()}_API_KEY"] = api_key
             
             with st.spinner("Thinking..."):
-                # Add system message with instructions
                 full_messages = [
                     {"role": "system", "content": FRAMEWORK_DEVELOPER_PROMPT}
                 ] + messages
                 
-            
-            manager = AgentManager(
-                agents_creators=[],
-                provider=provider,
-                model=model,
-                api_key=api_key,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                top_p=top_p,
-                frequency_penalty=frequency_penalty,
-                presence_penalty=presence_penalty
-            )
-            current_agent = CalculatorAgentCriator("invalid_user")
-            response = await manager.run(
-                prompt=prompt,
-                messages=full_messages,
-                max_turn=30,
-                agent=current_agent.get_agent(),
-            )
-            # Add assistant response to chat
-            assistant_message = {
-                "role": "assistant",
-                "content": response.choices[0].message.content
-            }
-            messages.append(assistant_message)
-            display_chat_message(assistant_message)
+                manager = AgentManager(
+                    agents_creators=[],
+                    provider=provider,
+                    model=model,
+                    api_key=api_key,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    top_p=top_p,
+                    frequency_penalty=frequency_penalty,
+                    presence_penalty=presence_penalty
+                )
+                current_agent = CalculatorAgentCriator("invalid_user")
+                response = await manager.run(
+                    prompt=prompt,
+                    messages=full_messages,
+                    max_turn=30,
+                    agent=current_agent.get_agent(),
+                )
+                
+                # Add assistant response to chat
+                assistant_message = {
+                    "role": "assistant",
+                    "content": response.choices[0].message.content
+                }
+                messages.append(assistant_message)
+                display_chat_message(assistant_message)
             
         except Exception as e:
             st.error(f"Error: {str(e)}")
     
-    # Add buttons for chat management
+    # Chat management buttons
     col1, col2 = st.columns(2)
     if col1.button("Clear Chat"):
         st.session_state.messages = []
@@ -298,5 +269,4 @@ async def chat():
         st.success(f"Chat history saved to {filename}")
 
 if __name__ == "__main__":
-  main()
-  asyncio.run(chat())
+    main()
