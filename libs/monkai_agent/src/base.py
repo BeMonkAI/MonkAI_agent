@@ -754,13 +754,13 @@ class AgentManager:
         # Append user's message
         messages=user_history if user_history is not  None else []
         messages.append({"role": "user", "content": user_message, "agent": None})
-
+        cmessages = [{{"role": "user", "content": copy.deepcopy(user_message)} for user_message in messages}]
         #Determined the agent to use
         agent_to_use = agent if agent is not None else self.agent
         # Run the conversation asynchronously
         response:Response = await self.__run(
             agent=agent_to_use,
-            messages= copy.deepcopy(messages),
+            messages= cmessages,
             context_variables=self.context_variables,
             max_tokens=max_tokens,
             top_p=top_p,
