@@ -102,8 +102,7 @@ async def __run_demo_loop(manager:AgentManager,  agent=None, context_variables={
         response = await manager.run(
             agent=agent,
             user_message=user_input,
-            user_history=messages,
-            model_override=model,
+            user_history=messages
         )
 
         if stream:
