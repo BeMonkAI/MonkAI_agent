@@ -64,14 +64,34 @@ class GroqProvider(LLMProvider):
 """
         return tools_desc
     
+    def _clean_messages(self, messages: list) -> list:
+        """Clean messages to ensure compatibility with Groq API."""
+        cleaned_messages = []
+        for msg in messages:
+            # Only keep supported fields
+            cleaned_msg = {
+                "role": msg["role"],
+                "content": msg.get("content", "")
+            }
+            # Handle function calls only for assistant messages
+            if msg["role"] == "assistant" and "function_call" in msg and msg["function_call"]:
+                cleaned_msg["function_call"] = msg["function_call"]
+            cleaned_messages.append(cleaned_msg)
+        return cleaned_messages
+    
     def get_completion(self, messages: list, **kwargs):
-        client = self.get_client()       
-        if "tool_choice" in kwargs and not kwargs["tool_choice"] not in ["none", "auto", "required"]:
-            kwargs["tool_choice"].pop("tool_choice")
+        client = self.get_client()
+        
+        # Clean and format messages
+        formatted_messages = self._clean_messages(messages)
+            
+        if "tool_choice" not in kwargs or kwargs["tool_choice"] not in ["none", "auto", "required"]:
+            kwargs["tool_choice"] = "required" if "tools" in kwargs and kwargs["tools"] else "none"
+            
         response = client.chat.completions.create(
-            messages=messages,
+            messages=formatted_messages,
             **kwargs
-        )  
+        )
         return response
 
 

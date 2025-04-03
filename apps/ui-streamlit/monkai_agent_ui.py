@@ -285,38 +285,10 @@ async def chat():
             
             with st.spinner("Thinking..."):
                 # Initialize AgentManager with provider instance
-                manager = AgentManager(
-                    agents_creators=[],
-                    provider=llm_provider,  # Pass the provider instance
-                    stream=stream,
-                    debug=debug,
-                    model=model,
-                    max_retries=max_retries,
-                    retry_delay=retry_delay,
-                    rate_limit_rpm=rate_limit_rpm if rate_limit_rpm > 0 else None,
-                    max_execution_time=max_execution_time if max_execution_time > 0 else None,
-                    context_window_size=context_window_size,
-                    track_token_usage=track_token_usage,
-                    temperature=temperature
-                )
-
-                current_agent = AgentArchitectCreator()
-                
-                # Call run with simplified parameters since provider handles model
-                response = await manager.run(
-                    user_message=prompt,
-                    user_history=messages,
-                    agent=current_agent.get_agent(),
-                    max_tokens=max_tokens,
-                    max_turn=30
-                )
-                
-                # Add assistant response to chat
-                assistant_message = {
-                    "role": "assistant",
-                    "content": response.messages[-1]["content"]
-                }
-                messages.append(assistant_message)
+                if provider == "openai":
+                    assistant_message = await openai_response(messages, model, temperature, max_tokens, max_retries, retry_delay, rate_limit_rpm, max_execution_time, context_window_size, debug, stream, track_token_usage, prompt, llm_provider)
+                else:
+                    pass
                 display_chat_message(assistant_message)
             
         except Exception as e:
@@ -338,6 +310,41 @@ async def chat():
         with open(filename, "w") as f:
             json.dump(chat_data, f, indent=2)
         st.success(f"Chat history saved to {filename}")
+
+async def openai_response(messages, model, temperature, max_tokens, max_retries, retry_delay, rate_limit_rpm, max_execution_time, context_window_size, debug, stream, track_token_usage, prompt, llm_provider):
+    manager = AgentManager(
+                        agents_creators=[],
+                        provider=llm_provider,  # Pass the provider instance
+                        stream=stream,
+                        debug=debug,
+                        model=model,
+                        max_retries=max_retries,
+                        retry_delay=retry_delay,
+                        rate_limit_rpm=rate_limit_rpm if rate_limit_rpm > 0 else None,
+                        max_execution_time=max_execution_time if max_execution_time > 0 else None,
+                        context_window_size=context_window_size,
+                        track_token_usage=track_token_usage,
+                        temperature=temperature
+                    )
+
+    current_agent = AgentArchitectCreator()
+                    
+                    # Call run with simplified parameters since provider handles model
+    response = await manager.run(
+                        user_message=prompt,
+                        user_history=messages,
+                        agent=current_agent.get_agent(),
+                        max_tokens=max_tokens,
+                        max_turn=30
+                    )
+                    
+                    # Add assistant response to chat
+    assistant_message = {
+                        "role": "assistant",
+                        "content": response.messages[-1]["content"]
+                    }
+    messages.append(assistant_message)
+    return assistant_message
 
 if __name__ == "__main__":
     main()
