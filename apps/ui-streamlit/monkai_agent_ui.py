@@ -1,11 +1,3 @@
-import streamlit as st
-# Set page config as first Streamlit command
-st.set_page_config(
-    page_title="MonkAI Framework Developer",
-    page_icon="🤖",
-    layout="wide"
-)
-
 """
 A Streamlit UI for the MonkAI Framework Developer Agent.
 This interface allows users to:
@@ -16,16 +8,13 @@ This interface allows users to:
 5. Save and review conversation history
 """
 
-import asyncio
 import os
 import json
+import streamlit as st
 from typing import Dict, List, Optional
 from monkai_agent import AgentManager, MonkaiAgentCreator
+from monkai_agent.groq import GROQ_MODELS
 from openai import OpenAI
-from monkai_agent.groq import GroqProvider, GROQ_MODELS
-from monkai_agent import OpenAIProvider, LLMProvider
-from agent_architect_creator import AgentArchitectCreator
-from apps.examples.triage.calculator_agents_creator import CalculatorAgentCriator
 
 # Define OpenAI models
 OPENAI_MODELS = [
@@ -67,7 +56,7 @@ For documentation questions, provide clear explanations about:
 - Integration examples
 """
 
-def get_provider(provider: str, model: str, api_key: str) -> MonkaiAgentCreator:
+def create_framework_developer_agent(provider: str, model: str, api_key: str) -> MonkaiAgentCreator:
     """
     Create a specialized Framework Developer agent.
     
@@ -79,18 +68,17 @@ def get_provider(provider: str, model: str, api_key: str) -> MonkaiAgentCreator:
     Returns:
         MonkaiAgentCreator instance configured for framework development
     """
-    if provider == "openai":
-        llm_provider = OpenAIProvider(model=model, api_key=api_key)
-    else:
-        llm_provider = GroqProvider(model=model, api_key=api_key)
-    return llm_provider 
+    return MonkaiAgentCreator(
+        base_prompt=FRAMEWORK_DEVELOPER_PROMPT,
+        model=model,
+        provider=provider,
+        api_key=api_key
+    )
 
 def initialize_chat_history() -> List[Dict]:
     """Initialize an empty chat history"""
     if "messages" not in st.session_state:
         st.session_state.messages = []
-    if "intro_shown" not in st.session_state:
-        st.session_state.intro_shown = False
     return st.session_state.messages
 
 def display_chat_message(message: Dict):
@@ -134,167 +122,124 @@ def display_chat_message(message: Dict):
         st.chat_message("system").write(content)
 
 def main():
+    st.set_page_config(
+        page_title="MonkAI Framework Developer",
+        page_icon="🤖",
+        layout="wide"
+    )
+    
     st.title("MonkAI Framework Developer Assistant")
     
-    # Initialize chat history
-    messages = initialize_chat_history()
-    
-    # Call chat interface
-    asyncio.run(chat())
-
-async def chat():
-    messages = st.session_state.messages
-
-    # Display chat history
-    for message in messages:
-        display_chat_message(message)
-    
-    # Sidebar configuration
+    # Sidebar for configuration
     with st.sidebar:
         st.header("Configuration")
         
-        # Provider selection with unique key
+        # Provider selection
         provider = st.selectbox(
             "Select Provider",
             ["openai", "groq"],
-            help="Choose between OpenAI and Groq",
-            key="provider_selector"
+            help="Choose between OpenAI and Groq"
         )
+        
+        # API key section
+        st.subheader("API Key Configuration")
+        
+        # API key input with Enter button
+        api_key_col1, api_key_col2 = st.columns([3, 1])
+        with api_key_col1:
+            api_key = st.text_input(
+                f"Enter {provider.upper()} API Key",
+                type="password",
+                help=f"Enter your {provider.upper()} API key",
+                key="api_key_input"
+            )
+        with api_key_col2:
+            if st.button("Enter"):
+                if api_key:
+                    st.success("API Key set! ✅")
+                    st.session_state.api_key = api_key
+                else:
+                    st.error("Please enter an API key")
         
         # Model selection based on provider
         available_models = OPENAI_MODELS if provider == "openai" else GROQ_MODELS
         model = st.selectbox(
             "Select Model",
             available_models,
-            help="Choose the model to use",
-            key="model_selector"
+            help="Choose the model to use"
         )
         
-        # API key section
-        st.subheader("API Key Configuration")
-        api_key = st.text_input(
-            f"Enter {provider.upper()} API Key",
-            type="password",
-            help=f"Enter your {provider.upper()} API key",
-            key="api_key_input"
-        )
-        
-        # Advanced settings matching AgentManager parameters
+        # Advanced settings
         with st.expander("Advanced Settings"):
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                temperature = st.slider(
-                    "Temperature", 
-                    0.0, 2.0, 0.7, 
-                    help="Controls randomness in responses",
-                    key="temperature"
-                )
-                max_tokens = st.number_input(
-                    "Max Tokens", 
-                    1, 4096, 2048,
-                    help="Maximum number of tokens to generate",
-                    key="max_tokens"
-                )
-                max_retries = st.number_input(
-                    "Max Retries", 
-                    1, 10, 3,
-                    help="Maximum number of retry attempts",
-                    key="max_retries"
-                )
-                retry_delay = st.slider(
-                    "Retry Delay", 
-                    0.1, 5.0, 1.0,
-                    help="Delay between retry attempts in seconds",
-                    key="retry_delay"
-                )
-                
-            with col2:
-                rate_limit_rpm = st.number_input(
-                    "Rate Limit (RPM)", 
-                    0, 100, 0,
-                    help="Rate limit in requests per minute (0 for no limit)",
-                    key="rate_limit"
-                )
-                max_execution_time = st.number_input(
-                    "Max Execution Time", 
-                    0, 300, 0,
-                    help="Maximum execution time in seconds (0 for no limit)",
-                    key="max_execution_time"
-                )
-                context_window_size = st.number_input(
-                    "Context Window Size", 
-                    0, 32768, 4096,
-                    help="Maximum context window size in tokens",
-                    key="context_window"
-                )
-                
-            # Additional settings
-            debug = st.checkbox(
-                "Debug Mode", 
-                value=False,
-                help="Enable debug logging",
-                key="debug"
-            )
-            stream = st.checkbox(
-                "Stream Response", 
-                value=False,
-                help="Enable streaming responses",
-                key="stream"
-            )
-            track_token_usage = st.checkbox(
-                "Track Token Usage", 
-                value=True,
-                help="Track token usage statistics",
-                key="track_tokens"
-            )
-
-    # Display framework information only once
-    if not st.session_state.intro_shown:
-        st.markdown("""
-        This assistant helps you understand and develop code for the MonkAI framework.
-        You can ask questions about:
-        - Framework components and their relationships
-        - Class and method documentation
-        - Code generation following framework patterns
-        - Integration examples
-        - Best practices and conventions
-        
-        Example questions:
-        - "How do I create a new agent type?"
-        - "What parameters does AgentManager.get_chat_completion accept?"
-        - "Show me how to implement a custom agent creator"
-        - "Explain the relationship between AgentManager and MonkaiAgentCreator"
-        """)
-        st.session_state.intro_shown = True
-
-    # Chat input and processing
+            temperature = st.slider("Temperature", 0.0, 2.0, 0.7)
+            max_tokens = st.number_input("Max Tokens", 1, 4096, 2048)
+            top_p = st.slider("Top P", 0.0, 1.0, 0.9)
+            frequency_penalty = st.slider("Frequency Penalty", -2.0, 2.0, 0.0)
+            presence_penalty = st.slider("Presence Penalty", -2.0, 2.0, 0.0)
+    
+    # Display framework information
+    st.markdown("""
+    This assistant helps you understand and develop code for the MonkAI framework.
+    You can ask questions about:
+    - Framework components and their relationships
+    - Class and method documentation
+    - Code generation following framework patterns
+    - Integration examples
+    - Best practices and conventions
+    
+    Example questions:
+    - "How do I create a new agent type?"
+    - "What parameters does AgentManager.get_chat_completion accept?"
+    - "Show me how to implement a custom agent creator"
+    - "Explain the relationship between AgentManager and MonkaiAgentCreator"
+    """)
+    
+    # Initialize chat history
+    messages = initialize_chat_history()
+    
+    # Display chat history
+    for message in messages:
+        display_chat_message(message)
+    
+    # Chat input
     if prompt := st.chat_input("Ask about MonkAI framework development..."):
-        if not api_key:
-            st.error("Please enter your API key in the sidebar")
+        # Check if API key is set in session state
+        if not getattr(st.session_state, 'api_key', None):
+            st.error("Please enter your API key and click 'Enter' in the sidebar")
             return
             
         # Add user message to chat
         messages.append({"role": "user", "content": prompt})
         display_chat_message({"role": "user", "content": prompt})
         
+        # Create agent and get response
         try:
-            # Create appropriate provider based on selection
-            llm_provider = (OpenAIProvider(api_key=api_key) if provider == "openai" 
-                          else GroqProvider(api_key=api_key))
+            api_key = st.session_state.api_key
+            os.environ[f"{provider.upper()}_API_KEY"] = api_key
+            agent_creator = create_framework_developer_agent(provider, model, api_key)
             
             with st.spinner("Thinking..."):
-                # Initialize AgentManager with provider instance
-                if provider == "openai":
-                    assistant_message = await openai_response(messages, model, temperature, max_tokens, max_retries, retry_delay, rate_limit_rpm, max_execution_time, context_window_size, debug, stream, track_token_usage, prompt, llm_provider)
-                else:
-                    pass
-                display_chat_message(assistant_message)
+                # Add system message with instructions
+                full_messages = [
+                    {"role": "system", "content": FRAMEWORK_DEVELOPER_PROMPT}
+                ] + messages
+                
+                response = agent_creator.get_chat_completion(
+                    messages=full_messages
+                )
+            
+            # Add assistant response to chat
+            assistant_message = {
+                "role": "assistant",
+                "content": response.choices[0].message.content
+            }
+            messages.append(assistant_message)
+            display_chat_message(assistant_message)
             
         except Exception as e:
             st.error(f"Error: {str(e)}")
-
-    # Chat management buttons
+    
+    # Add buttons for chat management
     col1, col2 = st.columns(2)
     if col1.button("Clear Chat"):
         st.session_state.messages = []
@@ -311,40 +256,5 @@ async def chat():
             json.dump(chat_data, f, indent=2)
         st.success(f"Chat history saved to {filename}")
 
-async def openai_response(messages, model, temperature, max_tokens, max_retries, retry_delay, rate_limit_rpm, max_execution_time, context_window_size, debug, stream, track_token_usage, prompt, llm_provider):
-    manager = AgentManager(
-                        agents_creators=[],
-                        provider=llm_provider,  # Pass the provider instance
-                        stream=stream,
-                        debug=debug,
-                        model=model,
-                        max_retries=max_retries,
-                        retry_delay=retry_delay,
-                        rate_limit_rpm=rate_limit_rpm if rate_limit_rpm > 0 else None,
-                        max_execution_time=max_execution_time if max_execution_time > 0 else None,
-                        context_window_size=context_window_size,
-                        track_token_usage=track_token_usage,
-                        temperature=temperature
-                    )
-
-    current_agent = AgentArchitectCreator()
-                    
-                    # Call run with simplified parameters since provider handles model
-    response = await manager.run(
-                        user_message=prompt,
-                        user_history=messages,
-                        agent=current_agent.get_agent(),
-                        max_tokens=max_tokens,
-                        max_turn=30
-                    )
-                    
-                    # Add assistant response to chat
-    assistant_message = {
-                        "role": "assistant",
-                        "content": response.messages[-1]["content"]
-                    }
-    messages.append(assistant_message)
-    return assistant_message
-
 if __name__ == "__main__":
-    main()
+    main() 
