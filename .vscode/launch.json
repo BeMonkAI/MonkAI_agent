@@ -9,7 +9,27 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "justMyCode": false
+        },
+        {
+            "name": "Debug Streamlit",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "streamlit",
+            "args": [
+                "run",
+                "${file}",
+                "--server.port",
+                "8502"
+            ],
+            "console": "integratedTerminal",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         }
     ]
 }
