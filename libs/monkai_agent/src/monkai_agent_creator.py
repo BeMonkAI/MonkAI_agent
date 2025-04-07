@@ -40,6 +40,9 @@ class MonkaiAgentCreator(ABC):
 
     @property
     def agent_name(self) -> str:
+        """
+        Returns the name of the agent.
+        """
         agent = self.get_agent()
         if agent is None or not  isinstance(agent, Agent):
             return None
@@ -47,10 +50,18 @@ class MonkaiAgentCreator(ABC):
 
     @property
     def predecessor_agent(self) -> Agent:
+        """
+        Returns the predecessor agent of the current agent.
+        """
         return self._predecessor_agent
 
     @predecessor_agent.setter
     def predecessor_agent(self, agent: Agent):
+        """
+        Sets the predecessor agent for the current agent.
+        Args:
+            agent (Agent): The predecessor agent to be set.
+        """
         self._predecessor_agent = agent
 
 
