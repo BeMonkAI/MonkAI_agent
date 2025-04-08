@@ -50,6 +50,22 @@ class GroqProvider(LLMProvider):
             if msg["role"] == "tool":
                 if "tool_call_id" not in msg:
                     continue  # Skip tool messages without tool_call_id
+
+            # Handle function calls for assistant messages
+            elif msg["role"] == "assistant":
+                # Handle the case where function_call is null but tool_calls exists and is not empty
+                if ("function_call" in msg and msg["function_call"] is None and 
+                    "tool_calls" in msg and msg["tool_calls"] and len(msg["tool_calls"]) > 0):
+                    # Extract the first tool call and convert it to a function_call format
+                    tool_call = msg["tool_calls"][0]
+                    cleaned_msg["function_call"] = {
+                        "name": tool_call["function"]["name"],
+                        "arguments": tool_call["function"]["arguments"]
+                    }
+                # Handle normal function_call case
+                elif "function_call" in msg and msg["function_call"]:
+                    cleaned_msg["function_call"] = msg["function_call"]
+            
             cleaned_messages.append(cleaned_msg)
         return cleaned_messages
     
