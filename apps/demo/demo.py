@@ -39,11 +39,11 @@ if __name__ == '__main__':
     agents_creators.append(PythonDeveloperAgentCreator(user="valid_user"))
     agents_creators.append(JornalistAgentCreator())
     agents_creators.append(CalculatorAgentCriator("invalid_user"))
-    provider = AzureProvider(api_key=config.OPENAI_API_KEY_BRASILSOUTH, endpoint=config.OPENAI_AZURE_ENDPOINT_BRASILSOUTH,api_version=config.GPT4o_OPENAI_API_VERSION_BRASILSOUTH)
-    #provider = GroqProvider(config.GROQ_API_KEY)
-    #agent_manager = AgentManager(provider=provider, agents_creators=agents_creators, model='llama3-70b-8192')
-    agent_manager = AgentManager(provider=provider, agents_creators=agents_creators,model=config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH)
-    
+    #provider = AzureProvider(api_key=config.OPENAI_API_KEY_BRASILSOUTH, endpoint=config.OPENAI_AZURE_ENDPOINT_BRASILSOUTH,api_version=config.GPT4o_OPENAI_API_VERSION_BRASILSOUTH)
+    #agent_manager = AgentManager(provider=provider, agents_creators=agents_creators,model=config.GPT4o_OPENAI_GPT_MODEL_BRASILSOUTH)
+    provider = GroqProvider(config.GROQ_API_KEY)
+    agent_manager = AgentManager(provider=provider, agents_creators=agents_creators, model='llama3-70b-8192')
+  
     #asyncio.run(run_demo_loop(agent_manager, model= ))
     asyncio.run(run_demo_loop(agent_manager, debug =True))
 
