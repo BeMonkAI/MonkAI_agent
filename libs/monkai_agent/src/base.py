@@ -726,10 +726,16 @@ class AgentManager:
                     if isinstance(messages, Memory):
                         history = messages.filter_memory(active_agent)
                     else:
-                        history = messages
+                        history = copy.deepcopy(messages)
+                    
+                    # Remove 'agent' field from each element in history if it exists
+                    for elem in history:
+                        if 'agent' in elem:
+                            elem.pop('agent')
+                            
                     if active_agent.external_content:
                         history[-1]["content"] = __DOCUMENT_GUARDRAIL_TEXT__ + history[-1]["content"]
-
+                    
                     completion = self.get_chat_completion(
                         agent=active_agent,
                         history=history,
@@ -816,13 +822,13 @@ class AgentManager:
         # Append user's message
         messages=user_history if user_history is not  None else []
         messages.append({"role": "user", "content": user_message, "agent": None})
-        cmessages = [{"role": message["role"], "content": copy.deepcopy(message["content"])} for message in messages]
+        
         #Determined the agent to use
         agent_to_use = agent if agent is not None else self.agent
         # Run the conversation asynchronously
         response:Response = await self.__run(
             agent=agent_to_use,
-            messages= cmessages,
+            messages= messages,
             context_variables=self.context_variables,
             max_tokens=max_tokens,
             top_p=top_p,
