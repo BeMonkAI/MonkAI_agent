@@ -3,6 +3,7 @@ LLM providers module for MonkAI framework.
 Supports multiple LLM providers including OpenAI and Groq.
 """
 
+import copy
 from typing import Optional, Any
 from groq import Groq
 import os
@@ -43,21 +44,12 @@ class GroqProvider(LLMProvider):
         """
         cleaned_messages = []
         for msg in messages:
-            cleaned_msg = {
-                "role": msg["role"],
-                "content": msg.get("content", "")
-            }
+            cleaned_msg = copy.deepcopy(msg)
             
             # Handle tool messages  
             if msg["role"] == "tool":
                 if "tool_call_id" not in msg:
                     continue  # Skip tool messages without tool_call_id
-                cleaned_msg["tool_call_id"] = msg["tool_call_id"]
-            
-            # Handle function calls for assistant messages
-            elif msg["role"] == "assistant" and "function_call" in msg and msg["function_call"]:
-                cleaned_msg["function_call"] = msg["function_call"]
-            
             cleaned_messages.append(cleaned_msg)
         return cleaned_messages
     
