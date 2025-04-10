@@ -14,4 +14,4 @@ dependencies = [
 
 [tool.hatch.build]
 packages = ["monkai_agent"]
-namespace = "monkai_agent.groq"
+namespace = "monkai_agent"
