@@ -13,5 +13,7 @@ dependencies = [
 ]
 
 [tool.hatch.build]
-packages = ["monkai_agent"]
-namespace = "monkai_agent"
+packages = ["monkai_agent/groq"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["monkai_agent/groq"]
