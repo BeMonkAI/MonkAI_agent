@@ -45,10 +45,14 @@ class TriageAgentCreator(MonkaiAgentCreator):
         Returns:
             Callable: A function that transfers the conversation to the specified agent.
         """
+
         def transfer_function():
             return agent_creator.get_agent()
-        transfer_function.__name__ = f"transfer_to_{agent_creator.get_agent().name.replace(' ', '_')}"
-        return transfer_function
+        agent = agent_creator.get_agent()
+        if  isinstance(agent, Agent):
+            transfer_function.__name__ = f"transfer_to_{agent.name.replace(' ', '_')}"
+            return transfer_function
+        return None
  
     def __build_agent(self):
         """
@@ -62,14 +66,13 @@ class TriageAgentCreator(MonkaiAgentCreator):
         print("Building triage agent")
         print(self.agents_creator)
         for agent_creator in self.agents_creator:
-
-            functions.append(self.__create_transfer_function(agent_creator))
-            agent = agent_creator.get_agent()
-            if not  isinstance(agent, Agent):
-                continue
-            print(agent.name)
-            print(agent_creator.get_agent_briefing())
-            instructions += f"- **Transfer to `{agent.name}`** if the user's query is about: {agent_creator.get_agent_briefing()}\n\n"
+            fnc = self.__create_transfer_function(agent_creator)
+            if fnc:
+                functions.append(fnc)
+                agent = agent_creator.get_agent()
+                print(agent.name)
+                print(agent_creator.get_agent_briefing())
+                instructions += f"- **Transfer to `{agent.name}`** if the user's query is about: {agent_creator.get_agent_briefing()}\n\n"
         self.triage_agent = Agent(
             name="Triage Agent",
             instructions=f"""
