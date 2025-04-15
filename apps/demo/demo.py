@@ -1,8 +1,7 @@
 import asyncio
 from openai import AzureOpenAI
 import config
-from monkai_agent import OpenAIProvider, AzureProvider
-from monkai_agent import AgentManager
+from monkai_agent import OpenAIProvider, AzureProvider, AgentManager
 from monkai_agent.repl import run_demo_loop
 from monkai_agent.groq import GroqProvider, GROQ_MODELS
 from groq import Groq
