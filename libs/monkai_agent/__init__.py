@@ -2,13 +2,13 @@
 MonkAI Agent - A flexible and powerful AI agent framework
 """
 
-from .src.providers import OpenAIProvider, LLMProvider, AzureProvider
-from .src.base import AgentManager
-from .src.types import Agent, Response, Result, PromptTest, PromptOptimizer
-from .src.memory import Memory, AgentMemory
-from .src.prompt_optimizer import PromptOptimizerManager
-from .src.monkai_agent_creator import MonkaiAgentCreator, TransferTriageAgentCreator
-from .src.triage_agent_creator import TriageAgentCreator
+from .monkai_agent.providers import OpenAIProvider, LLMProvider, AzureProvider
+from .monkai_agent.base import AgentManager
+from .monkai_agent.types import Agent, Response, Result, PromptTest, PromptOptimizer
+from .monkai_agent.memory import Memory, AgentMemory
+from .monkai_agent.prompt_optimizer import PromptOptimizerManager
+from .monkai_agent.monkai_agent_creator import MonkaiAgentCreator, TransferTriageAgentCreator
+from .monkai_agent.triage_agent_creator import TriageAgentCreator
 
 __all__ = [
     'AgentManager',
