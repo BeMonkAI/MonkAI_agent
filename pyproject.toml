@@ -28,3 +28,4 @@ packages = [
 
 [tool.hatch.build.targets.wheel.force-include]
 "libs/monkai_agent_groq/monkai_agent" = "monkai_agent"
+"libs/openinference_instrumentation_monkai_agent/openinference" = "openinference"
