@@ -1,6 +1,6 @@
 from monkai_agent import  TransferTriageAgentCreator
 from monkai_agent import Agent
-import monkai_agent.src.security as security
+import monkai_agent.security as security
 import os
 
 class PythonDeveloperAgentCreator(TransferTriageAgentCreator):

@@ -1,5 +1,5 @@
 from monkai_agent import TransferTriageAgentCreator, Agent
-from monkai_agent.src.security import validate
+from monkai_agent.security import validate
 import os
 import requests
 

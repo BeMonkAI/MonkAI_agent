@@ -1,4 +1,4 @@
-from setuptools import find_packages, setup
+from setuptools import find_namespace_packages, setup
 import os
 
 def parse_requirements(filename):
@@ -13,7 +13,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='monkai_agent',
-    packages=find_packages(include=['monkai_agent', 'monkai_agent.*']),
+    package_dir={'': 'monkai_agent'},
+    packages=find_namespace_packages(include=['*', '*.*']),
     version='0.0.33',
     description='Monkai Agent Library for creating intelligent agents, flows quickly, easily, and customizable.',
     long_description=long_description,

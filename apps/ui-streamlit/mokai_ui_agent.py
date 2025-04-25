@@ -3,9 +3,9 @@ from typing import Any, Callable, Dict, List, Optional
 
 import tiktoken
 
-from monkai_agent.src.base import DEFAULT_TOKEN_LIMITS
-from monkai_agent.src.rate_limiter import RateLimiter
-from monkai_agent.src.base import TokenUsage
+from monkai_agent.base import DEFAULT_TOKEN_LIMITS
+from monkai_agent.rate_limiter import RateLimiter
+from monkai_agent.base import TokenUsage
 
 
 class MonkaiUIAgent:
@@ -58,7 +58,7 @@ class MonkaiUIAgent:
     def __setup_client(self, provider: str):
         """Set up the API client based on the provider."""
         if provider == "openai":
-            from monkai_agent.src.providers import OpenAIProvider
+            from monkai_agent.providers import OpenAIProvider
             self.__provider = OpenAIProvider(api_key=self.api_key)
         elif provider == "groq" :
             from monkai_agent.groq import GroqProvider
