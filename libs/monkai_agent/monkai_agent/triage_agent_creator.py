@@ -62,7 +62,6 @@ class TriageAgentCreator(MonkaiAgentCreator):
         print("Building triage agent")
         print(self.agents_creator)
         for agent_creator in self.agents_creator:
-
             functions.append(self.__create_transfer_function(agent_creator))
             agent = agent_creator.get_agent()
             if not  isinstance(agent, Agent):

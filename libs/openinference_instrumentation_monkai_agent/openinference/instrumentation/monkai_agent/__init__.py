@@ -6,7 +6,7 @@ from opentelemetry import trace as trace_api
 from opentelemetry.instrumentation.instrumentor import BaseInstrumentor  # type: ignore
 from wrapt import wrap_function_wrapper
 
-from monkai_agent.monkai_agent.providers import OpenAIProvider, AzureProvider, LLMProvider
+from monkai_agent.providers import OpenAIProvider, AzureProvider, LLMProvider
 from openinference.instrumentation import OITracer, TraceConfig
 from openinference.instrumentation.monkai_agent._wrappers import (
     _OpenAIProviderWrapper,
@@ -43,7 +43,7 @@ class MonkaiAgentInstrumentor(BaseInstrumentor):  # type: ignore[misc]
         # Wrap OpenAI provider
         self._original_openai_get_completion = OpenAIProvider.get_completion
         wrap_function_wrapper(
-            module="monkai_agent.src.providers",
+            module="monkai_agent.providers",
             name="OpenAIProvider.get_completion",
             wrapper=_OpenAIProviderWrapper(tracer=self._tracer),
         )
@@ -51,20 +51,20 @@ class MonkaiAgentInstrumentor(BaseInstrumentor):  # type: ignore[misc]
         # Wrap Azure provider
         self._original_azure_get_completion = AzureProvider.get_completion
         wrap_function_wrapper(
-            module="monkai_agent.src.providers",
+            module="monkai_agent.providers",
             name="AzureProvider.get_completion",
             wrapper=_AzureProviderWrapper(tracer=self._tracer),
         )
 
         # Wrap base LLM provider for any custom implementations
         wrap_function_wrapper(
-            module="monkai_agent.src.providers",
+            module="monkai_agent.providers",
             name="LLMProvider.get_completion",
             wrapper=_BaseProviderWrapper(tracer=self._tracer),
         )
 
     def _uninstrument(self, **kwargs: Any) -> None:
-        monkai_module = import_module("monkai_agent.src.providers")
+        monkai_module = import_module("monkai_agent.providers")
         if self._original_openai_get_completion is not None:
             monkai_module.OpenAIProvider.get_completion = self._original_openai_get_completion
         if self._original_azure_get_completion is not None:
