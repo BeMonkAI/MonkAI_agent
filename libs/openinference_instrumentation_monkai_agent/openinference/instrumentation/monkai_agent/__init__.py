@@ -6,7 +6,7 @@ from opentelemetry import trace as trace_api
 from opentelemetry.instrumentation.instrumentor import BaseInstrumentor  # type: ignore
 from wrapt import wrap_function_wrapper
 
-from monkai_agent.src.providers import OpenAIProvider, AzureProvider, LLMProvider
+from monkai_agent.monkai_agent.providers import OpenAIProvider, AzureProvider, LLMProvider
 from openinference.instrumentation import OITracer, TraceConfig
 from openinference.instrumentation.monkai_agent._wrappers import (
     _OpenAIProviderWrapper,
