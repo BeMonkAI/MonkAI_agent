@@ -33,9 +33,9 @@ if __name__ == '__main__':
     the demo loop, as many agents you created in the system can be added to this loop.
     """
     
-    from apps.examples.triage.python_developer_agent_creator import PythonDeveloperAgentCreator
-    from apps.examples.triage.jornalist_agent_creator import JornalistAgentCreator
-    from apps.examples.triage.calculator_agents_creator import CalculatorAgentCriator
+    from examples.triage.python_developer_agent_creator import PythonDeveloperAgentCreator
+    from examples.triage.jornalist_agent_creator import JornalistAgentCreator
+    from examples.triage.calculator_agents_creator import CalculatorAgentCriator
     
     agents_creators = []
     agents_creators.append(PythonDeveloperAgentCreator(user="valid_user"))
