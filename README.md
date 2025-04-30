@@ -1,4 +1,4 @@
-<img src="./assets/monkai_mascote_fundo_transpa.png" alt="Logo" width="150">
+<img src="./assets/monkai_mascote_fundo_transpa.png" alt="Logo" width="150"/>
 
 
 <h2 style="font-family: 'Courier New', monospace; color: green;"> MonkAI Agent</h2>
