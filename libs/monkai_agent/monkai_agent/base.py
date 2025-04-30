@@ -7,7 +7,7 @@ In addition, it imports and uses utility functions and specific types that are e
 """
 
 import logging
-from .types import Response
+from .types import AgentStatus, Response
 from .monkai_agent_creator import MonkaiAgentCreator
 from .triage_agent_creator import TriageAgentCreator 
 from .memory import Memory
@@ -25,7 +25,6 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 import tiktoken
 from .types import Agent
-from .agent import BaseAgent
 #from .llm_providers import get_llm_provider
 import os
 from .rate_limiter import RateLimiter
@@ -338,7 +337,7 @@ class AgentManager:
         # Agent's context variables are overridden by passed context variables
         merged_context = {**agent.context_variables, **context_variables}
         context_variables = defaultdict(str, merged_context)
-        
+        agent.status = AgentStatus.PROCESSING
         instructions = (
             agent.instructions(context_variables)
             if callable(agent.instructions)
@@ -370,13 +369,14 @@ class AgentManager:
             self._rate_limiter.acquire()
             
         try:
-            # Set up completion parameters
+            # Set up completion parameters with agent info for instrumentation
             create_params = {
-                 "model":  agent.model or self.model,
+                "model": agent.model or self.model,
                 "messages": messages,
                 "tools": tools or None,
                 "tool_choice": agent.tool_choice,
                 "stream": stream,
+                "agent": agent,  # This will be removed by the wrapper
             }
             if self.temperature:
                 create_params["temperature"] = self.temperature
@@ -605,7 +605,11 @@ class AgentManager:
         history = copy.deepcopy(filtered_messages)
         init_len = len(filtered_messages)
 
-        while len(history) - init_len < max_turns:
+        while len(history) - init_len < max_turns and active_agent:
+
+            if active_agent.status == AgentStatus.COMPLETED:
+                active_agent.status = AgentStatus.IDLE
+                break
 
             message = {
                 "content": "",
@@ -722,6 +726,9 @@ class AgentManager:
 
             while i < max_turns and active_agent:
                 try:
+                    if active_agent.status == AgentStatus.COMPLETED:
+                        active_agent.status = AgentStatus.IDLE
+                        break
                     i += 1
                     if isinstance(messages, Memory):
                         history = messages.filter_memory(active_agent)

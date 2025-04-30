@@ -11,13 +11,37 @@ from openai.types.chat.chat_completion_message_tool_call import (
     Function,
 )
 from typing import Any, List, Callable, Union, Optional
-
+from enum import Enum
 # Third-party imports
 from pydantic import BaseModel
 
 AgentFunction = Callable[[], Union[str, "Agent", dict]]
 
-
+class AgentStatus(int, Enum):
+    """
+    Enum representing the status of an agent.
+    
+    """
+    IDLE = 0
+    """
+    The agent is idle and not processing any tasks.
+    
+    """
+    PROCESSING = 1
+    """
+    The agent is currently processing a task.
+    
+    """
+    COMPLETED = 2
+    """
+    The agent has completed its task.
+    
+    """
+    ERROR = 3
+    """
+    The agent encountered an error during processing.
+    
+    """
 class Agent(BaseModel):
     """
     Represents a function that an agent can perform.
@@ -62,17 +86,17 @@ class Agent(BaseModel):
     """
     Default context variables for the agent.
     """
-    """
-    The agent's predecessor.
-    """
     predecessor_agent: Optional["Agent"] = None
 
     """
     The agent's predecessor.
     """
     sucessors_agent: Optional[List["Agent"]] = None
+    """
+    The agent's successors.
+    """
+    status: AgentStatus = AgentStatus.IDLE
     
-
 
 class Response(BaseModel):
     """

@@ -2,6 +2,7 @@ from monkai_agent import  TransferTriageAgentCreator
 from monkai_agent import Agent
 import monkai_agent.security as security
 import os
+from monkai_agent.util import completion_task
 
 class PythonDeveloperAgentCreator(TransferTriageAgentCreator):
     def __init__(self, user):
@@ -48,6 +49,7 @@ class PythonDeveloperAgentCreator(TransferTriageAgentCreator):
     
     
     @security.validate(is_user_valid)
+    @completion_task
     def write_code_in_file(self,path, file_name, code):
         """
         Write the code in the file.

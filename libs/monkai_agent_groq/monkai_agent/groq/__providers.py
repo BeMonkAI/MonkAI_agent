@@ -201,7 +201,8 @@ class GroqProvider(LLMProvider):
             ChatCompletion| Stream[ChatCompletionChunk]: Groq API response.
         """
         client = self.get_client()
-        
+        if 'agent' in kwargs:
+            kwargs.pop('agent')
         # Clean and format messages
         formatted_messages = self._clean_messages(messages)
         # Check if this is a follow-up after tool execution

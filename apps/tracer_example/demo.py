@@ -5,12 +5,15 @@ from monkai_agent import OpenAIProvider, AzureProvider, AgentManager
 from monkai_agent.repl import run_demo_loop
 from monkai_agent.groq import GroqProvider, GROQ_MODELS
 from groq import Groq
-from openinference.instrumentation.groq import GroqInstrumentor
-from openinference.instrumentation.openai import OpenAIInstrumentor
 from openinference.instrumentation.monkai_agent import MonkaiAgentInstrumentor
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk import trace as trace_sdk
 from opentelemetry.sdk.trace.export import ConsoleSpanExporter, SimpleSpanProcessor
+
+#pip install openinference_instrumentation_monkai_agent
+
+#execute: .venv/bin/python -m phoenix.server.main serve
+
 
 # Set up OpenTelemetry tracing
 endpoint = "http://127.0.0.1:6006/v1/traces"
@@ -43,8 +46,7 @@ if __name__ == '__main__':
     agents_creators.append(CalculatorAgentCriator("valid_user"))
 
     # Initialize the provider - using Groq for this demo
-    provider = GroqProvider(config.GROQ_API_KEY)
-    #provider = OpenAIProvider(config.OPENAI_API_KEY_ARTHUR)
-    agent_manager = AgentManager(provider=provider, agents_creators=agents_creators, model="llama-3.3-70b-versatile", temperature=0.3)
+    provider = OpenAIProvider(config.OPENAI_API_KEY_ARTHUR)
+    agent_manager = AgentManager(provider=provider, agents_creators=agents_creators, model="gpt-4o", temperature=0.3)
     asyncio.run(run_demo_loop(agent_manager, debug=True))
 
