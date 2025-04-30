@@ -246,6 +246,8 @@ class OpenAIProvider(LLMProvider):
             ChatCompletion: openAI chat completions response.
         """
         client = self.get_client()
+        if 'agent' in kwargs:
+            kwargs.pop('agent')
         return client.chat.completions.create(
             messages=messages,
             **kwargs
@@ -498,4 +500,6 @@ class AzureProvider(LLMProvider):
             ChatCompletion: Azure OpenAI chat completions response.
         """
         client = self.get_client()
+        if 'agent' in kwargs:
+            kwargs.pop('agent')
         return client.chat.completions.create(messages=messages, **kwargs)

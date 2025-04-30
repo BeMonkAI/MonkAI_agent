@@ -17,15 +17,25 @@ class _BaseProviderWrapper:
         args: tuple,
         kwargs: Dict[str, Any],
     ) -> Any:
+        # Extract agent information from kwargs if available
+        agent = kwargs.pop('agent', None)  # Remove agent from kwargs since it's not a provider parameter
+        model = kwargs.get('model', None)  # Get model but don't remove it as it's needed for the API call
+
+        agent_name = agent.name if agent else "unknown"
+        agent_model = agent.model if agent else model or "unknown"
+
         with self._tracer.start_span(
             name=f"{instance.__class__.__name__}.get_completion",
             attributes={
-                "ai.model": kwargs.get("model", "unknown"),
+                "ai.model": agent_model,
                 "ai.temperature": kwargs.get("temperature"),
                 "ai.max_tokens": kwargs.get("max_tokens"),
                 "ai.top_p": kwargs.get("top_p"),
                 "ai.frequency_penalty": kwargs.get("frequency_penalty"),
                 "ai.presence_penalty": kwargs.get("presence_penalty"),
+                "monkai.agent.name": agent_name,
+                "monkai.agent.functions": str([f.__name__ for f in agent.functions]) if agent and agent.functions else "[]",
+                "monkai.agent.parallel_tool_calls": str(agent.parallel_tool_calls) if agent else "unknown",
             },
         ) as span:
             # Record input messages

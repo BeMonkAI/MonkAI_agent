@@ -1,10 +1,15 @@
 from monkai_agent import TransferTriageAgentCreator, Agent
+from monkai_agent.types import AgentStatus
 from monkai_agent.security import validate
+from monkai_agent.util import completion_task
 import os
 import requests
 
    
 class CalculatorAgentCriator(TransferTriageAgentCreator):
+    
+    calculator_agent = None
+
     def __init__(self, user:str):
         super().__init__()
         self.user = user
@@ -31,6 +36,7 @@ class CalculatorAgentCriator(TransferTriageAgentCreator):
             return False
         
     @validate(is_user_valid)
+    @completion_task  # Changed from @completion_task() to @completion_task
     def my_function(self, a: float, b: float):
         """
         Performs multiple mathematical operations in a single expression:
