@@ -33,7 +33,6 @@ class _BaseProviderWrapper:
                 "ai.top_p": kwargs.get("top_p"),
                 "ai.frequency_penalty": kwargs.get("frequency_penalty"),
                 "ai.presence_penalty": kwargs.get("presence_penalty"),
-                "ai.tools": kwargs.get("tools", []),
                 "ai.tools_choice": kwargs.get("tools_choice", ""),
                 "monkai.agent.name": agent_name,
                 "monkai.agent.functions": str([f.__name__ for f in agent.functions]) if agent and agent.functions else "[]",
@@ -46,8 +45,16 @@ class _BaseProviderWrapper:
                 span.set_attribute(f"ai.request.messages.{i}.role", msg.get("role", ""))
                 span.set_attribute(f"ai.request.messages.{i}.content", msg.get("content", ""))
 
-            response = wrapped(*args, **kwargs)
 
+            tools = kwargs.get("tools", []),
+            for i, tool in enumerate(tools):
+                span.set_attribute(f"ai.tools.{i}.name", tool.get("name"))
+                span.set_attribute(f"ai.tools.{i}.description", tool.get("description"))
+                span.set_attribute(f"ai.tools.{i}.parameters", str(tool.get("parameters")))
+                span.set_attribute(f"ai.tools.{i}.function", str(tool.get("function")))
+                span.set_attribute(f"ai.tools.{i}.tool_type", tool.get("type", ""))
+
+            response = wrapped(*args, **kwargs)
             # Record response
             completion = response.choices[0].message
             span.set_attribute("ai.response.role", completion.role)
