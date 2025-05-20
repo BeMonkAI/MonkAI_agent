@@ -48,10 +48,10 @@ class _BaseProviderWrapper:
 
             tools = kwargs.get("tools", []),
             for i, tool in enumerate(tools):
-                span.set_attribute(f"ai.tools.{i}.name", tool.get("name"))
-                span.set_attribute(f"ai.tools.{i}.description", tool.get("description"))
-                span.set_attribute(f"ai.tools.{i}.parameters", str(tool.get("parameters")))
-                span.set_attribute(f"ai.tools.{i}.function", str(tool.get("function")))
+                span.set_attribute(f"ai.tools.{i}.name", tool.get("name", None))
+                span.set_attribute(f"ai.tools.{i}.description", tool.get("description", None))
+                span.set_attribute(f"ai.tools.{i}.parameters", str(tool.get("parameters", None)))
+                span.set_attribute(f"ai.tools.{i}.function", str(tool.get("function", None)))
                 span.set_attribute(f"ai.tools.{i}.tool_type", tool.get("type", ""))
 
             response = wrapped(*args, **kwargs)
