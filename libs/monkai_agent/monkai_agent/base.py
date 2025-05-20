@@ -827,7 +827,7 @@ class AgentManager:
             Response: The response from the agent after processing the user message.
         """
         # Append user's message
-        messages=user_history if user_history is not  None else []
+        messages=copy.deepcopy(user_history) if user_history is not  None else []
         messages.append({"role": "user", "content": user_message, "agent": None})
         
         #Determined the agent to use

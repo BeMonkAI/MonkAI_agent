@@ -1,6 +1,7 @@
 
 langchain-groq>=0.0.3
 python-dotenv>=1.0.0 
+arize-phoenix
 openinference-instrumentation==0.1.26
 openinference-instrumentation-groq==0.1.9
 openinference-instrumentation-openai==0.1.23
