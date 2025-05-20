@@ -46,7 +46,7 @@ class _BaseProviderWrapper:
                 span.set_attribute(f"ai.request.messages.{i}.content", msg.get("content", ""))
 
 
-            tools = kwargs.get("tools", []),
+            tools = kwargs.get("tools", [])
             for i, tool in enumerate(tools):
                 span.set_attribute(f"ai.tools.{i}.function", str(tool.get("function", None)))
                 span.set_attribute(f"ai.tools.{i}.tool_type", tool.get("type", ""))
