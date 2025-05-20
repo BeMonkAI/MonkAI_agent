@@ -33,6 +33,8 @@ class _BaseProviderWrapper:
                 "ai.top_p": kwargs.get("top_p"),
                 "ai.frequency_penalty": kwargs.get("frequency_penalty"),
                 "ai.presence_penalty": kwargs.get("presence_penalty"),
+                "ai.tools": kwargs.get("tools", []),
+                "ai.tools_choice": kwargs.get("tools_choice", ""),
                 "monkai.agent.name": agent_name,
                 "monkai.agent.functions": str([f.__name__ for f in agent.functions]) if agent and agent.functions else "[]",
                 "monkai.agent.parallel_tool_calls": str(agent.parallel_tool_calls) if agent else "unknown",
