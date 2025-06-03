@@ -13,6 +13,7 @@ dependencies = [
     "arize-phoenix>=8.22.1",
     "openai>=1.0.0",
     "groq>=0.20.0",
+    "mcp[cli]",
     "openinference-instrumentation==0.1.26",
     "openinference-instrumentation-groq==0.1.9",
     "openinference-instrumentation-openai==0.1.23",

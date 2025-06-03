@@ -5,5 +5,4 @@ config.py
 .DS_Store
 .vs_code
 .vs
-
-.vscode
+.venv
