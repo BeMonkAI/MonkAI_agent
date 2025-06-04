@@ -15,6 +15,11 @@ from enum import Enum
 # Third-party imports
 from pydantic import BaseModel
 
+# Forward declaration for MCPAgent
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .mcp_agent import MCPAgent, MCPClientConfig, MCPClientConnection
+
 AgentFunction = Callable[[], Union[str, "Agent", dict]]
 
 class AgentStatus(int, Enum):
