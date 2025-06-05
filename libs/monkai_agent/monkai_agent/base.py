@@ -717,7 +717,7 @@ class AgentManager:
                 "role": "tool",
                 "tool_call_id": tool_call.id,
                 "tool_name": name,
-                "content": str(result),
+                "content": MCPAgent.extract_tool_result_content(result),
             }
         except Exception as e:
             debug_print(debug, f"Error calling MCP tool {tool_call.function.name}: {e}")

@@ -28,6 +28,7 @@ from mcp.types import (
     Prompt,
     CallToolRequest,
     GetPromptRequest,
+    CallToolResult
 )
 
 from .types import Agent
@@ -267,6 +268,41 @@ class MCPAgent(Agent):
         except Exception as e:
             logger.error(f"Failed to discover capabilities from '{connection.config.name}': {e}")
     
+    @staticmethod
+    def extract_tool_result_content(result_content) -> str:
+        """
+        Extract the content from a CallToolResult content object and return it as a string.
+        
+        Args:
+            result: The CallToolResult content object to extract content from
+            
+        Returns:
+            str: The extracted content as a string
+        """
+        if not result_content:
+            return ""
+        
+        content_parts = []
+        
+        for content_item in result_content:
+            if hasattr(content_item, 'type'):
+                if content_item.type == "text":
+                    content_parts.append(content_item.text)
+                elif content_item.type == "image":
+                    # For images, include a description with the mime type
+                    content_parts.append(f"[Image: {content_item.mimeType}]")
+                elif content_item.type == "resource":
+                    # Handle embedded resources
+                    if hasattr(content_item.resource, 'text'):
+                        content_parts.append(content_item.resource.text)
+                    elif hasattr(content_item.resource, 'blob'):
+                        content_parts.append(f"[Binary Resource: {content_item.resource.mimeType or 'unknown'}]")
+            else:
+                # Fallback: convert to string if type not recognized
+                content_parts.append(str(content_item))
+        
+        return "\n".join(content_parts)
+
     async def call_mcp_tool(self, tool_name: str, arguments: Dict[str, Any], server_name: Optional[str] = None) -> Any:
         """
         Call a tool from an MCP server.
@@ -323,14 +359,8 @@ class MCPAgent(Agent):
             return result.content
         except Exception as e:
             logger.error(f"Failed to call tool '{tool_name}': {e}")
-            # Mark connection as closed and attempt to reconnect
-            target_connection.is_connected = False
-            success = await self._connect_client(target_connection)
-            if success:
-                logger.info(f"Reconnected successfully, retrying tool call")
-                result = await target_connection.session.call_tool(name=tool_name, arguments=arguments)
-                return result.content
-            raise
+            # Mark connection as closed and attempt to reconnect      
+            raise e
         
     async def get_mcp_resource(self, resource_uri: str, server_name: Optional[str] = None) -> Any:
         """
