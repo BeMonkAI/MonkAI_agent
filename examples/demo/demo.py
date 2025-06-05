@@ -43,8 +43,8 @@ if __name__ == '__main__':
     agents_creators.append(CalculatorAgentCriator("valid_user"))
 
     # Initialize the provider - using Groq for this demo
-    provider = GroqProvider(config.GROQ_API_KEY)
-    #provider = OpenAIProvider(config.OPENAI_API_KEY_ARTHUR)
+    provider = GroqProvider(<private key>)
+    #provider = OpenAIProvider(<private key>)
     agent_manager = AgentManager(provider=provider, agents_creators=agents_creators, model="llama-3.3-70b-versatile", temperature=0.3)
     asyncio.run(run_demo_loop(agent_manager, debug=True))
 
