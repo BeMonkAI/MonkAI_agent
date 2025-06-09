@@ -349,6 +349,7 @@ class AgentManager:
         merged_context = {**agent.context_variables, **context_variables}
         context_variables = defaultdict(str, merged_context)
         agent.status = AgentStatus.PROCESSING
+        #TODO:prompt mcp here
         instructions = (
             agent.instructions(context_variables)
             if callable(agent.instructions)
