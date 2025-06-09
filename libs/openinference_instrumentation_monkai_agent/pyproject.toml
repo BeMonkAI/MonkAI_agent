@@ -8,12 +8,12 @@ description = "OpenInference instrumentation for MonkAI Agent"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
     { name = "MonkAI Team", email = "" },
 ]
 dependencies = [
-    "monkai-agent>=0.0.33",
+    "monkai-agent>=0.1.1",
     "opentelemetry-api>=1.0.0",
     "opentelemetry-instrumentation>=0.37b0",
     "wrapt>=1.11.2",
