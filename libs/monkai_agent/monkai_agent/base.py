@@ -349,7 +349,6 @@ class AgentManager:
         merged_context = {**agent.context_variables, **context_variables}
         context_variables = defaultdict(str, merged_context)
         agent.status = AgentStatus.PROCESSING
-        #TODO:prompt mcp here
         instructions = (
             agent.instructions(context_variables)
             if callable(agent.instructions)
@@ -563,7 +562,7 @@ class AgentManager:
                         # Handle MCP tool call asynchronously
                         mcp_result = await self._handle_mcp_tool_call(agent, tool_call, debug)
                         partial_response.messages.append(mcp_result)
-                            
+                        continue
                     except Exception as e:
                         debug_print(debug, f"Error calling MCP tool {name}: {e}")
                 

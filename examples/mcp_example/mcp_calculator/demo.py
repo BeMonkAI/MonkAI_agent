@@ -26,7 +26,9 @@ tracer_provider.add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter()))  
 MonkaiAgentInstrumentor().instrument(tracer_provider=tracer_provider)
 import sys
 
-if __name__ == '__main__': 
+
+
+async def main():
     """
     Run the demo loop for different agent builders.
 
@@ -43,7 +45,7 @@ if __name__ == '__main__':
     agents_creators = []
  
     creator = CalculatorAgentCreator(model="gpt-4o", python_executable=sys.executable)
-    res = asyncio.run(creator.initialize_agent())  # Ensure the agent is initialized
+    res = await creator.initialize_agent()  # Ensure the agent is initialized
     if not res:
         print("Failed to initialize the Calculator Agent. Please check the server script path and Python executable.")
         exit(1)
@@ -58,5 +60,8 @@ if __name__ == '__main__':
             endpoint=config.OPENAI_AZURE_ENDPOINT_BRASILSOUTH,
     )
     agent_manager = AgentManager(provider=provider, agents_creators=agents_creators, model="gpt-4o", temperature=0.3)
-    asyncio.run(run_demo_loop(agent_manager, debug=True))
+    return await run_demo_loop(agent_manager, debug=True)
+
+if __name__ == '__main__': 
+     asyncio.run(main(), debug=True)
 
