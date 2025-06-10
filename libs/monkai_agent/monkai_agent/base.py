@@ -349,12 +349,15 @@ class AgentManager:
         merged_context = {**agent.context_variables, **context_variables}
         context_variables = defaultdict(str, merged_context)
         agent.status = AgentStatus.PROCESSING
-        
-        instructions = (
+        #TODO: call async function to initialize MCP prompts if this is an MCPAgent 
+        mcp_agent= MCPAgent()
+        mcp_prompt= mcp_agent.get_mcp_prompt(prompt_name=agent.prompt_name, arguments=context_variables) #needs to receive prompt and context, map agent names to prompts?
+        '''instructions = (
             agent.instructions(context_variables)
             if callable(agent.instructions)
             else agent.instructions
-        )
+        )'''
+        instructions = mcp_prompt
         messages = [{"role": "system", "content": instructions}] + history
         debug_print(debug, "Getting chat completion for...:", messages)
         if self.context_window_size:

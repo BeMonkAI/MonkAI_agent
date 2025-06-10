@@ -57,6 +57,11 @@ class Agent(BaseModel):
     Name of Agent   
     
     """
+    prompt_name: str = "Agent_Prompt"
+    """
+    Name of the agents base prompt  
+    
+    """
     model: str = None
     """
     The model used by the agent.

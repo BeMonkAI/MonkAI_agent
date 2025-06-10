@@ -505,7 +505,7 @@ class MCPAgent(Agent):
             if connection.is_connected:
                 #prompts.extend(connection.available_prompts)
                 prompts.extend(
-                    PROMPTS.values()  # Use predefined prompts for now
+                    PROMPTS # Use predefined prompts for now
                 )
         return prompts
     
