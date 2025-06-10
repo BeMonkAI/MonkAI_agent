@@ -32,6 +32,7 @@ from mcp.types import (
 )
 
 from .types import Agent
+from mcp_prompts import PROMPTS
 
 logger = logging.getLogger(__name__)
 
@@ -502,7 +503,10 @@ class MCPAgent(Agent):
             if server_name and connection.config.name != server_name:
                 continue
             if connection.is_connected:
-                prompts.extend(connection.available_prompts)
+                #prompts.extend(connection.available_prompts)
+                prompts.extend(
+                    PROMPTS.values()  # Use predefined prompts for now
+                )
         return prompts
     
     async def connect_all_clients(self) -> Dict[str, bool]:

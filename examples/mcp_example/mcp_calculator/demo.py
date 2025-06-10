@@ -27,7 +27,6 @@ MonkaiAgentInstrumentor().instrument(tracer_provider=tracer_provider)
 import sys
 
 
-
 async def main():
     """
     Run the demo loop for different agent builders.
