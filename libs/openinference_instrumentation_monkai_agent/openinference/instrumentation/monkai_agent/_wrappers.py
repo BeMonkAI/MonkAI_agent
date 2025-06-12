@@ -43,13 +43,13 @@ class _BaseProviderWrapper:
             messages = args[0] if args else kwargs.get("messages", [])
             for i, msg in enumerate(messages):
                 span.set_attribute(f"ai.request.messages.{i}.role", msg.get("role", ""))
-                span.set_attribute(f"ai.request.messages.{i}.content", msg.get("content", ""))
+                span.set_attribute(f"ai.request.messages.{i}.content", str(msg.get("content","")))
 
 
             tools = kwargs.get("tools", [])
             for i, tool in enumerate(tools):
                 span.set_attribute(f"ai.tools.{i}.function", str(tool.get("function", None)))
-                span.set_attribute(f"ai.tools.{i}.tool_type", tool.get("type", ""))
+                span.set_attribute(f"ai.tools.{i}.tool_type", str(tool.get("type", "")))
 
             response = wrapped(*args, **kwargs)
             # Record response
