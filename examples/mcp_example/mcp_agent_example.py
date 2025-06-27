@@ -10,7 +10,7 @@ import logging
 from pathlib import Path
 
 from monkai_agent import MCPAgent, create_stdio_mcp_config, create_sse_mcp_config
-from libs.monkai_agent.monkai_agent.mcp_prompts import PROMPTS
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)

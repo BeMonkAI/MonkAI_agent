@@ -28,11 +28,11 @@ from mcp.types import (
     Prompt,
     CallToolRequest,
     GetPromptRequest,
-    CallToolResult
+    CallToolResult,
+    GetPromptRequestParams
 )
 
 from .types import Agent
-from mcp_prompts import PROMPTS
 
 logger = logging.getLogger(__name__)
 
@@ -118,19 +118,22 @@ class MCPAgent(Agent):
     """Whether to automatically discover server capabilities on connection."""
     
     
-    async def add_mcp_client(self, config: MCPClientConfig) -> MCPClientConnection:
+    async def add_mcp_client(self, config: MCPClientConfig, prompt_name:str=None,arguments:dict={}) -> MCPClientConnection:
         """
         Add a new MCP client connection.
         
         Args:
             config: Configuration for the MCP client
-            
+            prompt_name: Name of the prompt to use for the MCP client
+            arguments: Arguments to pass to the prompt
+
         Returns:
             MCPClientConnection: The created connection object
         """
         connection = MCPClientConnection(config=config)
         self.mcp_clients.append(connection)
         
+      
         if self.auto_discover_capabilities:
             await self._connect_client(connection)
             
@@ -407,6 +410,7 @@ class MCPAgent(Agent):
             logger.error(f"Failed to get resource '{resource_uri}': {e}")
             raise
     
+    
     async def get_mcp_prompt(self, prompt_name: str, arguments: Optional[Dict[str, Any]] = None, server_name: Optional[str] = None) -> Any:
         """
         Get a prompt from an MCP server.
@@ -432,6 +436,7 @@ class MCPAgent(Agent):
             )
             if not target_connection:
                 raise ValueError(f"MCP server '{server_name}' not found")
+            
         else:
             # Search all connected servers for the prompt
             for connection in self.mcp_clients:
@@ -445,9 +450,11 @@ class MCPAgent(Agent):
             raise ValueError(f"Prompt '{prompt_name}' not found in any connected MCP server")
         
         try:
-            request = GetPromptRequest(name=prompt_name, arguments=arguments or {})
-            result = await target_connection.session.get_prompt(request)
-            return result.messages
+            result = await target_connection.session.get_prompt(
+                name=prompt_name,
+                arguments=arguments or {}
+            )
+            self.instructions = result.messages
         except Exception as e:
             logger.error(f"Failed to get prompt '{prompt_name}': {e}")
             raise
@@ -503,10 +510,8 @@ class MCPAgent(Agent):
             if server_name and connection.config.name != server_name:
                 continue
             if connection.is_connected:
-                #prompts.extend(connection.available_prompts)
-                prompts.extend(
-                    PROMPTS # Use predefined prompts for now
-                )
+                prompts.extend(connection.available_prompts)
+                
         return prompts
     
     async def connect_all_clients(self) -> Dict[str, bool]:

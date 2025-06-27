@@ -349,15 +349,15 @@ class AgentManager:
         merged_context = {**agent.context_variables, **context_variables}
         context_variables = defaultdict(str, merged_context)
         agent.status = AgentStatus.PROCESSING
-        #TODO: call async function to initialize MCP prompts if this is an MCPAgent 
-        mcp_agent= MCPAgent()
-        mcp_prompt= mcp_agent.get_mcp_prompt(prompt_name=agent.prompt_name, arguments=context_variables) #needs to receive prompt and context, map agent names to prompts?
-        '''instructions = (
+        instructions = (
             agent.instructions(context_variables)
             if callable(agent.instructions)
             else agent.instructions
-        )'''
-        instructions = mcp_prompt
+        )
+        if type(instructions) is list:
+            text = json.loads(instructions[0].content.text)
+            instructions = text["description"]
+
         messages = [{"role": "system", "content": instructions}] + history
         debug_print(debug, "Getting chat completion for...:", messages)
         if self.context_window_size:
@@ -893,6 +893,7 @@ class AgentManager:
                     # Initialize MCP resources if this is an MCPAgent
                     if self._is_mcp_agent(active_agent):
                         await self._initialize_mcp_resources(active_agent)
+                        
                     
                     completion = self.get_chat_completion(
                         agent=active_agent,
@@ -977,6 +978,7 @@ class AgentManager:
         Returns:
             Response: The response from the agent after processing the user message.
         """
+        
         # Append user's message
         messages=copy.deepcopy(user_history) if user_history is not  None else []
         messages.append({"role": "user", "content": user_message, "agent": None})

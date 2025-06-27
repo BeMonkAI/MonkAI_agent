@@ -5,8 +5,6 @@ import sys
 import config
 from monkai_agent import OpenAIProvider, AzureProvider, AgentManager
 from monkai_agent.repl import run_demo_loop
-from monkai_agent.groq import GroqProvider, GROQ_MODELS
-from groq import Groq
 from openinference.instrumentation.groq import GroqInstrumentor
 from openinference.instrumentation.openai import OpenAIInstrumentor
 from openinference.instrumentation.monkai_agent import MonkaiAgentInstrumentor

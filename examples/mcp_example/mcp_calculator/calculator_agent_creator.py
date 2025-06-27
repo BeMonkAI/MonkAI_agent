@@ -103,13 +103,15 @@ class CalculatorAgentCreator(MonkaiAgentCreator):
         return self._agent
     
     
-    def _get_calculator_instructions(self) -> str:
+    def _get_calculator_instructions(self,prompt_name,prompt_arguments) -> str:
         """
         Get the system instructions for the Calculator Agent.
         
         Returns:
             str: System instructions for mathematical operations
         """
+        
+        
         return """
         You are a Calculator Agent with access to mathematical operation tools through an MCP server.
 
@@ -151,11 +153,11 @@ class CalculatorAgentCreator(MonkaiAgentCreator):
         self._agent = MCPAgent(
             name="Calculator Agent",
             model=self.model,
-            instructions=self._get_calculator_instructions(),
             mcp_clients=[],  # Will be added after creation
             auto_discover_capabilities=True
         )
 
+       
         # Create and add the calculator MCP client configuration
         calculator_config = create_stdio_mcp_config(
             name="Calculator",
@@ -166,10 +168,15 @@ class CalculatorAgentCreator(MonkaiAgentCreator):
         )
         
         # Add the MCP client to the agent
-        await self._agent.add_mcp_client(calculator_config)
+        await self._agent.add_mcp_client(calculator_config, prompt_name="calculator_prompt", arguments={})
+
+       
         
         # Connect to all MCP servers
         connection_results = await self._agent.connect_all_clients()
+
+        await self._agent.get_mcp_prompt(prompt_name="calculator_prompt",arguments={})
+
         
         if not connection_results.get("Calculator", False):
             raise RuntimeError("Failed to connect to Calculator MCP server")
