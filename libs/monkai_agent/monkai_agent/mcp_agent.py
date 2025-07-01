@@ -13,7 +13,7 @@ import asyncio
 import json
 import logging
 from contextlib import asynccontextmanager
-from typing import Any, Dict, List, Optional, Union, AsyncGenerator
+from typing import Any, Dict, List, Literal, Optional, Union, AsyncGenerator
 from pathlib import Path
 
 from pydantic import BaseModel, Field
@@ -459,7 +459,7 @@ class MCPAgent(Agent):
             logger.error(f"Failed to get resource: {e}")
             raise
 
-    async def get_mcp_resource(self,  resource_str: str, search_by:str["uri","name"], server_name: Optional[str] = None) -> Any:
+    async def get_mcp_resource(self, resource_str: str, search_by: Literal["uri", "name"], server_name: Optional[str] = None) -> Any:
         """
         Get a resource from an MCP server.
         

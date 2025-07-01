@@ -107,15 +107,20 @@ class Agent(BaseModel):
     """
     status: AgentStatus = AgentStatus.IDLE
 
-    temperature = None
+    temperature: Optional[float] = None
+    """Model temperature for controlling randomness"""
 
-    max_tokens = None
+    max_tokens: Optional[int] = None
+    """Maximum number of tokens to generate"""
 
-    top_p = None
+    top_p: Optional[float] = None
+    """Nucleus sampling parameter"""
 
-    frequency_penalty = None
+    frequency_penalty: Optional[float] = None
+    """Frequency penalty for token generation"""
 
-    presence_penalty = None
+    presence_penalty: Optional[float] = None
+    """Presence penalty for token generation"""
     
 
 class Response(BaseModel):

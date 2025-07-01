@@ -98,7 +98,7 @@ class AgentManager:
 
     """
 
-    def __init__(self, agents_creators: list[MonkaiAgentCreator]=None, context_variables=None, 
+    def __init__(self, agents_creators: list[MonkaiAgentCreator]=[], context_variables=None, 
                  current_agent=None, stream=False, debug=False, max_retries: int = 3,  
                  retry_delay: float = 1.0, base_prompt: str=None, model: str = "gpt-3.5-turbo", 
                  provider: LLMProvider = None, rate_limit_rpm: Optional[int] = None, 
@@ -968,7 +968,7 @@ class AgentManager:
         """
         return self.triage_agent_criator.get_agent()
 
-    async def run(self,user_message:str, user_history:Memory = None | List, agent=None, 
+    async def run(self,user_message:str, user_history:Memory|List = None, agent=None, 
                   max_tokens=None, top_p=None, frequency_penalty=None, presence_penalty=None,
                     max_turn: int = float("inf") )->Response:
 
@@ -984,7 +984,7 @@ class AgentManager:
         
         # Append user's message
         messages=copy.deepcopy(user_history) if user_history is not  None else []
-        messages.append({"role": "user", "content": user_message, "agent": None})
+        messages.append({"role": "user", "content": user_message})
         
         #Determined the agent to use
         agent_to_use = agent if agent is not None else self.agent
