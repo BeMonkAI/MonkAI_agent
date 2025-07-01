@@ -354,9 +354,7 @@ class AgentManager:
             if callable(agent.instructions)
             else agent.instructions
         )
-        if type(instructions) is list:
-            text = json.loads(instructions[0].content.text)
-            instructions = text["description"]
+        
 
         messages = [{"role": "system", "content": instructions}] + history
         debug_print(debug, "Getting chat completion for...:", messages)
@@ -374,6 +372,11 @@ class AgentManager:
         if self._is_mcp_agent(agent):
             mcp_tools = self._get_mcp_tools_json(agent)
             tools.extend(mcp_tools)
+
+            if type(agent.resource) is str:
+                messages.append({"role":"assistant",
+                                 "content": agent.resource,
+                                 })
         
         # hide context_variables from model
         for tool in tools:
@@ -400,15 +403,15 @@ class AgentManager:
                 "agent": agent,  # This will be removed by the wrapper
             }
             if self.temperature:
-                create_params["temperature"] = self.temperature
+                create_params["temperature"] = agent.temperature or self.temperature
             if max_tokens: 
-                create_params["max_tokens"] = max_tokens
+                create_params["max_tokens"] = agent.max_tokens or max_tokens
             if top_p:
-                create_params["top_p"] = top_p
+                create_params["top_p"] = agent.top_p or top_p
             if frequency_penalty:
-                create_params["frequency_penalty"] = frequency_penalty
+                create_params["frequency_penalty"] = agent.frequency_penalty or frequency_penalty
             if presence_penalty:
-                create_params["presence_penalty"] = presence_penalty
+                create_params["presence_penalty"] = agent.presence_penalty or presence_penalty
             if tools:
                 create_params["parallel_tool_calls"] = agent.parallel_tool_calls
                 

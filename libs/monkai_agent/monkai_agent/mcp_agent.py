@@ -10,6 +10,7 @@ a unified interface for accessing their capabilities.
 """
 
 import asyncio
+import json
 import logging
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator
@@ -117,6 +118,7 @@ class MCPAgent(Agent):
     auto_discover_capabilities: bool = True
     """Whether to automatically discover server capabilities on connection."""
     
+    resources: Optional[list] = []
     
     async def add_mcp_client(self, config: MCPClientConfig, prompt_name:str=None,arguments:dict={}) -> MCPClientConnection:
         """
@@ -365,18 +367,55 @@ class MCPAgent(Agent):
             logger.error(f"Failed to call tool '{tool_name}': {e}")
             # Mark connection as closed and attempt to reconnect      
             raise e
+
+    async def extract_resource(self,target_connection: MCPClientConnection, resource_uri: str):
+            result = await target_connection.session.read_resource(resource_uri)
+
+            # Handle different MIME types
+            content = result.contents[0]
+            mime_type = content.mimeType or "text/plain"  # Default to text/plain if None
+            
+            if mime_type.startswith("text/"):
+                # Handle all text-based content
+                resource_content = content.text
+            elif mime_type == "application/json":
+                # Handle JSON content
+                resource_content = content.model_config if hasattr(content, 'model_config') else content.text
+                
+                self.temperature = resource_content.get("temperature")
+                self.max_tokens = resource_content.get("max_tokens")
+                self.top_p = resource_content.get("top_p")
+                self.frequency_penalty = resource_content.get("frequency_penalty")
+                self.presence_penalty = resource_content.get("presence_penalty")
+
+            elif mime_type.startswith("image/"):
+                # Handle image content - might be base64 encoded
+                resource_content = f"[Image content of type: {mime_type}]"
+                if hasattr(content, 'blob'):
+                    resource_content += " (Base64 encoded)"
+            elif mime_type.startswith("audio/"):
+                # Handle audio content
+                resource_content = f"[Audio content of type: {mime_type}]"
+            elif mime_type.startswith("video/"):
+                # Handle video content
+                resource_content = f"[Video content of type: {mime_type}]"
+            elif mime_type == "application/octet-stream":
+                # Handle binary content
+                resource_content = f"[Binary content: {len(content.blob) if hasattr(content, 'blob') else 'unknown'} bytes]"
+            else:
+                # Handle unknown types
+                resource_content = f"[Content of unknown type: {mime_type}]"
+
+            return resource_content
         
-    async def get_mcp_resource(self, resource_uri: str, server_name: Optional[str] = None) -> Any:
+    async def get_all_mcp_resources(self, server_name: Optional[str] = None):
         """
-        Get a resource from an MCP server.
-        
+        Retrieves all the available resources of an MCP server.
+
         Args:
-            resource_uri: URI of the resource to retrieve
             server_name: Optional server name to target. If None, searches all servers.
             
-        Returns:
-            The resource content
-            
+        
         Raises:
             ValueError: If resource not found or server not connected
         """
@@ -394,20 +433,84 @@ class MCPAgent(Agent):
             # Search all connected servers for the resource
             for connection in self.mcp_clients:
                 if connection.is_connected:
-                    resource_exists = any(resource.uri == resource_uri for resource in connection.available_resources)
+
+                    
+                    resource_exists = any(resource for resource in connection.available_resources)
+                    resource_uris = []
+                    for resource in connection.available_resources:
+                        resource_uris.append(resource.uri)
+                        
+                        
                     if resource_exists:
                         target_connection = connection
                         break
         
         if not target_connection or not target_connection.is_connected:
-            raise ValueError(f"Resource '{resource_uri}' not found in any connected MCP server")
+            raise ValueError(f"No resources found in any connected MCP server")
         
         try:
-            #request = GetResourceRequest(uri=resource_uri)
-            result = await target_connection.session.read_resource(resource_uri)
-            return ""
+            
+            for resource_uri in resource_uris:
+                result = await self.extract_resource(target_connection, resource_uri)
+                self.resources.append(result)
+            return True
+            
         except Exception as e:
-            logger.error(f"Failed to get resource '{resource_uri}': {e}")
+            logger.error(f"Failed to get resource: {e}")
+            raise
+
+    async def get_mcp_resource(self,  resource_str: str, search_by:str["uri","name"], server_name: Optional[str] = None) -> Any:
+        """
+        Get a resource from an MCP server.
+        
+        Args:
+            resource_str: Name or URI of the resource to retrieve
+            search_by: either 'uri' or 'name', what the resource is gonna be retrieved by
+            server_name: Optional server name to target. If None, searches all servers.
+            
+        
+        Raises:
+            ValueError: If resource not found or server not connected
+        """
+        target_connection = None
+        
+        if server_name:
+            # Look for specific server
+            target_connection = next(
+                (conn for conn in self.mcp_clients if conn.config.name == server_name),
+                None
+            )
+            if not target_connection:
+                raise ValueError(f"MCP server '{server_name}' not found")
+        else:
+            # Search all connected servers for the resource
+            for connection in self.mcp_clients:
+                if connection.is_connected:
+
+                    if search_by == "name":
+                        resource_exists = any(resource.name == resource_str for resource in connection.available_resources)
+                        resource_uri = next(resource.uri for resource in connection.available_resources if resource.name == resource_str)
+                        
+                    if search_by == "uri":
+                        resource_exists = any(resource.uri == resource_str for resource in connection.available_resources)
+                        resource_uri = resource_str
+                        
+                    if resource_exists:
+                        target_connection = connection
+                        break
+        
+        if not target_connection or not target_connection.is_connected:
+            raise ValueError(f"Resource '{resource_str}' not found in any connected MCP server")
+        
+        try:
+            
+            result=await self.extract_resource(target_connection, resource_uri)
+
+            self.resources.append(result)
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to get resource '{resource_str}': {e}")
             raise
     
     
@@ -454,7 +557,9 @@ class MCPAgent(Agent):
                 name=prompt_name,
                 arguments=arguments or {}
             )
-            self.instructions = result.messages
+            
+            text = json.loads(result.messages[0].content.text)
+            self.instructions = text["description"]
         except Exception as e:
             logger.error(f"Failed to get prompt '{prompt_name}': {e}")
             raise

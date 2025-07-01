@@ -106,6 +106,16 @@ class Agent(BaseModel):
     The agent's successors.
     """
     status: AgentStatus = AgentStatus.IDLE
+
+    temperature = None
+
+    max_tokens = None
+
+    top_p = None
+
+    frequency_penalty = None
+
+    presence_penalty = None
     
 
 class Response(BaseModel):

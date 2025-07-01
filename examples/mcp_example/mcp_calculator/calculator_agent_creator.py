@@ -84,6 +84,7 @@ class CalculatorAgentCreator(MonkaiAgentCreator):
         • subtract(a, b) - Subtract two numbers  
         • multiply(a, b) - Multiply two numbers
         • divide(a, b) - Divide two numbers (with zero division protection)
+        • get_calculation_history() - Retrieve the history of calculations
         
         Available Resources:
         • calculation://history - Access to calculation history
@@ -177,7 +178,10 @@ class CalculatorAgentCreator(MonkaiAgentCreator):
 
         await self._agent.get_mcp_prompt(prompt_name="calculator_prompt",arguments={})
 
-        
+        #await self._agent.get_mcp_resource("file:///home/davi/Desktop/Monkai_agent/MonkAI_agent/examples/mcp_example/mcp_calculator/calulation_history.txt")
+        await self._agent.get_mcp_resource(resource_str="calculation_history",search_by="name")
+
+
         if not connection_results.get("Calculator", False):
             raise RuntimeError("Failed to connect to Calculator MCP server")
             

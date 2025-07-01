@@ -75,10 +75,24 @@ def divide(a: int, b: int) -> float:
         raise ValueError("Cannot divide by zero")
     return a / b
 
+
+
 @mcp.resource("calculation://history")
-def get_calculation_history() -> str:
-    """Get calculation history"""
-    return "Recent calculations: 5+3=8, 10-2=8, 4*3=12"
+def calculation_history() -> str:
+    """The Calculation history of the user"""
+    return "calculation history: Recent calculations: 5+3=8, 10-2=8, 4*3=12"
+
+#so apparently this is the way to define a resource using server() not fastmcp()
+#@mcp.get_resource()
+def calculation_history2() -> str:
+    """The Calculation history of the user"""
+    return[
+        types.Resource(
+            uri="file:///home/davi/Desktop/Monkai_agent/MonkAI_agent/examples/mcp_example/mcp_calculator/calulation_history.txt",
+            name="Calculation History",
+            mimeType="text/plain"
+        )
+    ]
 
 
 
