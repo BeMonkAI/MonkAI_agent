@@ -15,7 +15,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Literal, Optional, Union, AsyncGenerator
 from pathlib import Path
-
+from datetime import timedelta
 from pydantic import BaseModel, Field
 from httpx import Auth
 # MCP imports
@@ -192,7 +192,7 @@ class MCPAgent(Agent):
                 connection._sse_streams = sse_client(
                     url=config.url,
                     headers=config.headers,
-                    timeout=config.timeout
+                    timeout=config.timeout or 30.0
                 )
                 streams = await connection._sse_streams.__aenter__()
                 read_stream, write_stream = streams
@@ -214,12 +214,16 @@ class MCPAgent(Agent):
             elif config.connection_type == "http":
                 if not config.url:
                     raise ValueError(f"URL required for HTTP connection: {config.name}")
+                
+                timeout= config.timeout
+                if config.timeout and type(config.timeout) is not timedelta:
+                    timeout = timedelta(seconds=config.timeout)
                     
                 connection._http_streams = streamablehttp_client(
                     url=config.url,
                     headers=config.headers, 
                     auth=config.auth, 
-                    timeout=config.timeout
+                    timeout=timeout or timedelta(seconds=30)  # Default to 30 seconds if not specified
                 )
                 streams = await connection._http_streams.__aenter__()
                 read_stream, write_stream, _ = streams  
@@ -724,6 +728,27 @@ def create_sse_mcp_config(name: str, url: str, headers: Dict[str, Any] = None, *
     return MCPClientConfig(
         name=name,
         connection_type="sse",
+        url=url,
+        headers=headers or {},
+        **kwargs
+    )
+
+def create_http_mcp_config(name: str, url: str, headers: Dict[str, Any] = None, **kwargs) -> MCPClientConfig:
+    """
+    Create an MCP client configuration for HTTP connections.
+
+    Args:
+        name: Name for the client connection
+        url: HTTP endpoint URL
+        headers: Optional headers
+        **kwargs: Additional configuration options
+        
+    Returns:
+        MCPClientConfig: Configuration object
+    """
+    return MCPClientConfig(
+        name=name,
+        connection_type="http",
         url=url,
         headers=headers or {},
         **kwargs
