@@ -1,16 +1,10 @@
 from monkai_agent import Agent, AgentManager 
 from monkai_agent.providers import AzureProvider
 import asyncio
-import config
-
-provider=AzureProvider(
-    api_key=config.OPENAI_API_KEY_BRASILSOUTH,
-    endpoint=config.OPENAI_AZURE_ENDPOINT_BRASILSOUTH,
-    api_version=config.OPENAI_API_VERSION)
 
 
 
-manager = AgentManager(provider=provider,model=config.GPT_4o)
+manager = AgentManager(api_key="api-key")
 
 agente = Agent(
     name="Agente Analista de Negócios",
