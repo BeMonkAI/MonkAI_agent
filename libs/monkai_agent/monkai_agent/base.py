@@ -372,17 +372,19 @@ class AgentManager:
         if self._is_mcp_agent(agent):
             mcp_tools = self._get_mcp_tools_json(agent)
             tools.extend(mcp_tools)
-
-            if type(agent.resource) is str:
-                messages.append({"role":"assistant",
-                                 "content": agent.resource,
-                                 })
+            
+            if agent.resources and isinstance(agent.resources, list):
+                for resource in agent.resources:
+                    if type(resource) is str:
+                        messages.append({"role":"assistant",
+                                        "content": resource,
+                                        })
         
         # hide context_variables from model
         for tool in tools:
             params = tool["function"]["parameters"]
             params["properties"].pop(__CTX_VARS_NAME__, None)
-            if __CTX_VARS_NAME__ in params["required"]:
+            if "required" in params and __CTX_VARS_NAME__ in params["required"]:
                 params["required"].remove(__CTX_VARS_NAME__)
 
         # Count input tokens
@@ -705,17 +707,17 @@ class AgentManager:
         try:
             name = tool_call.function.name
             args = json.loads(tool_call.function.arguments)
-            
+            function_name = name
+            for clients in agent.mcp_clients:
+                if name.startswith(clients.config.name + "_"):
+                    # If the tool name starts with the MCP client name, we can use it directly
+                    prefix = clients.config.name
+                    function_name = name[len(prefix) + 1:]  # Remove prefix
             # Extract prefix and actual tool name
-            if '_' in name:
-                prefix, actual_tool_name = name.split('_', 1)
-            else:
-                actual_tool_name = name
-                prefix = None
-            
+        
             # Call the MCP tool
             result = await agent.call_mcp_tool(
-                tool_name=actual_tool_name,
+                tool_name=function_name,
                 arguments=args,
                 server_name=prefix
             )
