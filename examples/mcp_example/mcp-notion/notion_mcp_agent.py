@@ -4,7 +4,8 @@ import json
 import base64
 
 import asyncio
-from monkai_agent import MCPAgent, create_http_mcp_config
+from monkai_agent import AgentManager, MCPAgent, create_http_mcp_config
+from monkai_agent.repl import pretty_print_messages
 
 config = {
   "notionApiKey": "ntn_G58331265171w7qi1FgInrsHUnFkLTDBadzD8fItVYZg4H"
@@ -54,18 +55,10 @@ if __name__ == "__main__":
         try:
             # Initialize the agent
             agent = await initialize_agent()
-
-            # List available tools
-            tools = agent.list_available_tools()
-            print(f"Available tools: {[tool.name for tool in tools]}")
-
-            #list notion databases
-            result = await agent.call_mcp_tool("list-databases",
-                server_name="Notion MCP Server")
-            
-            # Print the result
-            print(f"Result: {result[0].text}")
-
+            import config
+            manager = AgentManager(api_key=config.api_key)
+            result = await manager.run("Quais são as bases de dados que tenho no Notion?", agent=agent)
+            pretty_print_messages(result.messages)
             await agent.disconnect_all_clients()
             
         except Exception as e:
