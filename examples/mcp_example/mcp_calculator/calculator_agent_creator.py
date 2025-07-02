@@ -187,7 +187,6 @@ class CalculatorAgentCreator(MonkaiAgentCreator):
             
         return self._agent
 
-
 # Convenience function for creating a calculator agent
 def create_calculator_agent(model: str = "gpt-4", 
                           server_script_path: Optional[str] = None,
@@ -204,7 +203,6 @@ def create_calculator_agent(model: str = "gpt-4",
         CalculatorAgentCreator: The configured creator instance
     """
     return CalculatorAgentCreator(model=model, server_script_path=server_script_path, python_executable=python_executable)
-
 
 # Example usage
 if __name__ == "__main__":

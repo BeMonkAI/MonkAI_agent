@@ -49,14 +49,8 @@ async def main():
     agents_creators.append(creator)  # Adjust path as needed
 
 
-    # Initialize the provider - using Groq for this demo
-    #provider = GroqProvider(config.GROQ_API_KEY)
-    provider = AzureProvider(
-            api_key=config.OPENAI_API_KEY_BRASILSOUTH,
-            api_version=config.OPENAI_API_VERSION,
-            endpoint=config.OPENAI_AZURE_ENDPOINT_BRASILSOUTH,
-    )
-    agent_manager = AgentManager(provider=provider, agents_creators=agents_creators, model="gpt-4o", temperature=0.3)
+    
+    agent_manager = AgentManager(api_key="my-api-key", agents_creators=agents_creators, model="gpt-4o", temperature=0.3)
     return await run_demo_loop(agent_manager, debug=True)
 
 if __name__ == '__main__': 
