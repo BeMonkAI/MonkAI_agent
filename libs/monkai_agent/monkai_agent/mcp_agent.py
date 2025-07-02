@@ -313,7 +313,7 @@ class MCPAgent(Agent):
         
         return "\n".join(content_parts)
 
-    async def call_mcp_tool(self, tool_name: str, arguments: Dict[str, Any], server_name: Optional[str] = None) -> Any:
+    async def call_mcp_tool(self, tool_name: str, arguments: Dict[str, Any]={}, server_name: Optional[str] = None) -> Any:
         """
         Call a tool from an MCP server.
         
