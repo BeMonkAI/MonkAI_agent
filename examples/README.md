@@ -59,30 +59,21 @@ This folder contains a comprehensive collection of practical examples demonstrat
 ### 🔌 [mcp_example/](./mcp_example/)
 **Objective**: Demonstrate integration with Model Context Protocol (MCP) servers.
 
-This section contains multiple sub-examples:
+The Model Context Protocol (MCP) enables agents to connect to external tools and services through a standardized interface. This section contains multiple practical examples showing how to integrate various MCP servers with MonkAI agents.
 
-#### 🧮 [mcp_calculator/](./mcp_example/mcp_calculator/)
-- **Functionality**: Agent with mathematical capabilities via MCP
-- **Tools**: Basic operations, calculation history
-- **Files**: MCP Server, Creator, Demo
-
-#### 🔍 [mcp-duckduckgo/](./mcp_example/mcp-duckduckgo/)
-- **Functionality**: Real-time web search via DuckDuckGo
-- **Features**: Privacy respected, multiple result formats
-- **Usage**: Up-to-date web information
-
-#### 💾 [mcp-memory/](./mcp_example/mcp-memory/)
-- **Functionality**: Persistent memory system
-- **Features**: Context storage and retrieval
-
-#### 📝 [mcp-notion/](./mcp_example/mcp-notion/)
-- **Functionality**: Notion integration for data management
-- **Features**: Access to Notion pages and databases
+**Available Examples:**
+- **Calculator MCP** - Mathematical operations via MCP server
+- **DuckDuckGo Search** - Real-time web search capabilities
+- **Memory System** - Persistent context storage and retrieval
+- **Notion Integration** - Access to Notion pages and databases
 
 **What you'll learn with MCP**:
 - Connect agents to external services
 - Use standardized protocols for extensibility
 - Implement specialized capabilities via MCP servers
+- Build scalable agent architectures with external integrations
+
+For detailed information about each MCP example, see the [MCP Examples README](./mcp_example/README.md).
 
 ### 🎯 [triage/](./triage/)
 **Objective**: Demonstrate intelligent triage system with multiple specialized agents.
