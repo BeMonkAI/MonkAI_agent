@@ -1,40 +1,40 @@
-# Exemplos de Definição de Agentes
+# Agent Definition Examples
 
-Esta pasta contém exemplos práticos de como definir e implementar agentes usando o framework MonkAI Agent. Os exemplos demonstram diferentes tipos de agentes e suas funcionalidades.
+This folder contains practical examples of how to define and implement agents using the MonkAI Agent framework. The examples demonstrate different types of agents and their functionalities.
 
-## 📋 Conteúdo
+## 📋 Content
 
 - [Agent Definition (Jupyter Notebook)](#agent-definition-jupyter-notebook)
-- [Analista de Negócios](#analista-de-negócios)
-- [Como Executar](#como-executar)
-- [Pré-requisitos](#pré-requisitos)
+- [Business Analyst](#business-analyst)
+- [How to Execute](#how-to-execute)
+- [Prerequisites](#prerequisites)
 
 ## 📊 Agent Definition (Jupyter Notebook)
 
-**Arquivo:** `agent_definition.ipynb`
+**File:** `agent_definition.ipynb`
 
-Este notebook demonstra a criação de um **Calculator Agent** - um agente especializado em operações matemáticas complexas.
+This notebook demonstrates the creation of a **Calculator Agent** - an agent specialized in complex mathematical operations.
 
-### Funcionalidades do Calculator Agent
+### Calculator Agent Features
 
-O agente possui três funções matemáticas principais:
+The agent has three main mathematical functions:
 
 1. **`my_function(a: float, b: float)`**
-   - Realiza múltiplas operações matemáticas em uma única expressão
-   - Retorna: (divisão, multiplicação, sequência de números, valor máximo)
-   - Exemplo: `my_function(10, 2)` → `(5.0, 20, [10, 11, ...], valor_calculado)`
+   - Performs multiple mathematical operations in a single expression
+   - Returns: (division, multiplication, number sequence, maximum value)
+   - Example: `my_function(10, 2)` → `(5.0, 20, [10, 11, ...], calculated_value)`
 
 2. **`fibonacci(num1: str)`**
-   - Calcula a sequência de Fibonacci
-   - Parâmetro: número de elementos da sequência
-   - Retorna: lista com a sequência de Fibonacci
+   - Calculates the Fibonacci sequence
+   - Parameter: number of elements in the sequence
+   - Returns: list with the Fibonacci sequence
 
 3. **`bernoulli(n: int)`**
-   - Calcula os primeiros n números de Bernoulli
-   - Parâmetro: quantidade de números de Bernoulli a calcular
-   - Retorna: lista com os números de Bernoulli
+   - Calculates the first n Bernoulli numbers
+   - Parameter: quantity of Bernoulli numbers to calculate
+   - Returns: list with the Bernoulli numbers
 
-### Exemplo de Uso
+### Usage Example
 
 ```python
 from monkai_agent.types import Agent
@@ -46,128 +46,128 @@ calculator_agent = Agent(
     functions=[my_function, fibonacci, bernoulli]
 )
 
-# Executar em modo interativo
-await run_simples_demo_loop(calculator_agent, api_key="sua_api_key")
+# Run in interactive mode
+await run_simples_demo_loop(calculator_agent, api_key="your_api_key")
 ```
 
-## 💼 Analista de Negócios
+## 💼 Business Analyst
 
-**Arquivo:** `analista_negocio_agente_monkai.py`
+**File:** `analista_negocio_agente_monkai.py`
 
-Este exemplo demonstra a criação de um agente especializado em análise de negócios e insights financeiros.
+This example demonstrates the creation of an agent specialized in business analysis and financial insights.
 
-### Características do Agente
+### Agent Characteristics
 
-- **Nome:** "Agente Analista de Negócios"
-- **Especialização:** Interpretação de tendências de mercado e análise financeira
-- **Funcionalidades:**
-  - Resumir relatórios financeiros e de mercado
-  - Destacar indicadores financeiros relevantes (KPIs)
-  - Sugerir decisões estratégicas baseadas em dados
-  - Identificar riscos, oportunidades e tendências emergentes
+- **Name:** "Business Analyst Agent"
+- **Specialization:** Market trend interpretation and financial analysis
+- **Features:**
+  - Summarize financial and market reports
+  - Highlight relevant financial indicators (KPIs)
+  - Suggest strategic decisions based on data
+  - Identify risks, opportunities and emerging trends
 
-### Exemplo de Uso
+### Usage Example
 
 ```python
 from monkai_agent import Agent, AgentManager
 
-# Configurar o gerenciador
-manager = AgentManager(api_key="sua_api_key")
+# Configure the manager
+manager = AgentManager(api_key="your_api_key")
 
-# Criar o agente
-agente = Agent(
-    name="Agente Analista de Negócios",
-    instructions="""Você é um Analista de Negócios experiente..."""
+# Create the agent
+agent = Agent(
+    name="Business Analyst Agent",
+    instructions="""You are an experienced Business Analyst..."""
 )
 
-# Executar consulta
+# Execute query
 result = asyncio.run(manager.run(
-    "Resuma os principais insights financeiros dos relatórios econômicos desta semana.",
-    agent=agente
+    "Summarize the main financial insights from this week's economic reports.",
+    agent=agent
 ))
 ```
 
-### Estilo de Resposta
+### Response Style
 
-O agente foi configurado para:
-- ✅ Usar bullet points sempre que possível
-- ✅ Evitar jargões técnicos
-- ✅ Ser direto e claro
-- ✅ Focar em recomendações práticas
+The agent was configured to:
+- ✅ Use bullet points whenever possible
+- ✅ Avoid technical jargon
+- ✅ Be direct and clear
+- ✅ Focus on practical recommendations
 
-## 🚀 Como Executar
+## 🚀 How to Execute
 
 ### Notebook (agent_definition.ipynb)
 
-1. Abra o Jupyter Notebook
-2. Execute as células sequencialmente
-3. Na última célula, substitua `"api_key"` pela sua chave de API real
-4. Execute o loop interativo para testar o agente
+1. Open Jupyter Notebook
+2. Execute cells sequentially
+3. In the last cell, replace `"api_key"` with your real API key
+4. Run the interactive loop to test the agent
 
-### Script Python (analista_negocio_agente_monkai.py)
+### Python Script (analista_negocio_agente_monkai.py)
 
-1. Substitua a `api_key` no código pela sua chave real
-2. Execute o script:
+1. Replace the `api_key` in the code with your real key
+2. Execute the script:
    ```bash
    python analista_negocio_agente_monkai.py
    ```
 
-## 📋 Pré-requisitos
+## 📋 Prerequisites
 
-### Instalação
+### Installation
 
 ```bash
 pip install monkai_agent
 ```
 
-### Dependências
+### Dependencies
 
 - Python 3.8+
 - monkai_agent
-- asyncio (incluído no Python padrão)
+- asyncio (included in standard Python)
 
-### Configuração
+### Configuration
 
-1. **API Key:** Ambos os exemplos requerem uma chave de API válida
-2. **Ambiente:** Recomenda-se usar um ambiente virtual Python
+1. **API Key:** Both examples require a valid API key
+2. **Environment:** It's recommended to use a Python virtual environment
 
 ```bash
-# Ativar ambiente virtual (se usando .venv)
+# Activate virtual environment (if using .venv)
 source .venv/bin/activate
 
-# Instalar dependências
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-## 📝 Estrutura do Agente
+## 📝 Agent Structure
 
-Ambos os exemplos seguem a estrutura padrão do MonkAI Agent:
+Both examples follow the standard MonkAI Agent structure:
 
 ```python
 Agent(
-    name="Nome do Agente",           # Nome identificador
-    instructions="Instruções...",    # Prompt/contexto do agente
-    functions=[func1, func2]         # Funções disponíveis (opcional)
+    name="Agent Name",               # Identifier name
+    instructions="Instructions...",  # Agent prompt/context
+    functions=[func1, func2]         # Available functions (optional)
 )
 ```
 
-## 🔧 Personalização
+## 🔧 Customization
 
-Você pode modificar estes exemplos para:
+You can modify these examples to:
 
-- Adicionar novas funções aos agentes
-- Alterar as instruções para diferentes especialidades
-- Integrar com diferentes provedores de LLM
-- Implementar funcionalidades customizadas
+- Add new functions to agents
+- Change instructions for different specialties
+- Integrate with different LLM providers
+- Implement custom functionalities
 
-## 📚 Próximos Passos
+## 📚 Next Steps
 
-Após executar estes exemplos, explore:
+After executing these examples, explore:
 
-- `../triage/` - Exemplos de agentes em sistema de triagem
-- `../mcp_example/` - Integração com Model Context Protocol
-- `../creators_and_manager/` - Criação avançada de agentes
+- `../triage/` - Examples of agents in triage system
+- `../mcp_example/` - Integration with Model Context Protocol
+- `../creators_and_manager/` - Advanced agent creation
 
 ---
 
-*Para mais informações, consulte a documentação principal do MonkAI Agent.*
+*For more information, consult the main MonkAI Agent documentation.*
