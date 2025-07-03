@@ -17,11 +17,10 @@ import copy
 import json
 from collections import defaultdict
 from typing import List
-from openai import OpenAI, APIError, OpenAIError
+from openai import OpenAIError
 import time
 
-from typing import Dict, List, Optional, Any, Tuple
-import threading
+from typing import Dict, List, Optional, Any
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 import tiktoken
 from .types import Agent
@@ -29,9 +28,16 @@ from .types import Agent
 import os
 from .rate_limiter import RateLimiter
 from typing import Callable
-import config
 from .prompt_optimizer import PromptOptimizerManager
-import asyncio
+
+# MCP imports for MCPAgent integration
+try:
+    from .mcp_agent import MCPAgent
+    from .util import function_to_json
+    MCP_AVAILABLE = True
+except ImportError:
+    MCP_AVAILABLE = False
+
 # Default token limits for different models
 DEFAULT_TOKEN_LIMITS = {
     "gpt-4": 8192,
@@ -67,6 +73,11 @@ from .types import (
     Result,
 )
 
+# Add MCP imports
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .mcp_agent import MCPAgent
+
 __CTX_VARS_NAME__ = "context_variables"
 
 class ChatCompletionError(Exception):
@@ -87,7 +98,7 @@ class AgentManager:
 
     """
 
-    def __init__(self, agents_creators: list[MonkaiAgentCreator]=None, context_variables=None, 
+    def __init__(self, agents_creators: list[MonkaiAgentCreator]=[], context_variables=None, 
                  current_agent=None, stream=False, debug=False, max_retries: int = 3,  
                  retry_delay: float = 1.0, base_prompt: str=None, model: str = "gpt-3.5-turbo", 
                  provider: LLMProvider = None, rate_limit_rpm: Optional[int] = None, 
@@ -343,6 +354,8 @@ class AgentManager:
             if callable(agent.instructions)
             else agent.instructions
         )
+        
+
         messages = [{"role": "system", "content": instructions}] + history
         debug_print(debug, "Getting chat completion for...:", messages)
         if self.context_window_size:
@@ -354,11 +367,24 @@ class AgentManager:
             messages = self._summarize_messages(messages, max_context_tokens)
         
         tools = [function_to_json(f) for f in agent.functions]
+        
+        # Add MCP tools if this is an MCPAgent
+        if self._is_mcp_agent(agent):
+            mcp_tools = self._get_mcp_tools_json(agent)
+            tools.extend(mcp_tools)
+            
+            if agent.resources and isinstance(agent.resources, list):
+                for resource in agent.resources:
+                    if type(resource) is str:
+                        messages.append({"role":"assistant",
+                                        "content": resource,
+                                        })
+        
         # hide context_variables from model
         for tool in tools:
             params = tool["function"]["parameters"]
             params["properties"].pop(__CTX_VARS_NAME__, None)
-            if __CTX_VARS_NAME__ in params["required"]:
+            if "required" in params and __CTX_VARS_NAME__ in params["required"]:
                 params["required"].remove(__CTX_VARS_NAME__)
 
         # Count input tokens
@@ -379,15 +405,15 @@ class AgentManager:
                 "agent": agent,  # This will be removed by the wrapper
             }
             if self.temperature:
-                create_params["temperature"] = self.temperature
+                create_params["temperature"] = agent.temperature or self.temperature
             if max_tokens: 
-                create_params["max_tokens"] = max_tokens
+                create_params["max_tokens"] = agent.max_tokens or max_tokens
             if top_p:
-                create_params["top_p"] = top_p
+                create_params["top_p"] = agent.top_p or top_p
             if frequency_penalty:
-                create_params["frequency_penalty"] = frequency_penalty
+                create_params["frequency_penalty"] = agent.frequency_penalty or frequency_penalty
             if presence_penalty:
-                create_params["presence_penalty"] = presence_penalty
+                create_params["presence_penalty"] = agent.presence_penalty or presence_penalty
             if tools:
                 create_params["parallel_tool_calls"] = agent.parallel_tool_calls
                 
@@ -509,12 +535,13 @@ class AgentManager:
             debug_print(debug, f"Failed to validate arguments: {str(e)}")
             return args, None  # Return original args on validation failure
 
-    def handle_tool_calls(
+    async def handle_tool_calls(
         self,
         tool_calls: List[ChatCompletionMessageToolCall],
         functions: List[AgentFunction],
         context_variables: dict,
         debug: bool,
+        agent: Agent = None,
     ) -> Response:
         """
         Handles tool calls by executing the corresponding functions.
@@ -535,9 +562,20 @@ class AgentManager:
 
         for tool_call in tool_calls:
             name = tool_call.function.name
-            # handle missing tool case, skip to next tool
+            # handle missing tool case, try MCP tools if agent supports it
             if name not in function_map:
-                debug_print(debug, f"Tool {name} not found in function map.")
+                # Check if this is an MCPAgent and if the tool might be an MCP tool
+                if agent and self._is_mcp_agent(agent) and '_' in name:
+                    debug_print(debug, f"Tool {name} not found in function map, trying MCP tools.")
+                    try:
+                        # Handle MCP tool call asynchronously
+                        mcp_result = await self._handle_mcp_tool_call(agent, tool_call, debug)
+                        partial_response.messages.append(mcp_result)
+                        continue
+                    except Exception as e:
+                        debug_print(debug, f"Error calling MCP tool {name}: {e}")
+                
+                debug_print(debug, f"Tool {name} not found in function map or MCP tools.")
                 partial_response.messages.append(
                     {
                         "role": "tool",
@@ -585,7 +623,121 @@ class AgentManager:
 
         return partial_response
 
-    def __run_and_stream(
+    def _is_mcp_agent(self, agent: Agent) -> bool:
+        """Check if an agent is an MCPAgent instance."""
+        from .mcp_agent import MCPAgent
+        return isinstance(agent, MCPAgent)
+
+    def _mcp_tool_to_json(self, tool, prefix: str) -> dict:
+        """Convert an MCP tool to JSON format with prefix."""
+        return {
+            "type": "function",
+            "function": {
+                "name": f"{prefix}_{tool.name}",
+                "description": tool.description or "",
+                "parameters": tool.inputSchema if hasattr(tool, 'inputSchema') else {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                },
+            },
+        }
+
+    def _initialize_mcp_resources_sync(self, agent: MCPAgent) -> None:
+        """Initialize MCP resources for an MCPAgent synchronously."""
+        try:
+            import asyncio
+            # Create or get the event loop
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            
+            # Run the async initialization
+            connection_results = loop.run_until_complete(agent.connect_all_clients())
+            debug_print(self.debug, f"MCP connection results: {connection_results}")
+            
+            # Optionally retrieve and process resources here
+            for connection in agent.mcp_clients:
+                if connection.is_connected:
+                    resources = connection.available_resources
+                    for resource in resources:
+                        try:
+                            debug_print(self.debug, f"Available resource: {resource.uri}")
+                        except Exception as e:
+                            debug_print(self.debug, f"Error accessing resource {resource.uri}: {e}")
+        except Exception as e:
+            debug_print(self.debug, f"Error initializing MCP resources: {e}")
+
+    async def _initialize_mcp_resources(self, agent: MCPAgent) -> None:
+        """Initialize MCP resources for an MCPAgent."""
+        try:
+            # Connect to all MCP clients if not already connected
+            connection_results = await agent.connect_all_clients()
+            debug_print(self.debug, f"MCP connection results: {connection_results}")
+            
+            # Optionally retrieve and process resources here
+            # This could include reading important resources before completion
+            for connection in agent.mcp_clients:
+                if connection.is_connected:
+                    resources = connection.available_resources
+                    for resource in resources:
+                        try:
+                            # You can add logic here to pre-fetch important resources
+                            # For now, we just log their availability
+                            debug_print(self.debug, f"Available resource: {resource.uri}")
+                        except Exception as e:
+                            debug_print(self.debug, f"Error accessing resource {resource.uri}: {e}")
+        except Exception as e:
+            debug_print(self.debug, f"Error initializing MCP resources: {e}")
+
+    def _get_mcp_tools_json(self, agent: MCPAgent) -> list:
+        """Get all MCP tools as JSON format with prefixes."""
+        mcp_tools = []
+        for connection in agent.mcp_clients:
+            if connection.is_connected:
+                prefix = connection.config.name
+                for tool in connection.available_tools:
+                    mcp_tools.append(self._mcp_tool_to_json(tool, prefix))
+        return mcp_tools
+
+    async def _handle_mcp_tool_call(self, agent: MCPAgent, tool_call: ChatCompletionMessageToolCall, debug: bool) -> dict:
+        """Handle an MCP tool call."""
+        try:
+            name = tool_call.function.name
+            args = json.loads(tool_call.function.arguments)
+            function_name = name
+            for clients in agent.mcp_clients:
+                if name.startswith(clients.config.name + "_"):
+                    # If the tool name starts with the MCP client name, we can use it directly
+                    prefix = clients.config.name
+                    function_name = name[len(prefix) + 1:]  # Remove prefix
+            # Extract prefix and actual tool name
+        
+            # Call the MCP tool
+            result = await agent.call_mcp_tool(
+                tool_name=function_name,
+                arguments=args,
+                server_name=prefix
+            )
+            
+            return {
+                "role": "tool",
+                "tool_call_id": tool_call.id,
+                "tool_name": name,
+                "content": MCPAgent.extract_tool_result_content(result),
+            }
+        except Exception as e:
+            debug_print(debug, f"Error calling MCP tool {tool_call.function.name}: {e}")
+            return {
+                "role": "tool",
+                "tool_call_id": tool_call.id,
+                "tool_name": tool_call.function.name,
+                "content": f"Error: {str(e)}",
+            }
+
+    async def __run_and_stream(
         self,
         agent: Agent,
         messages: Memory | List,
@@ -673,8 +825,8 @@ class AgentManager:
                 tool_calls.append(tool_call_object)
 
             # handle function calls, updating context_variables, and switching agents
-            partial_response = self.handle_tool_calls(
-                tool_calls, active_agent.functions, context_variables, debug
+            partial_response = await self.handle_tool_calls(
+                tool_calls, active_agent.functions, context_variables, debug, active_agent
             )
             history.extend(partial_response.messages)
             context_variables.update(partial_response.context_variables)
@@ -743,6 +895,11 @@ class AgentManager:
                     if active_agent.external_content:
                         history[-1]["content"] = __DOCUMENT_GUARDRAIL_TEXT__ + history[-1]["content"]
                     
+                    # Initialize MCP resources if this is an MCPAgent
+                    if self._is_mcp_agent(active_agent):
+                        await self._initialize_mcp_resources(active_agent)
+                        
+                    
                     completion = self.get_chat_completion(
                         agent=active_agent,
                         history=history,
@@ -764,8 +921,8 @@ class AgentManager:
                         debug_print(debug, "Ending turn.")
                         break
 
-                    partial_response = self.handle_tool_calls(
-                        message.tool_calls, active_agent.functions, context_variables, debug
+                    partial_response = await self.handle_tool_calls(
+                        message.tool_calls, active_agent.functions, context_variables, debug, active_agent
                     )
                     messages.extend(partial_response.messages)
                     response_history.extend(partial_response.messages)
@@ -813,7 +970,7 @@ class AgentManager:
         """
         return self.triage_agent_criator.get_agent()
 
-    async def run(self,user_message:str, user_history:Memory = None | List, agent=None, 
+    async def run(self,user_message:str, user_history:Memory|List = None, agent=None, 
                   max_tokens=None, top_p=None, frequency_penalty=None, presence_penalty=None,
                     max_turn: int = float("inf") )->Response:
 
@@ -826,9 +983,10 @@ class AgentManager:
         Returns:
             Response: The response from the agent after processing the user message.
         """
+        
         # Append user's message
         messages=copy.deepcopy(user_history) if user_history is not  None else []
-        messages.append({"role": "user", "content": user_message, "agent": None})
+        messages.append({"role": "user", "content": user_message})
         
         #Determined the agent to use
         agent_to_use = agent if agent is not None else self.agent

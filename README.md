@@ -39,6 +39,29 @@ pip install monkai_agent
 
 </pre>  
 
+<h2 style="font-family: 'Courier New', monospace; color: green;">🔗 Model Context Protocol (MCP) Integration</h2>
+
+<p style="text-align: justify;">
+  <strong>New Feature!</strong> MonkAI Agent now supports <span style="color: #28a745;">Model Context Protocol (MCP)</span> integration, enabling your agents to connect to external tools and services seamlessly. MCP allows agents to access real-time data, perform specialized operations, and interact with various APIs through a standardized protocol.
+</p>
+
+<h3 style="font-family: 'Courier New', monospace; color: green;">🚀 Getting Started with MCP</h3>
+
+<p style="text-align: justify;">
+  Explore our comprehensive MCP examples in the <code>examples/mcp_example/</code> folder to see the power of MCP integration:
+</p>
+
+<ul style="margin-left: 20px;">
+  <li><strong>🧮 mcp_calculator</strong> - Perfect for learning MCP basics with a local server. Test mathematical operations and understand how MCP servers work locally.</li>
+  <li><strong>🔍 mcp-duckduckgo</strong> - Real-world web search integration. Connect your agents to DuckDuckGo's search engine for up-to-date information.</li>
+  <li><strong>🧠 mcp-memory</strong> - Persistent memory capabilities with Mem0. Give your agents the ability to remember user interactions and context across conversations.</li>
+  <li><strong>📊 mcp-notion</strong> - Database integration with Notion. Query, create, and manage Notion databases directly from your agents.</li>
+</ul>
+
+<p style="text-align: justify;">
+  Each example includes detailed documentation, setup instructions, and practical code samples. Start with <code>mcp_calculator</code> if you're new to MCP, or jump into the remote server examples for production-ready integrations.
+</p>
+
 <h2 style="font-family: 'Courier New', monospace; color: green;">Arquitecture</h2>  
 
 <h3 style="font-family: 'Courier New', monospace; color: green;">Main Components</h3>  

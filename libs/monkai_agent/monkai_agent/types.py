@@ -15,6 +15,11 @@ from enum import Enum
 # Third-party imports
 from pydantic import BaseModel
 
+# Forward declaration for MCPAgent
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .mcp_agent import MCPAgent, MCPClientConfig, MCPClientConnection
+
 AgentFunction = Callable[[], Union[str, "Agent", dict]]
 
 class AgentStatus(int, Enum):
@@ -50,6 +55,11 @@ class Agent(BaseModel):
     name: str = "Agent"
     """
     Name of Agent   
+    
+    """
+    prompt_name: str = "Agent_Prompt"
+    """
+    Name of the agents base prompt  
     
     """
     model: str = None
@@ -96,6 +106,21 @@ class Agent(BaseModel):
     The agent's successors.
     """
     status: AgentStatus = AgentStatus.IDLE
+
+    temperature: Optional[float] = None
+    """Model temperature for controlling randomness"""
+
+    max_tokens: Optional[int] = None
+    """Maximum number of tokens to generate"""
+
+    top_p: Optional[float] = None
+    """Nucleus sampling parameter"""
+
+    frequency_penalty: Optional[float] = None
+    """Frequency penalty for token generation"""
+
+    presence_penalty: Optional[float] = None
+    """Presence penalty for token generation"""
     
 
 class Response(BaseModel):
