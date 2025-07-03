@@ -5,7 +5,8 @@ import os
 import asyncio
 
 
-from monkai_agent import MCPAgent, create_http_mcp_config
+from monkai_agent import AgentManager,MCPAgent, create_http_mcp_config
+from monkai_agent.repl import pretty_print_messages
 
 
 smithery_api_key = "55b454e4-186b-403d-a356-b2c86014428b"
@@ -24,7 +25,7 @@ duckduckagent=MCPAgent(
 async def initialize_agent() -> MCPAgent:
 
     mcp_config = create_http_mcp_config(
-        name="DuckDuckGo MCP Server",
+        name="DuckDuckGo_MCP_Server", #Remember to name your mcp client without spaces
         url=url,
     )
     
@@ -34,7 +35,7 @@ async def initialize_agent() -> MCPAgent:
     # Connect to all MCP servers
     connection_results = await duckduckagent.connect_all_clients()
 
-    if not connection_results.get("DuckDuckGo MCP Server", False):
+    if not connection_results.get("DuckDuckGo_MCP_Server", False):
         raise RuntimeError("Failed to connect to MCP server")
 
     return duckduckagent
@@ -48,21 +49,9 @@ if __name__ == "__main__":
         try:
             # Initialize the agent
             agent = await initialize_agent()
-
-            # List available tools
-            tools = agent.list_available_tools()
-            print(f"Available tools: {[tool.name for tool in tools]}")
-            
-            # Run a sample query
-            query = "What is the weather like in New York City today?"
-
-            result = await agent.call_mcp_tool("search",arguments={
-                "query": query,},
-                server_name="DuckDuckGo MCP Server")
-            
-            # Print the result
-            print(f"Result: {result[0].text}")
-
+            manager = AgentManager(api_key="YOUR OPENAI API KEY")
+            result = await manager.run("Whats the weather like in new york?", agent=agent)
+            pretty_print_messages(result.messages)
             await agent.disconnect_all_clients()
             
         except Exception as e:

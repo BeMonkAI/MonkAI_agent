@@ -1,51 +1,66 @@
-# Calculator MCP Agent Example
+# 🧮 Calculator MCP Agent Example
 
-Este exemplo demonstra como criar um `MCPAgent` que se conecta ao servidor Calculator MCP para acessar ferramentas de cálculo matemático.
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+[![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-green.svg)](https://modelcontextprotocol.io)
+[![Calculator](https://img.shields.io/badge/Calculator-Mathematics-yellow.svg)]()
 
-## Arquivos
+> **Demonstrate how to create AI agents with mathematical capabilities using the Model Context Protocol**
 
-- `calculator_mcp_server.py` - Servidor MCP que fornece ferramentas de calculadora básicas
-- `calculator_agent_creator.py` - Creator que retorna um MCPAgent configurado para conectar ao servidor Calculator
-- `calculator_example.py` - Exemplo de uso do Calculator Agent
-- `README.md` - Esta documentação
+This example demonstrates how to create an `MCPAgent` that connects to a Calculator MCP server to access mathematical calculation tools, allowing your AI agent to perform reliable and accurate mathematical operations.
 
-## Funcionalidades
+## 🚀 What You Can Do
 
-O Calculator Agent fornece acesso às seguintes ferramentas através do servidor MCP:
+- ➕ **Basic operations** - Addition, subtraction, multiplication, and division
+- 🛡️ **Safe calculations** - Protection against division by zero and other errors
+- 📊 **Calculation history** - Access to the history of performed operations
+- 🔧 **Simple integration** - Easy integration with MonkAI agents
+- 🎯 **Guaranteed precision** - Reliable mathematical results
+- 🤖 **Natural interface** - Perform calculations using natural language
 
-### Ferramentas Disponíveis
-- `add(a, b)` - Soma dois números
-- `subtract(a, b)` - Subtrai dois números
-- `multiply(a, b)` - Multiplica dois números
-- `divide(a, b)` - Divide dois números (com proteção contra divisão por zero)
+## 📁 File Structure
 
-### Recursos Disponíveis
-- `calculation://history` - Acesso ao histórico de cálculos
+- `calculator_mcp_server.py` - MCP server that provides basic calculator tools
+- `calculator_agent_creator.py` - Creator that returns an MCPAgent configured to connect to the Calculator server
+- `demo.py` - Practical usage example of the Calculator Agent
+- `README.md` - This complete documentation
 
-## Como Usar
+## ⚡ Features
 
-### 1. Importar o CalculatorAgentCreator
+The Calculator Agent provides access to the following tools through the MCP server:
+
+### 🔧 Available Tools
+- `add(a, b)` - Adds two numbers
+- `subtract(a, b)` - Subtracts two numbers
+- `multiply(a, b)` - Multiplies two numbers
+- `divide(a, b)` - Divides two numbers (with protection against division by zero)
+
+### 📚 Available Resources
+- `calculation://history` - Access to the complete history of performed calculations
+
+## 📋 How to Use
+
+### 1. Import the CalculatorAgentCreator
 
 ```python
 from calculator_agent_creator import CalculatorAgentCreator
 ```
 
-### 2. Criar o Agent Creator
+### 2. Create the Agent Creator
 
 ```python
 creator = CalculatorAgentCreator(model="gpt-4")
 ```
 
-### 3. Inicializar o Agent
+### 3. Initialize the Agent
 
 ```python
 agent = await creator.initialize_agent()
 ```
 
-### 4. Usar as Ferramentas de Cálculo
+### 4. Use the Calculation Tools
 
 ```python
-# Realizar operações matemáticas
+# Perform mathematical operations
 result = await agent.call_mcp_tool("add", {"a": 5, "b": 3})
 print(f"5 + 3 = {result}")
 
@@ -53,66 +68,66 @@ result = await agent.call_mcp_tool("multiply", {"a": 4, "b": 7})
 print(f"4 × 7 = {result}")
 ```
 
-## Exemplo Completo
+## 🎮 Complete Example
 
 ```python
 import asyncio
 from calculator_agent_creator import CalculatorAgentCreator
 
 async def main():
-    # Criar o agent creator
+    # Create the agent creator
     creator = CalculatorAgentCreator(model="gpt-4")
     
-    # Inicializar o agent e conectar ao servidor MCP
+    # Initialize the agent and connect to the MCP server
     agent = await creator.initialize_agent()
     
-    # Verificar status da conexão
+    # Check connection status
     status = agent.get_connection_status()
-    print(f"Status da conexão: {status}")
+    print(f"Connection status: {status}")
     
-    # Listar ferramentas disponíveis
+    # List available tools
     tools = agent.list_available_tools()
-    print(f"Ferramentas disponíveis: {[tool.name for tool in tools]}")
+    print(f"Available tools: {[tool.name for tool in tools]}")
     
-    # Realizar cálculos
+    # Perform calculations
     result = await agent.call_mcp_tool("add", {"a": 10, "b": 20})
     print(f"10 + 20 = {result}")
     
-    # Limpeza
+    # Cleanup
     await agent.disconnect_all_clients()
 
-# Executar o exemplo
+# Run the example
 asyncio.run(main())
 ```
 
-## Executar o Exemplo
+## 🚀 Running the Example
 
-Para executar o exemplo completo:
+To run the complete example:
 
 ```bash
-# Ativar o ambiente virtual Python
+# Activate the Python virtual environment
 source .venv/bin/activate
 
-# Executar o exemplo
-python calculator_example.py
+# Run the example
+python demo.py
 ```
 
-## Características do CalculatorAgentCreator
+## 🔧 CalculatorAgentCreator Characteristics
 
-### Parâmetros de Inicialização
+### Initialization Parameters
 
-- `model` (str): Modelo de linguagem a ser usado (padrão: "gpt-4")
-- `server_script_path` (str, opcional): Caminho para o script do servidor. Se None, usa o caminho padrão
-- `python_executable` (str): Executável Python para executar o servidor (padrão: "python")
+- `model` (str): Language model to be used (default: "gpt-4")
+- `server_script_path` (str, optional): Path to the server script. If None, uses the default path
+- `python_executable` (str): Python executable to run the server (default: "python")
 
-### Métodos Principais
+### Main Methods
 
-- `get_agent()` - Retorna o MCPAgent configurado
-- `get_agent_briefing()` - Retorna uma descrição das capacidades do agent
-- `initialize_agent()` - Inicializa o agent e estabelece conexões MCP
-- `agent_name` - Propriedade que retorna o nome do agent
+- `get_agent()` - Returns the configured MCPAgent
+- `get_agent_briefing()` - Returns a description of the agent's capabilities
+- `initialize_agent()` - Initializes the agent and establishes MCP connections
+- `agent_name` - Property that returns the agent's name
 
-## Arquitetura
+## 🏗️ Architecture
 
 ```
 CalculatorAgentCreator
@@ -123,55 +138,55 @@ MCP Client Connection (stdio)
     ↓
 Calculator MCP Server
     ↓
-Ferramentas: add, subtract, multiply, divide
-Recursos: calculation://history
+Tools: add, subtract, multiply, divide
+Resources: calculation://history
 ```
 
-## Tratamento de Erros
+## 🛡️ Error Handling
 
-O agent possui tratamento robusto de erros:
+The agent has robust error handling:
 
-- **Divisão por zero**: O servidor Calculator detecta e lança um erro apropriado
-- **Conexão MCP**: Falhas de conexão são capturadas e reportadas
-- **Ferramentas não encontradas**: Mensagens de erro claras quando ferramentas não existem
+- **Division by zero**: The Calculator server detects and throws an appropriate error
+- **MCP connection**: Connection failures are captured and reported
+- **Tools not found**: Clear error messages when tools don't exist
 
-## Exemplo de Uso com AgentManager
+## 🎯 Usage Example with AgentManager
 
 ```python
 from monkai_agent import AgentManager
 from calculator_agent_creator import CalculatorAgentCreator
 
 async def example_with_manager():
-    # Criar o agent
+    # Create the agent
     creator = CalculatorAgentCreator()
     agent = await creator.initialize_agent()
     
-    # Usar com AgentManager
+    # Use with AgentManager
     manager = AgentManager()
     
-    # Executar conversa
+    # Execute conversation
     response = await manager.run(
         agent=agent,
-        messages=[{"role": "user", "content": "Calcule 25 + 17 e depois multiplique por 3"}],
+        messages=[{"role": "user", "content": "Calculate 25 + 17 and then multiply by 3"}],
         debug=True
     )
     
     print(response.messages[-1]["content"])
     
-    # Limpeza
+    # Cleanup
     await agent.disconnect_all_clients()
 ```
 
-## Requisitos
+## 📦 Requirements
 
 - Python 3.8+
 - MonkAI Agent Framework
-- Pacote MCP (Model Context Protocol)
-- OpenAI ou outro provedor LLM configurado
+- MCP (Model Context Protocol) package
+- OpenAI or other configured LLM provider
 
-## Notas Importantes
+## ⚠️ Important Notes
 
-1. **Ambiente Virtual**: Certifique-se de ativar o ambiente virtual antes de executar
-2. **Servidor MCP**: O servidor Calculator é iniciado automaticamente pelo agent
-3. **Conexões**: Sempre desconecte os clientes MCP quando terminar para limpeza adequada
-4. **Debugging**: Use `debug=True` no AgentManager para ver logs detalhados das operações MCP
+1. **Virtual Environment**: Make sure to activate the virtual environment before running
+2. **MCP Server**: The Calculator server is automatically started by the agent
+3. **Connections**: Always disconnect MCP clients when finished for proper cleanup
+4. **Debugging**: Use `debug=True` in AgentManager to see detailed logs of MCP operations

@@ -5,10 +5,11 @@ import base64
 
 
 import asyncio
-from monkai_agent import MCPAgent, create_http_mcp_config
+from monkai_agent import AgentManager,MCPAgent, create_http_mcp_config
+from monkai_agent.repl import pretty_print_messages
 
 config = {
-  "mem0ApiKey": "m0-vN1o2nqZHuCClMD11aeI9z98EK4Kwm70vod9PCbi"
+  "mem0ApiKey": "YOUR MEM0_API_KEY",  # Replace with your actual MEM0 API key
 }
 # Encode config in base64
 config_b64 = base64.b64encode(json.dumps(config).encode()).decode()
@@ -28,7 +29,7 @@ memory_agent=MCPAgent(
 async def initialize_agent() -> MCPAgent:
 
     mcp_config = create_http_mcp_config(
-        name="Memory MCP Server",
+        name="Memory_MCP_Server", #Remember to name your mcp client without spaces
         url=url,
     )
     
@@ -38,7 +39,7 @@ async def initialize_agent() -> MCPAgent:
     # Connect to all MCP servers
     connection_results = await memory_agent.connect_all_clients()
 
-    if not connection_results.get("Memory MCP Server", False):
+    if not connection_results.get("Memory_MCP_Server", False):
         raise RuntimeError("Failed to connect to MCP server")
 
     return memory_agent
@@ -52,31 +53,9 @@ if __name__ == "__main__":
         try:
             # Initialize the agent
             agent = await initialize_agent()
-
-            # List available tools
-            tools = agent.list_available_tools()
-            print(f"Available tools: {[tool.name for tool in tools]}")
-
-            #insert a user memory 
-            result = await agent.call_mcp_tool("add-memory",
-                arguments={
-                    "content": "I love to play football and I am a big fan of Manchester United.",
-                    "userId": "user123"
-                },
-                server_name="Memory MCP Server")
-            
-            #Query users memory 
-            result2 = await agent.call_mcp_tool("search-memories",
-                arguments={
-                    "query": "What team is the user a fan of?",
-                    "userId": "user123"
-                },
-                server_name="Memory MCP Server")
-            
-            # Print the result
-            print(f"Result: {result[0].text}")
-            print(f"Memory Search Result: {result2[0].text}")
-
+            manager = AgentManager(api_key="YOUR OPENAI API KEY")
+            result = await manager.run("Quais memórias estão armazenadas? para o user123", agent=agent)
+            pretty_print_messages(result.messages)
             await agent.disconnect_all_clients()
             
         except Exception as e:

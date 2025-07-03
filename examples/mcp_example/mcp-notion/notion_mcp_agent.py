@@ -8,7 +8,7 @@ from monkai_agent import AgentManager, MCPAgent, create_http_mcp_config
 from monkai_agent.repl import pretty_print_messages
 
 _config = {
-  "notionApiKey": "ntn_G58331265171w7qi1FgInrsHUnFkLTDBadzD8fItVYZg4H"
+  "notionApiKey": "YOUR_NOTION_API_KEY",  # Replace with your actual Notion API key
 }
 # Encode config in base64
 config_b64 = base64.b64encode(json.dumps(_config).encode()).decode()
@@ -31,7 +31,7 @@ notion_agent=MCPAgent(
 async def initialize_agent() -> MCPAgent:
 
     mcp_config = create_http_mcp_config(
-        name="Notion_MCP_Server",
+        name="Notion_MCP_Server", #Remember to name your mcp client without spaces
         url=url,
     )
     
@@ -55,8 +55,7 @@ if __name__ == "__main__":
         try:
             # Initialize the agent
             agent = await initialize_agent()
-            import config
-            manager = AgentManager(api_key=config.api_key)
+            manager = AgentManager(api_key="YOUR OPENAI API KEY")
             result = await manager.run("Quais são as bases de dados que tenho no Notion?", agent=agent)
             pretty_print_messages(result.messages)
             await agent.disconnect_all_clients()
