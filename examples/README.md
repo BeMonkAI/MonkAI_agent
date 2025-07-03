@@ -1,180 +1,180 @@
 # 📚 MonkAI Agent Examples
 
-Esta pasta contém uma coleção abrangente de exemplos práticos demonstrando as diferentes funcionalidades e padrões de uso do framework MonkAI Agent. Cada subdiretório apresenta um aspecto específico do framework, desde conceitos básicos até implementações avançadas.
+This folder contains a comprehensive collection of practical examples demonstrating the different functionalities and usage patterns of the MonkAI Agent framework. Each subdirectory presents a specific aspect of the framework, from basic concepts to advanced implementations.
 
-## 📋 Estrutura dos Examples
+## 📋 Examples Structure
 
 ### 🎯 [agent_definition/](./agent_definition/)
-**Objetivo**: Demonstrar os conceitos fundamentais de criação e definição de agentes.
+**Objective**: Demonstrate the fundamental concepts of agent creation and definition.
 
-- **Conteúdo Principal**: 
-  - `agent_definition.ipynb` - Notebook interativo com Calculator Agent
-  - `analista_negocio_agente_monkai.py` - Implementação de agente analista
-- **O que você aprenderá**:
-  - Como definir um agente básico
-  - Implementar funções personalizadas para agentes
-  - Configurar instruções e comportamentos
-  - Trabalhar com funções matemáticas (Fibonacci, Bernoulli)
+- **Main Content**: 
+  - `agent_definition.ipynb` - Interactive notebook with Calculator Agent
+  - `analista_negocio_agente_monkai.py` - Business analyst agent implementation
+- **What you'll learn**:
+  - How to define a basic agent
+  - Implement custom functions for agents
+  - Configure instructions and behaviors
+  - Work with mathematical functions (Fibonacci, Bernoulli)
 
 ### 🏗️ [creators_and_manager/](./creators_and_manager/)
-**Objetivo**: Demonstrar o padrão Creator e Manager para arquiteturas mais complexas.
+**Objective**: Demonstrate the Creator and Manager pattern for more complex architectures.
 
-- **Conteúdo Principal**: 
-  - `agent_definition_class.ipynb` - Notebook sobre Creator Pattern
-- **O que você aprenderá**:
-  - Implementar o padrão Creator para agentes especializados
-  - Gerenciar múltiplos agentes simultaneamente
-  - Implementar camadas de segurança e validação
-  - Integração com Azure OpenAI
+- **Main Content**: 
+  - `agent_definition_class.ipynb` - Notebook about Creator Pattern
+- **What you'll learn**:
+  - Implement the Creator pattern for specialized agents
+  - Manage multiple agents simultaneously
+  - Implement security and validation layers
+  - Integration with Azure OpenAI
 
 ### 🚀 [demo/](./demo/)
-**Objetivo**: Exemplo prático de múltiplos agentes trabalhando em conjunto.
+**Objective**: Practical example of multiple agents working together.
 
-- **Conteúdo Principal**: 
-  - `demo.py` - Demo com 3 agentes especializados
-- **Agentes Incluídos**:
-  - **Jornalista Agent** - Resumo de notícias
-  - **Python Developer Agent** - Desenvolvimento Python
-  - **Calculator Agent** - Cálculos matemáticos seguros
-- **O que você aprenderá**:
-  - Coordenação entre múltiplos agentes
-  - Especialização de agentes por domínio
-  - Integração com provedor Groq
+- **Main Content**: 
+  - `demo.py` - Demo with 3 specialized agents
+- **Included Agents**:
+  - **Journalist Agent** - News summarization
+  - **Python Developer Agent** - Python development
+  - **Calculator Agent** - Secure mathematical calculations
+- **What you'll learn**:
+  - Coordination between multiple agents
+  - Agent specialization by domain
+  - Integration with Groq provider
 
 ### 🔍 [demo_tracer/](./demo_tracer/)
-**Objetivo**: Demonstrar observabilidade e tracing avançado com Arize Phoenix.
+**Objective**: Demonstrate advanced observability and tracing with Arize Phoenix.
 
-- **Conteúdo Principal**: 
-  - `demo.py` - Mesmo demo básico + observabilidade
-- **Funcionalidades Adicionais**:
-  - Interface web para monitoramento em tempo real
-  - Rastreamento completo de interações
-  - Métricas e visualizações avançadas
-  - Debugging aprimorado
-- **O que você aprenderá**:
-  - Implementar observabilidade em agentes
-  - Monitorar performance e comportamento
-  - Usar Arize Phoenix para análise
+- **Main Content**: 
+  - `demo.py` - Same basic demo + observability
+- **Additional Features**:
+  - Real-time monitoring web interface
+  - Complete interaction tracing
+  - Advanced metrics and visualizations
+  - Enhanced debugging
+- **What you'll learn**:
+  - Implement observability in agents
+  - Monitor performance and behavior
+  - Use Arize Phoenix for analysis
 
 ### 🔌 [mcp_example/](./mcp_example/)
-**Objetivo**: Demonstrar integração com Model Context Protocol (MCP) servers.
+**Objective**: Demonstrate integration with Model Context Protocol (MCP) servers.
 
-Esta seção contém múltiplos sub-exemplos:
+This section contains multiple sub-examples:
 
 #### 🧮 [mcp_calculator/](./mcp_example/mcp_calculator/)
-- **Funcionalidade**: Agente com capacidades matemáticas via MCP
-- **Ferramentas**: Operações básicas, histórico de cálculos
-- **Arquivos**: Server MCP, Creator, Demo
+- **Functionality**: Agent with mathematical capabilities via MCP
+- **Tools**: Basic operations, calculation history
+- **Files**: MCP Server, Creator, Demo
 
 #### 🔍 [mcp-duckduckgo/](./mcp_example/mcp-duckduckgo/)
-- **Funcionalidade**: Busca web em tempo real via DuckDuckGo
-- **Recursos**: Privacidade respeitada, múltiplos formatos de resultado
-- **Uso**: Informações atualizadas da web
+- **Functionality**: Real-time web search via DuckDuckGo
+- **Features**: Privacy respected, multiple result formats
+- **Usage**: Up-to-date web information
 
 #### 💾 [mcp-memory/](./mcp_example/mcp-memory/)
-- **Funcionalidade**: Sistema de memória persistente
-- **Recursos**: Armazenamento e recuperação de contexto
+- **Functionality**: Persistent memory system
+- **Features**: Context storage and retrieval
 
 #### 📝 [mcp-notion/](./mcp_example/mcp-notion/)
-- **Funcionalidade**: Integração com Notion para gerenciamento de dados
-- **Recursos**: Acesso a páginas e bancos de dados do Notion
+- **Functionality**: Notion integration for data management
+- **Features**: Access to Notion pages and databases
 
-**O que você aprenderá com MCP**:
-- Conectar agentes a serviços externos
-- Usar protocolos padronizados para extensibilidade
-- Implementar capacidades especializadas via MCP servers
+**What you'll learn with MCP**:
+- Connect agents to external services
+- Use standardized protocols for extensibility
+- Implement specialized capabilities via MCP servers
 
 ### 🎯 [triage/](./triage/)
-**Objetivo**: Demonstrar sistema de triagem inteligente com múltiplos agentes especializados.
+**Objective**: Demonstrate intelligent triage system with multiple specialized agents.
 
-- **Conteúdo Principal**: 
-  - `triage_example.ipynb` - Notebook de exemplo de triagem
-  - Creators especializados para diferentes domínios
-- **Agentes Especializados**:
-  - `python_developer_agent_creator.py` - Desenvolvimento Python
-  - `jornalist_agent_creator.py` - Pesquisa e jornalismo
-  - `calculator_agents_creator.py` - Cálculos seguros
-- **O que você aprenderá**:
-  - Implementar sistema de triagem automática
-  - Direcionar consultas para agentes especializados
-  - Gerenciar workflow de múltiplos agentes
-  - Padrão Manager para coordenação
+- **Main Content**: 
+  - `triage_example.ipynb` - Triage example notebook
+  - Specialized creators for different domains
+- **Specialized Agents**:
+  - `python_developer_agent_creator.py` - Python development
+  - `jornalist_agent_creator.py` - Research and journalism
+  - `calculator_agents_creator.py` - Secure calculations
+- **What you'll learn**:
+  - Implement automatic triage system
+  - Route queries to specialized agents
+  - Manage multi-agent workflows
+  - Manager pattern for coordination
 
-## 🎯 Progressão Recomendada de Aprendizado
+## 🎯 Recommended Learning Progression
 
-Para obter o máximo proveito dos examples, recomendamos seguir esta sequência:
+To get the most out of the examples, we recommend following this sequence:
 
-### 1. **Fundamentos** 📖
-Comece com `agent_definition/` para entender os conceitos básicos.
+### 1. **Fundamentals** 📖
+Start with `agent_definition/` to understand basic concepts.
 
-### 2. **Demo Básico** 🚀
-Execute `demo/` para ver agentes trabalhando em conjunto.
+### 2. **Basic Demo** 🚀
+Run `demo/` to see agents working together.
 
-### 3. **Arquitetura Avançada** 🏗️
-Explore `creators_and_manager/` para padrões organizacionais.
+### 3. **Advanced Architecture** 🏗️
+Explore `creators_and_manager/` for organizational patterns.
 
-### 4. **Observabilidade** 🔍
-Implemente tracing com `demo_tracer/` para monitoramento.
+### 4. **Observability** 🔍
+Implement tracing with `demo_tracer/` for monitoring.
 
-### 5. **Integrações Externas** 🔌
-Experimente `mcp_example/` para expandir capacidades.
+### 5. **External Integrations** 🔌
+Try `mcp_example/` to expand capabilities.
 
-### 6. **Sistema Complexo** 🎯
-Finalize com `triage/` para arquiteturas de produção.
+### 6. **Complex System** 🎯
+Finish with `triage/` for production architectures.
 
-## 🛠️ Pré-requisitos Gerais
+## 🛠️ General Prerequisites
 
-Antes de executar qualquer exemplo, certifique-se de ter:
+Before running any example, make sure you have:
 
-### Instalação Base
+### Base Installation
 ```bash
-# Ativar ambiente virtual
+# Activate virtual environment
 source .venv/bin/activate
 
-# Instalar pacote principal
+# Install main package
 pip install monkai-agent
 
-# Para exemplos com Groq
+# For Groq examples
 pip install monkai-agent-groq
 ```
 
-### Chaves de API Necessárias
-- **OpenAI API Key** (para exemplos básicos)
-- **Azure OpenAI** (para examples com Azure)
-- **Groq API Key** (para demos com Groq)
+### Required API Keys
+- **OpenAI API Key** (for basic examples)
+- **Azure OpenAI** (for Azure examples)
+- **Groq API Key** (for Groq demos)
 
-### Dependências Opcionais
+### Optional Dependencies
 ```bash
-# Para observabilidade (demo_tracer)
+# For observability (demo_tracer)
 pip install arize-phoenix
 
-# Para integrações específicas do MCP
-pip install mcp  # ou dependências específicas de cada MCP server
+# For specific MCP integrations
+pip install mcp  # or specific dependencies for each MCP server
 ```
 
-## 📝 Como Usar
+## 📝 How to Use
 
-1. **Escolha o exemplo** apropriado para seu nível e objetivo
-2. **Leia o README** específico do exemplo escolhido
-3. **Configure as chaves de API** necessárias
-4. **Execute os pré-requisitos** específicos
-5. **Execute o código** seguindo as instruções
+1. **Choose the appropriate example** for your level and objective
+2. **Read the specific README** of the chosen example
+3. **Configure the necessary API keys**
+4. **Run the specific prerequisites**
+5. **Execute the code** following the instructions
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-Quer adicionar um novo exemplo? Siga esta estrutura:
-- Crie uma nova pasta com nome descritivo
-- Inclua um README.md explicativo
-- Adicione código bem comentado
-- Forneça instruções claras de execução
-- Atualize este README principal
+Want to add a new example? Follow this structure:
+- Create a new folder with a descriptive name
+- Include an explanatory README.md
+- Add well-commented code
+- Provide clear execution instructions
+- Update this main README
 
-## 📚 Recursos Adicionais
+## 📚 Additional Resources
 
-- **Documentação Completa**: Veja `DOCUMENTATION.md` na raiz do projeto
-- **API Reference**: Explore a pasta `libs/` para detalhes de implementação
-- **UI Examples**: Confira `ui/` para interfaces gráficas
+- **Complete Documentation**: See `DOCUMENTATION.md` in the project root
+- **API Reference**: Explore the `libs/` folder for implementation details
+- **UI Examples**: Check `ui/` for graphical interfaces
 
 ---
 
-**💡 Dica**: Cada exemplo é independente, mas conceitos aprendidos em um podem ser aplicados em outros. Experimente, modifique e adapte os exemplos para suas necessidades específicas!
+**💡 Tip**: Each example is independent, but concepts learned in one can be applied to others. Experiment, modify, and adapt the examples to your specific needs!
