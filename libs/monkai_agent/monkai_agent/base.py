@@ -399,7 +399,7 @@ class AgentManager:
             create_params = {
                 "model": agent.model or self.model,
                 "messages": messages,
-                "tools": tools or None,
+                "tools": tools or [],
                 "tool_choice": agent.tool_choice,
                 "stream": stream,
                 "agent": agent,  # This will be removed by the wrapper
