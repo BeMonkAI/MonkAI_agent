@@ -113,9 +113,9 @@ async def __run_demo_loop(manager:AgentManager,  agent=None, context_variables={
         messages.extend(response.messages)
         agent = response.agent
 
-async def run_simples_demo_loop(agent:Agent,  client=None, api_key=None, context_variables={}, model="gpt-4o",stream=False, debug=False) -> None:
-    assert(client or api_key), "You must provide either a client or an api_key to run the demo loop."
-    manager = AgentManager(client=client, api_key=api_key, agents_creators=[])
+async def run_simples_demo_loop(agent:Agent,  provider=None, api_key=None, context_variables={}, model="gpt-4o",stream=False, debug=False) -> None:
+    assert(provider or api_key), "You must provide either a provider or an api_key to run the demo loop."
+    manager = AgentManager(provider=provider, api_key=api_key, agents_creators=[])
     await __run_demo_loop(manager, agent=agent, context_variables=context_variables, model=model, stream=stream, debug=debug)
     
 
