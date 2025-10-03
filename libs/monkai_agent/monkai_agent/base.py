@@ -605,8 +605,11 @@ class AgentManager:
             # pass context_variables to agent functions
             if __CTX_VARS_NAME__ in func.__code__.co_varnames:
                 filtered_args[__CTX_VARS_NAME__] = context_variables
-
-            raw_result = func(**filtered_args)
+            import inspect
+            if inspect.iscoroutinefunction(func):
+                raw_result = await func(**filtered_args)
+            else:
+                raw_result = func(**filtered_args)
 
             result: Result = self.handle_function_result(raw_result, debug)
             partial_response.messages.append(
