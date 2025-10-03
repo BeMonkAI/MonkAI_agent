@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 # AgentFunction can be either a synchronous or asynchronous function
 AgentFunction = Union[
     Callable[[], Union[str, "Agent", dict]],
-    Callable[[], Coroutine[Any, Any, Union[str, "Agent", dict]]]
+    Callable[[], Coroutine[Union[str, "Agent", dict]]]
 ]
 
 class AgentStatus(int, Enum):
