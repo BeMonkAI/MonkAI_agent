@@ -10,7 +10,7 @@ from openai.types.chat.chat_completion_message_tool_call import (
     ChatCompletionMessageToolCall,
     Function,
 )
-from typing import Any, List, Callable, Union, Optional
+from typing import Any, List, Callable, Union, Optional, Coroutine
 from enum import Enum
 # Third-party imports
 from pydantic import BaseModel
@@ -20,7 +20,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .mcp_agent import MCPAgent, MCPClientConfig, MCPClientConnection
 
-AgentFunction = Callable[[], Union[str, "Agent", dict]]
+# AgentFunction can be either a synchronous or asynchronous function
+AgentFunction = Union[
+    Callable[[], Union[str, "Agent", dict]],
+    Callable[[], Coroutine[Any, Any, Union[str, "Agent", dict]]]
+]
 
 class AgentStatus(int, Enum):
     """
