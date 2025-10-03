@@ -20,10 +20,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .mcp_agent import MCPAgent, MCPClientConfig, MCPClientConnection
 
-# AgentFunction can be either a synchronous or asynchronous function
+# AgentFunction can be either a synchronous or asynchronous function with any parameters
+# The function can return a string, Agent, dict, or a coroutine that returns one of those
 AgentFunction = Union[
-    Callable[[], Union[str, "Agent", dict]],
-    Callable[[], Coroutine[Union[str, "Agent", dict]]]
+    Callable[..., Union[str, "Agent", dict]],
+    Callable[..., Coroutine[Any, Any, Union[str, "Agent", dict]]]
 ]
 
 class AgentStatus(int, Enum):
