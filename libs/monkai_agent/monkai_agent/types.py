@@ -148,6 +148,18 @@ class Response(BaseModel):
     Context variables associated with the response.
 
     """  
+    input_tokens: Optional[int] = 0
+    """
+    Number of input tokens from the FIRST completion (original user input + context)
+    """
+    output_tokens: Optional[int] = 0
+    """
+    Number of output tokens from the LAST completion (final response to user)
+    """
+    process_tokens: Optional[int] = 0
+    """
+    Total tokens used across ALL completions in the run (sum of all input + output from each completion)
+    """
 
 
 class Result(BaseModel):

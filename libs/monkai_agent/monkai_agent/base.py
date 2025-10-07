@@ -441,7 +441,7 @@ class AgentManager:
                     
                         
                             
-            # Track token usage
+            # Track token usage for this specific completion
             if self.track_token_usage and hasattr(response, 'usage'):
                 self.last_token_usage = TokenUsage(
                     input_tokens=response.usage.prompt_tokens,
@@ -449,8 +449,11 @@ class AgentManager:
                 )
             elif self.track_token_usage:
                 # If response doesn't have usage info, estimate output tokens
-                output_tokens = self.count_tokens(response.choices[0].message.content)
+                output_tokens = self.count_tokens(response.choices[0].message.content) if response.choices[0].message.content else 0
                 self.last_token_usage = TokenUsage(input_tokens=input_tokens, output_tokens=output_tokens)
+            else:
+                # Ensure last_token_usage is set even when tracking is disabled
+                self.last_token_usage = None
                 
             return response
                 
@@ -759,6 +762,12 @@ class AgentManager:
         filtered_messages = messages.filter_memory(agent)
         history = copy.deepcopy(filtered_messages)
         init_len = len(filtered_messages)
+        
+        # Initialize token tracking
+        first_completion_input_tokens = 0
+        last_completion_output_tokens = 0
+        total_process_tokens = 0
+        completion_count = 0
 
         while len(history) - init_len < max_turns and active_agent:
 
@@ -792,6 +801,23 @@ class AgentManager:
                 frequency_penalty=frequency_penalty,
                 presence_penalty=presence_penalty,
             )
+            
+            # Track token usage from this completion
+            completion_count += 1
+            if self.last_token_usage:
+                # First completion: capture input tokens
+                if completion_count == 1:
+                    first_completion_input_tokens = self.last_token_usage.input_tokens
+                
+                # Always update last output tokens (will be the final one)
+                last_completion_output_tokens = self.last_token_usage.output_tokens
+                
+                # Accumulate total process tokens
+                completion_total = self.last_token_usage.input_tokens + self.last_token_usage.output_tokens
+                total_process_tokens += completion_total
+                
+                debug_print(debug, f"Streaming completion {completion_count} tokens - Input: {self.last_token_usage.input_tokens}, Output: {self.last_token_usage.output_tokens}, Total: {completion_total}")
+                debug_print(debug, f"Streaming accumulated process tokens: {total_process_tokens}")
 
             yield {"delim": "start"}
             for chunk in completion:
@@ -841,6 +867,9 @@ class AgentManager:
                 messages=history[init_len:],
                 agent=active_agent,
                 context_variables=context_variables,
+                input_tokens=first_completion_input_tokens,
+                output_tokens=last_completion_output_tokens,
+                process_tokens=total_process_tokens,
             )
         }
 
@@ -878,6 +907,11 @@ class AgentManager:
             if isinstance(messages, Memory):
                 last_message = messages.get_last_message()
             response_history = []
+            
+            # Initialize token tracking
+            first_completion_input_tokens = 0
+            last_completion_output_tokens = 0
+            total_process_tokens = 0
 
             while i < max_turns and active_agent:
                 try:
@@ -914,6 +948,22 @@ class AgentManager:
                         stream=stream,
                         debug=debug,
                     )
+                    
+                    # Track token usage from this completion
+                    if self.last_token_usage:
+                        # First completion: capture input tokens
+                        if i == 1:
+                            first_completion_input_tokens = self.last_token_usage.input_tokens
+                        
+                        # Always update last output tokens (will be the final one)
+                        last_completion_output_tokens = self.last_token_usage.output_tokens
+                        
+                        # Accumulate total process tokens
+                        completion_total = self.last_token_usage.input_tokens + self.last_token_usage.output_tokens
+                        total_process_tokens += completion_total
+                        
+                        debug_print(debug, f"Completion {i} tokens - Input: {self.last_token_usage.input_tokens}, Output: {self.last_token_usage.output_tokens}, Total: {completion_total}")
+                        debug_print(debug, f"Accumulated process tokens: {total_process_tokens}")
 
                     message = completion.choices[0].message
                     debug_print(debug, "Received completion:", message)
@@ -941,6 +991,7 @@ class AgentManager:
                     }
                     messages.append(error_message)
                     response_history.append(error_message)
+                    # Still track token usage up to the error
                     break
 
             if isinstance(messages, Memory):
@@ -950,6 +1001,9 @@ class AgentManager:
                 messages=response_history,
                 agent=active_agent,
                 context_variables=context_variables,
+                input_tokens=first_completion_input_tokens,
+                output_tokens=last_completion_output_tokens,
+                process_tokens=total_process_tokens,
             )
 
         except Exception as e:
@@ -962,6 +1016,9 @@ class AgentManager:
                 messages=[error_message],
                 agent=agent,
                 context_variables=context_variables,
+                input_tokens=0,
+                output_tokens=0,
+                process_tokens=0,
             )
 
     def get_triage_agent(self):
