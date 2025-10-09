@@ -1014,8 +1014,9 @@ class AgentManager:
                                         break
                             
                             user_tokens, memory_tokens = self.count_tokens_separated(user_msg, history)
-                            first_completion_input_tokens = user_tokens
-                            first_completion_memory_tokens = memory_tokens
+                            if i == 1:
+                                first_completion_input_tokens += user_tokens
+                            first_completion_memory_tokens += memory_tokens
                         
                         # Always update last output tokens (will be the final one)
                         last_completion_output_tokens = self.last_token_usage.output_tokens
