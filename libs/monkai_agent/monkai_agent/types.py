@@ -150,7 +150,11 @@ class Response(BaseModel):
     """  
     input_tokens: Optional[int] = 0
     """
-    Number of input tokens from the FIRST completion (original user input + context)
+    Number of tokens from the original user input message only
+    """
+    memory_tokens: Optional[int] = 0
+    """
+    Number of tokens from memory/context (system prompt + conversation history)
     """
     output_tokens: Optional[int] = 0
     """

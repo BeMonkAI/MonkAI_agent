@@ -179,6 +179,35 @@ class AgentManager:
                     total_tokens -= 1  # Role is omitted
         total_tokens += 2  # Every reply is primed with <im_start>assistant
         return total_tokens
+    
+    def count_tokens_separated(self, messages: List[Dict[str, str]], user_message: str) -> tuple[int, int]:
+        """
+        Count tokens separately for user input and memory/context.
+        
+        Args:
+            messages: Full message list including system prompt and history
+            user_message: The current user message
+            
+        Returns:
+            tuple[int, int]: (input_tokens, memory_tokens)
+        """
+        if not self.track_token_usage:
+            return 0, 0
+            
+        # Count user input tokens (just the current message)
+        input_tokens = self.count_tokens(user_message) + 4 + 2  # Message format overhead
+        
+        # Count memory tokens (system prompt + history, excluding current user message)
+        memory_tokens = 0
+        for message in messages:
+            if message.get("content") != user_message or message.get("role") != "user":
+                memory_tokens += 4  # Message format overhead
+                for key, value in message.items():
+                    memory_tokens += self.count_tokens(value)
+                    if key == "name":
+                        memory_tokens -= 1
+        
+        return input_tokens, memory_tokens
         
     def _summarize_messages(self, messages: List[Dict[str, str]], max_tokens: int) -> List[Dict[str, str]]:
         """
@@ -765,6 +794,7 @@ class AgentManager:
         
         # Initialize token tracking
         first_completion_input_tokens = 0
+        first_completion_memory_tokens = 0
         last_completion_output_tokens = 0
         total_process_tokens = 0
         completion_count = 0
@@ -805,9 +835,24 @@ class AgentManager:
             # Track token usage from this completion
             completion_count += 1
             if self.last_token_usage:
-                # First completion: capture input tokens
+                # First completion: capture input tokens separated
                 if completion_count == 1:
-                    first_completion_input_tokens = self.last_token_usage.input_tokens
+                    # Extract user message (last message with role 'user')
+                    user_msg = ""
+                    if isinstance(messages, list):
+                        for msg in reversed(messages):
+                            if isinstance(msg, dict) and msg.get("role") == "user":
+                                user_msg = msg.get("content", "")
+                                break
+                    elif hasattr(messages, 'messages') and messages.messages:
+                        for msg in reversed(messages.messages):
+                            if isinstance(msg, dict) and msg.get("role") == "user":
+                                user_msg = msg.get("content", "")
+                                break
+                    
+                    user_tokens, memory_tokens = self.count_tokens_separated(user_msg, history)
+                    first_completion_input_tokens = user_tokens
+                    first_completion_memory_tokens = memory_tokens
                 
                 # Always update last output tokens (will be the final one)
                 last_completion_output_tokens = self.last_token_usage.output_tokens
@@ -868,6 +913,7 @@ class AgentManager:
                 agent=active_agent,
                 context_variables=context_variables,
                 input_tokens=first_completion_input_tokens,
+                memory_tokens=first_completion_memory_tokens,
                 output_tokens=last_completion_output_tokens,
                 process_tokens=total_process_tokens,
             )
@@ -910,6 +956,7 @@ class AgentManager:
             
             # Initialize token tracking
             first_completion_input_tokens = 0
+            first_completion_memory_tokens = 0
             last_completion_output_tokens = 0
             total_process_tokens = 0
 
@@ -951,9 +998,24 @@ class AgentManager:
                     
                     # Track token usage from this completion
                     if self.last_token_usage:
-                        # First completion: capture input tokens
+                        # First completion: capture input tokens separated
                         if i == 1:
-                            first_completion_input_tokens = self.last_token_usage.input_tokens
+                            # Extract user message (last message with role 'user')
+                            user_msg = ""
+                            if isinstance(messages, list):
+                                for msg in reversed(messages):
+                                    if isinstance(msg, dict) and msg.get("role") == "user":
+                                        user_msg = msg.get("content", "")
+                                        break
+                            elif hasattr(messages, 'messages') and messages.messages:
+                                for msg in reversed(messages.messages):
+                                    if isinstance(msg, dict) and msg.get("role") == "user":
+                                        user_msg = msg.get("content", "")
+                                        break
+                            
+                            user_tokens, memory_tokens = self.count_tokens_separated(user_msg, history)
+                            first_completion_input_tokens = user_tokens
+                            first_completion_memory_tokens = memory_tokens
                         
                         # Always update last output tokens (will be the final one)
                         last_completion_output_tokens = self.last_token_usage.output_tokens
@@ -1002,6 +1064,7 @@ class AgentManager:
                 agent=active_agent,
                 context_variables=context_variables,
                 input_tokens=first_completion_input_tokens,
+                memory_tokens=first_completion_memory_tokens,
                 output_tokens=last_completion_output_tokens,
                 process_tokens=total_process_tokens,
             )
