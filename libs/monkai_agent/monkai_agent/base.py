@@ -180,7 +180,7 @@ class AgentManager:
         total_tokens += 2  # Every reply is primed with <im_start>assistant
         return total_tokens
     
-    def count_tokens_separated(self, messages: List[Dict[str, str]], user_message: str) -> tuple[int, int]:
+    def count_tokens_separated(self, user_message: str, messages: List[Dict[str, str]]) -> tuple[int, int]:
         """
         Count tokens separately for user input and memory/context.
         
