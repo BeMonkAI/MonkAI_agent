@@ -72,7 +72,7 @@ class Agent(BaseModel):
     The model used by the agent.
     
     """
-    instructions: Union[str, Callable[[], str]] = "You are a helpful agent."
+    instructions: Union[str, Callable[[Any], str]] = "You are a helpful agent."
     """
     Instructions for the agent.
 
