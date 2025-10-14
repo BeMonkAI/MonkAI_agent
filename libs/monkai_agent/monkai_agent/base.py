@@ -796,7 +796,7 @@ class AgentManager:
         first_completion_input_tokens = 0
         first_completion_memory_tokens = 0
         last_completion_output_tokens = 0
-        total_process_tokens = 0
+        processing_tokens = 0
         completion_count = 0
 
         while len(history) - init_len < max_turns and active_agent:
@@ -853,13 +853,14 @@ class AgentManager:
                     user_tokens, memory_tokens = self.count_tokens_separated(user_msg, history)
                     first_completion_input_tokens = user_tokens
                     first_completion_memory_tokens = memory_tokens
+                    processing_tokens = self.last_token_usage.input_tokens + self.last_token_usage.output_tokens - first_completion_input_tokens - first_completion_memory_tokens
+                else:
+                    processing_tokens += self.last_token_usage.input_tokens + self.last_token_usage.output_tokens
                 
                 # Always update last output tokens (will be the final one)
                 last_completion_output_tokens = self.last_token_usage.output_tokens
                 
                 # Accumulate total process tokens
-                completion_total = self.last_token_usage.input_tokens + self.last_token_usage.output_tokens
-                total_process_tokens += completion_total
                 
                 debug_print(debug, f"Streaming completion {completion_count} tokens - Input: {self.last_token_usage.input_tokens}, Output: {self.last_token_usage.output_tokens}, Total: {completion_total}")
                 debug_print(debug, f"Streaming accumulated process tokens: {total_process_tokens}")
@@ -915,7 +916,7 @@ class AgentManager:
                 input_tokens=first_completion_input_tokens,
                 memory_tokens=first_completion_memory_tokens,
                 output_tokens=last_completion_output_tokens,
-                process_tokens=total_process_tokens,
+                process_tokens=processing_tokens - last_completion_output_tokens,
             )
         }
 
